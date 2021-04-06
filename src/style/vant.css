@@ -1,0 +1,73 @@
+.van-cell {
+  height: 2.8rem;
+  display: flex;
+  align-items: center;
+}
+/* 输入框样式 */
+.van-field__control {
+  font-size: 0.9rem;
+}
+.van-field__label {
+  font-size: 0.8rem;
+  letter-spacing: 0.1rem;
+  color: black;
+}
+.van-field__error-message {
+  font-size: 0.76rem;
+}
+.van-button--normal {
+  font-size: 1rem;
+}
+.van-button {
+  height: 3.2rem;
+  letter-spacing: 0.16rem;
+}
+.van-notify {
+  height: 3rem;
+  font-size: 1rem;
+}
+.van-tabbar {
+  height: 3.5rem;
+}
+.van-tabbar-item {
+  font-size: 0.8rem;
+}
+.van-search {
+  width: 30%;
+  text-align: right;
+  padding: 0;
+}
+.van-image {
+  width: 100%;
+  height: 100%;
+}
+.van-grid-item {
+  width: 6rem;
+  height: 6rem;
+  padding-top: 1rem;
+}
+.van-dropdown-menu__bar {
+  height: 2.4rem;
+}
+.van-nav-bar__left,
+.van-nav-bar__right {
+  font-size: 1.05rem;
+}
+.van-nav-bar__title {
+  font-size: 1.08rem;
+  letter-spacing: 0.1rem;
+  font-weight: bolder;
+}
+.van-nav-bar--fixed {
+  height: 2.8rem;
+}
+.van-nav-bar__text,
+.van-nav-bar .van-icon {
+  color: #424242;
+}
+.van-sidebar-item__text {
+  font-size: 0.8rem;
+}
+.van-overlay {
+  z-index: 100;
+}

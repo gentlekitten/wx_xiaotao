@@ -1,0 +1,118 @@
+<template>
+  <div>
+    <!-- 顶部返回 -->
+    <nav-bar title="站点范围设置" is-arrow isBackUp />
+    <div id="container"></div>
+    <div class="tip">注：该范围也是外卖配送范围</div>
+    <div class="btn_warp">
+      <van-button class="btn" type="primary" @click="openEditor" round>开始编辑</van-button>
+      <van-button class="btn" type="info" @click="closeEditor" round>结束编辑</van-button>
+    </div>
+    <div class="save_btn_warp">
+      <van-button class="save_btn" @click="saveAddressScope" round>保存</van-button>
+    </div>
+  </div>
+</template>
+<script>
+import NavBar from '@/components/common/NavBar.vue'
+
+export default {
+  components: {
+    NavBar
+  },
+  data() {
+    return {
+      map: '',
+      circle: '',
+      circleEditor: ''
+    }
+  },
+  mounted() {
+    this.initMap()
+  },
+  methods: {
+    initMap() {
+      this.map = new AMap.Map('container', {
+        center: [116.433322, 39.900256],
+        zoom: 14
+      })
+
+      this.circle = new AMap.Circle({
+        center: [116.433322, 39.900255],
+        radius: 1000, //半径
+        borderWeight: 3,
+        strokeColor: '#FF33FF',
+        strokeOpacity: 1,
+        strokeWeight: 6,
+        strokeOpacity: 0.2,
+        fillOpacity: 0.4,
+        strokeStyle: 'dashed',
+        strokeDasharray: [10, 10],
+        // 线样式还支持 'dashed'
+        fillColor: '#1791fc',
+        zIndex: 50
+      })
+
+      this.circle.setMap(this.map)
+      // 缩放地图到合适的视野级别
+      this.map.setFitView([this.circle])
+      this.circleEditor = new AMap.CircleEditor(this.map, this.circle)
+    },
+    openEditor() {
+      this.circleEditor.open() //打开圆形编辑器
+    },
+    closeEditor() {
+      this.circleEditor.close() //关闭圆形编辑器
+    },
+    saveAddressScope() {
+      const center = this.circle.getCenter()
+      const radius = this.circle.getRadius()
+
+      const address = {
+        latitude: center.lat,
+        longitude: center.lng,
+        radius
+      }
+      this.$store.commit('scopeSetting/ADDRESS', address)
+      this.$router.go(-1)
+    }
+  }
+}
+</script>
+<style lang="less" scoped>
+#container {
+  width: 100%;
+  height: 15rem;
+}
+.tip {
+  display: flex;
+  width: 100%;
+  height: 2rem;
+  color: #999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.8rem;
+}
+.btn_warp {
+  display: flex;
+  justify-content: space-around;
+  .btn {
+    margin: 1.2rem 0 4rem 0;
+    height: 2.2rem;
+    font-size: 0.8rem;
+  }
+}
+.save_btn_warp {
+  display: flex;
+  justify-content: center;
+  .save_btn {
+    margin: 1.2rem 0 4rem 0;
+    width: @buttonWidth;
+    color: #997a00;
+    height: 2.8rem;
+    background-color: #ffe788;
+    border: 1px solid #ffe788;
+  }
+}
+</style>

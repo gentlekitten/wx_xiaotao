@@ -1,0 +1,120 @@
+@import "rem.css";
+@import "animate.css";
+html {
+  font-size: 16px;
+}
+@media screen and (min-width: 375px) {
+  html {
+    font-size: calc(100% + 2 * (100vw - 375px) / 39);
+    font-size: calc(16px + 2 * (100vw - 375px) / 39);
+  }
+}
+@media screen and (min-width: 414px) {
+  html {
+    font-size: calc(112.5% + 4 * (100vw - 414px) / 586);
+    font-size: calc(18px + 4 * (100vw - 414px) / 586);
+  }
+}
+@media screen and (min-width: 600px) {
+  html {
+    font-size: calc(125% + 4 * (100vw - 600px) / 400);
+    font-size: calc(20px + 4 * (100vw - 600px) / 400);
+  }
+}
+@media screen and (min-width: 1000px) {
+  html {
+    font-size: calc(137.5% + 6 * (100vw - 1000px) / 1000);
+    font-size: calc(22px + 6 * (100vw - 1000px) / 1000);
+  }
+}
+.van-cell {
+  height: 2.8rem;
+  display: flex;
+  align-items: center;
+}
+/* 输入框样式 */
+.van-field__control {
+  font-size: 0.9rem;
+}
+.van-field__label {
+  font-size: 0.8rem;
+  letter-spacing: 0.1rem;
+  color: black;
+}
+.van-field__error-message {
+  font-size: 0.76rem;
+}
+.van-button--normal {
+  font-size: 1rem;
+}
+.van-button {
+  height: 3.2rem;
+  letter-spacing: 0.16rem;
+}
+.van-notify {
+  height: 3rem;
+  font-size: 1rem;
+}
+.van-tabbar {
+  height: 3.5rem;
+}
+.van-tabbar-item {
+  font-size: 0.8rem;
+}
+.van-swipe {
+  height: 13rem;
+}
+.van-search {
+  width: 30%;
+  text-align: right;
+  padding: 0;
+}
+.van-image {
+  width: 100%;
+  height: 100%;
+}
+.van-grid-item {
+  width: 6rem;
+  height: 6rem;
+  padding-top: 1rem;
+}
+.van-dropdown-menu__bar {
+  height: 2.4rem;
+}
+.van-nav-bar__left,
+.van-nav-bar__right {
+  font-size: 1.05rem;
+}
+.van-nav-bar__title {
+  font-size: 1.08rem;
+  letter-spacing: 0.1rem;
+  font-weight: bolder;
+}
+.van-nav-bar--fixed {
+  height: 2.8rem;
+}
+.van-nav-bar__text,
+.van-nav-bar .van-icon {
+  color: #424242;
+}
+.van-sidebar-item__text {
+  font-size: 0.8rem;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  background-color: #f4f4f4;
+}
+a {
+  text-decoration: none;
+}
+.img {
+  width: 100%;
+  height: 100%;
+}
+.icon {
+  margin: 0 0.1rem;
+}

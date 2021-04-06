@@ -1,0 +1,128 @@
+import Vue from 'vue'
+import {
+  Button,
+  NavBar,
+  Form,
+  Field,
+  Notify,
+  Tabbar,
+  TabbarItem,
+  Grid,
+  GridItem,
+  Cell,
+  CellGroup,
+  ActionSheet,
+  Area,
+  DropdownMenu,
+  DropdownItem,
+  DatetimePicker,
+  Swipe,
+  SwipeItem,
+  Lazyload,
+  Search,
+  Image,
+  Tab,
+  Tabs,
+  Icon,
+  Card,
+  Tag,
+  List,
+  Toast,
+  Sidebar,
+  SidebarItem,
+  Popover,
+  Popup,
+  SubmitBar,
+  Stepper,
+  Empty,
+  Sticky,
+  Overlay,
+  RadioGroup,
+  Radio,
+  uploader,
+  checkboxGroup,
+  checkbox,
+  addressList,
+  AddressEdit,
+  Rate,
+  Loading,
+  PullRefresh,
+  Picker,
+  Collapse,
+  CollapseItem,
+  Sku,
+  GoodsAction,
+  GoodsActionIcon,
+  GoodsActionButton,
+  NoticeBar,
+  Divider,
+  Badge,
+  SwipeCell,
+  Step,
+  Steps,
+  Dialog,
+  Switch
+} from 'vant'
+
+Vue.use(Button)
+Vue.use(NavBar)
+Vue.use(Form)
+Vue.use(Field)
+Vue.use(Notify)
+Vue.use(Tabbar)
+Vue.use(TabbarItem)
+Vue.use(Grid)
+Vue.use(GridItem)
+Vue.use(Cell)
+Vue.use(CellGroup)
+Vue.use(ActionSheet)
+Vue.use(Area)
+Vue.use(DropdownMenu)
+Vue.use(DropdownItem)
+Vue.use(DatetimePicker)
+Vue.use(Swipe)
+Vue.use(SwipeItem)
+Vue.use(Lazyload)
+Vue.use(Search)
+Vue.use(Image)
+Vue.use(Tab)
+Vue.use(Tabs)
+Vue.use(Icon)
+Vue.use(Card)
+Vue.use(Tag)
+Vue.use(List)
+Vue.use(Toast)
+Vue.use(Sidebar)
+Vue.use(SidebarItem)
+Vue.use(Popover)
+Vue.use(Popup)
+Vue.use(SubmitBar)
+Vue.use(Stepper)
+Vue.use(Empty)
+Vue.use(Sticky)
+Vue.use(Overlay)
+Vue.use(RadioGroup)
+Vue.use(Radio)
+Vue.use(uploader)
+Vue.use(checkboxGroup)
+Vue.use(checkbox)
+Vue.use(addressList)
+Vue.use(AddressEdit)
+Vue.use(Rate)
+Vue.use(Loading)
+Vue.use(PullRefresh)
+Vue.use(Picker)
+Vue.use(Collapse)
+Vue.use(CollapseItem)
+Vue.use(Sku)
+Vue.use(GoodsAction)
+Vue.use(GoodsActionIcon)
+Vue.use(GoodsActionButton)
+Vue.use(NoticeBar)
+Vue.use(Divider)
+Vue.use(Badge)
+Vue.use(SwipeCell)
+Vue.use(Step)
+Vue.use(Steps)
+Vue.use(Dialog)
+Vue.use(Switch)
