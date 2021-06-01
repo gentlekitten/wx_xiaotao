@@ -1,16 +1,17 @@
 <template>
   <div>
-    <div class="item" v-for="item in orderList" :key="item.id">
-      <img :src="item.img" />
+    <div class="item" v-for="item in orderList" :key="item.orderMasterId">
+      <img :src="'https://jixi.mynatapp.cc/'+item.productLogoAddress" alt="该商品已删除" />
       <div class="content">
-        <div class="name">{{ item.name }}</div>
+        <div class="name">{{ item.productName }}</div>
         <div class="price">
           实际付款
-          <span>￥{{ item.price }}</span>
+          <span>￥{{ item.payMoney }}</span>
         </div>
       </div>
-      <div v-if="item.status === 200" class="status">入账</div>
-      <div v-else class="status red">撤销</div>
+      <div v-if="item.payState === 1" class="status">入账</div>
+      <div v-else-if="item.payState === 2" class="status red">未入账</div>
+      <div v-else-if="item.payState === 0" class="status red">撤销</div>
     </div>
   </div>
 </template>

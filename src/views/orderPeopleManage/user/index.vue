@@ -45,6 +45,9 @@ export default {
   components: {},
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       userStatusShowPopover: false,
       // 菜单选项
       userStatusList: [
@@ -63,7 +66,7 @@ export default {
       const res = await getData(
         '/site/delivery/person/my/find',
         {
-          siteId: 23
+          siteId: this.siteId
         },
         { showLoading: false }
       )
@@ -72,7 +75,7 @@ export default {
         this.userInfoObj = res.data
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 改变领跑者状态
     async userStatusSelect(action) {
@@ -86,7 +89,7 @@ export default {
         this.userInfoObj.state = action.id
         return this.$toast.success('修改成功！')
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   }
 }

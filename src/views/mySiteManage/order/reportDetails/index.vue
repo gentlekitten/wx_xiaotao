@@ -87,7 +87,7 @@ export default {
         this.$toast.success('操作成功！')
         this.$router.go(-1)
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   }
 }

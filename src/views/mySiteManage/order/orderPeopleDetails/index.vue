@@ -100,7 +100,7 @@ export default {
         this.orderPeopleDetails = res.data
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     imagePreview(item, index) {
       const imgUrlList = []
@@ -130,7 +130,7 @@ export default {
         this.$router.go(-1)
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   }
 }

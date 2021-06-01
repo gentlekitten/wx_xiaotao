@@ -33,6 +33,8 @@
                 v-model="form.uploaderImg"
                 multiple
                 :max-count="5"
+                :max-size="2048 * 1024"
+                @oversize="handleImgLarge"
                 :after-read="uploading"
               />
             </template>
@@ -96,6 +98,10 @@ export default {
     }
   },
   methods: {
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过2M')
+    },
     // 处理上传图片
     uploading(file) {
       file.status = 'uploading'

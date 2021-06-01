@@ -120,7 +120,14 @@
       <!-- 证照  -->
       <van-field class="uploader" name="uploader" label="证照：" required>
         <template #input>
-          <van-uploader v-model="uploaderImg" :max-count="2" :after-read="uploading"  @delete="deleteImg" />
+          <van-uploader
+            v-model="uploaderImg"
+            :max-count="2"
+            :max-size="5120 * 1024"
+            @oversize="handleImgLarge"
+            :after-read="uploading"
+            @delete="deleteImg"
+          />
           <div class="tip">
             手持身份证+学生证照
             <br />要求两证号码及面部清晰
@@ -163,6 +170,9 @@ export default {
   },
   data() {
     return {
+      siteInfo: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        : {},
       dormitoryShowPicker: false,
       educationBackgroundShowPicker: false,
       gradeShowPicker: false,
@@ -181,7 +191,9 @@ export default {
         qualification: '大专',
         grade: '一年级',
         deliveryPersonPics: [],
-        siteId: 23
+        siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+          ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+          : 0
       },
       dormitory: ['3栋', '4栋', '5栋', '6栋', '7栋'],
       educationBackgroundList: ['大专', '本科'],
@@ -209,6 +221,10 @@ export default {
         val
       )
     },
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过5M')
+    },
     dormitoryConfirm(value) {
       this.registerForm.apartment = value
       this.dormitoryShowPicker = false
@@ -228,7 +244,7 @@ export default {
       this.gradeShowPicker = false
     },
     // 删除图片
-     deleteImg(file, detail) {
+    deleteImg(file, detail) {
       this.uploaderImg.splice(detail.index, 1)
       this.registerForm.deliveryPersonPics.splice(detail.index, 1)
     },
@@ -249,6 +265,7 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
     // 表单注册
     async formSubmit() {
@@ -266,14 +283,14 @@ export default {
         this.btnIsLoading = false
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     reportOver() {
       this.$router.push('/orderPeople')
     },
     // 处理拨打电话事件
     toPhone() {
-      const phoneNum = 14708701960
+      const phoneNum = this.siteInfo.phone
       window.location.href = 'tel:' + phoneNum
     }
   }

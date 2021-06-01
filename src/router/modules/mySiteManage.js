@@ -6,12 +6,18 @@ const mySiteManageRouter = {
         {
             path: '/mySiteManage/user',
             name: 'MySiteManageUser',
-            component: () => import('@/views/mySiteManage/user/index.vue')
+            component: () => import('@/views/mySiteManage/user/index.vue'),
+            meta: {
+                keepAlive: false // 不需要被缓存
+            }
         },
         {
             path: '/mySiteManage/order',
             name: 'MySiteManageGoods',
-            component: () => import('@/views/mySiteManage/order/index.vue')
+            component: () => import('@/views/mySiteManage/order/index.vue'),
+            meta: {
+                keepAlive: false // 不需要被缓存
+            }
         }
     ]
 }

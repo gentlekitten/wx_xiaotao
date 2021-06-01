@@ -5,10 +5,10 @@
       <div class="user_warp">
         <div class="user_info">
           <div class="user_top">
-            <img :src="userInfoObj.img" />
+            <img v-if="userInfoObj.shopPic" :src="'https://jixi.mynatapp.cc/'+userInfoObj.shopPic" />
             <div class="content">
-              <div class="name">{{ userInfoObj.name }}</div>
-              <div class="phone">{{ userInfoObj.phone }}</div>
+              <div class="name">{{ userInfoObj.shopName }}</div>
+              <div class="phone">{{ userInfoObj.shopPhone }}</div>
             </div>
             <van-popover
               class="popover"
@@ -19,7 +19,7 @@
             >
               <template #reference>
                 <div class="status">
-                  {{ userInfoObj.status }}
+                  {{ userInfoObj.shopState === 0 ? '打烊中' : userInfoObj.shopState === 1 ? '营业中' : '停业中' }}
                   <van-icon name="arrow-down" color="cadetblue" />
                 </div>
               </template>
@@ -27,11 +27,11 @@
           </div>
           <div class="order_status">
             <div class="order">
-              <div class="title">{{ userInfoObj.todayOrder }}单</div>
+              <div class="title">{{ todayOrder }}单</div>
               <div class="text">今日订单</div>
             </div>
             <div class="order">
-              <div class="title">{{ userInfoObj.todayPrice }}元</div>
+              <div class="title">{{ todayPrice }}元</div>
               <div class="text">今日营业</div>
             </div>
           </div>
@@ -45,7 +45,9 @@
   </div>
 </template>
 <script>
-import { upData } from '@/api/api.js'
+import { upData, getData } from '@/api/api.js'
+
+import timeForamt from '@/assets/js/time.js'
 
 import Grid from '@/components/common/Grid.vue'
 
@@ -54,32 +56,25 @@ export default {
     Grid
   },
   created() {
-    const id = this.$route.query.id
-    if (id) {
-      this.girdList[0].url = `/shoppingMange/user/shopManage?id=${Number(id)}`
-      this.shopManageId = id
-      window.sessionStorage.setItem('shopManageId', this.shopManageId)
-    }
+    this.initView()
     this.initGirdList()
+    this.getTodayMoneyAndOrder()
+    this.getMerchantInfo()
   },
   data() {
     return {
+      shopId: '',
       userStatusShowPopover: false,
       shopManageId: Number(window.sessionStorage.getItem('shopManageId')),
       // 菜单选项
       userStatusList: [
+        { text: '打烊中' },
         { text: '营业中' },
-        { text: '打样中' },
         { text: '停业中' }
       ],
-      userInfoObj: {
-        img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-        name: '哈哈',
-        phone: '147918348388',
-        status: '营业中',
-        todayOrder: 0,
-        todayPrice: 0
-      },
+      userInfoObj: {},
+      todayOrder: 0,
+      todayPrice: 0,
       girdList: [
         {
           img: require('../../../assets/img/mange/shop-mang.png'),
@@ -105,26 +100,76 @@ export default {
     }
   },
   methods: {
-    async userStatusSelect(action) {
-      const state = this.userStatusList.findIndex(e => {
-        return e.text === action.text
-      })
-      const data = {
-        state,
-        shopId: 20
+    // 初始化界面
+    initView() {
+      this.shopId = this.$route.query.shopId
+        ? this.$route.query.shopId
+        : window.sessionStorage.getItem('shopId')
+
+      const id = this.$route.query.id
+        ? this.$route.query.id
+        : window.sessionStorage.getItem('shopManageId')
+      if (id) {
+        this.girdList[0].url = `/shoppingMange/user/shopManage?id=${Number(id)}`
+        this.shopManageId = id
+        window.sessionStorage.setItem('shopManageId', this.shopManageId)
+        window.sessionStorage.setItem('shopId', this.shopId)
       }
-      const res = await upData('/shop/state/update', data, {
-        showLoading: true
-      })
-      if (res.code !== '0') {
-        return this.$toast.fail(res.msg)
-      }
-      this.userInfoObj.status = action.text
     },
     initGirdList() {
       if (Number(this.shopManageId) === 3 || Number(this.shopManageId) === 4) {
         this.girdList.pop()
       }
+    },
+    // 获取今日营业和今日订单
+    async getTodayMoneyAndOrder() {
+      let time = timeForamt.gettime.formatTime()
+      const data = {
+        shopId: this.shopId,
+        startTime: time,
+        endTime: time
+      }
+      const res = await getData('/shop/order/money', data, {
+        showLoading: true
+      })
+      console.log(res)
+      if (res.code === '0') {
+        this.todayOrder = res.data.orderNumber
+        this.todayPrice = res.data.orderMoney
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 获取商家信息
+    async getMerchantInfo() {
+      const res = await getData(
+        '/shop/info/my/find',
+        { id: this.shopId },
+        {
+          showLoading: true
+        }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.userInfoObj = res.data
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 处理商家状态改变
+    async userStatusSelect(action, index) {
+      // state 0打烊 1营业 2停业
+      const data = {
+        state: index,
+        shopId: this.shopId
+      }
+      const res = await upData('/shop/state/update', data, {
+        showLoading: true
+      })
+      if (res.code !== '0') {
+        return this.$handleCode.handleCode(res)
+      }
+      this.userInfoObj.shopState = index
     }
   }
 }

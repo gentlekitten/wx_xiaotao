@@ -49,7 +49,7 @@ export default {
       if (res.code === '0') {
         return (this.feedBackDetails = res.data)
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     async handleConsent() {
       const res = await getData(
@@ -62,7 +62,7 @@ export default {
         this.$toast.success('操作成功！')
         return this.$router.go(-1)
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   }
 }

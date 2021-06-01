@@ -4,18 +4,18 @@
       <van-sidebar-item
         :class="[sidebarActiveKey === index ? 'sidebar_active_text' : '']"
         v-for="(item, index) in sidebarList"
-        :key="index"
+        :key="item.id"
         @click="sidebarClick"
       >
         <template #title>
           <div class="title">
-            {{ item.title }}
+            {{ item.categoryName }}
             <van-icon
-              v-show="isEdit"
+              v-show="isEdit && item.id !== -19"
               class="icon"
               name="edit"
               size="1.2rem"
-              @click.stop="editGoodsName"
+              @click.stop="editGoodsName(item)"
             />
           </div>
         </template>
@@ -47,11 +47,11 @@ export default {
     sidebarClick(index) {
       // console.log(index)
     },
-    sidebarChange() {
-      console.log('siderbar change')
+    sidebarChange(index) {
+      this.$emit('sidebarChange', index)
     },
-    editGoodsName() {
-      this.$emit('editGoodsName')
+    editGoodsName(item) {
+      this.$emit('editGoodsName', item)
     }
   }
 }

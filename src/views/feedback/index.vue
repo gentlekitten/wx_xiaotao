@@ -48,7 +48,9 @@ export default {
       reportForm: {
         msg: '',
         email: '',
-        siteId: 23
+        siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+          ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+          : 0
       },
       popupIsShow: false
     }
@@ -63,7 +65,7 @@ export default {
       if (res.code === '0') {
         return (this.popupIsShow = true)
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 点击好的
     reportOver() {

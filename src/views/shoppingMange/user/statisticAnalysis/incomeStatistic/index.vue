@@ -23,7 +23,7 @@
           placeholder="结束日期"
           @click="endTimeIsShow = true"
         />
-        <van-popover
+        <!-- <van-popover
           class="popup"
           v-model="showTypePopover"
           trigger="click"
@@ -39,33 +39,36 @@
               placeholder="类型"
             />
           </template>
-        </van-popover>
-        <van-button class="btn" round>搜索</van-button>
+        </van-popover>-->
+        <van-button class="btn" round @click="orderSearchConfirm">搜索</van-button>
       </div>
     </div>
     <div class="content_warp">
       <div class="content">
         <div class="top">
           <div class="left">
-            全部订单：
-            <span>10</span>
+            普通订单：
+            <span>{{ orderNumObj.orderNumber }}</span>
           </div>
           <div class="center">
-            撤销订单：
-            <span>5</span>
+            撤销：
+            <span>{{ orderNumObj.revokeOrderNumber }}</span>
           </div>
           <div class="right">
             共收入：
-            <span>￥100</span>
+            <span>￥{{ totalMoney }}</span>
           </div>
         </div>
         <van-list
           v-model="orderLoading"
           :finished="orderFinished"
-          finished-text="没有更多了"
+          finished-text="哼，我也是有底线的~"
+          :immediate-check="false"
+          :offset="0"
           @load="orderOnLoad"
         >
-          <statistic-order-list :orderList="orderList" />
+          <statistic-order-list v-if="orderList.length > 0" :orderList="orderList" />
+          <van-empty v-else description="暂无该数据" />
         </van-list>
       </div>
     </div>
@@ -104,20 +107,29 @@
   </div>
 </template>
 <script>
+import { upData, getData } from '@/api/api.js'
+
+import timeForamt from '@/assets/js/time.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 import StatisticOrderList from '@/components/manage/StatisticOrderList.vue'
+
+import statisticAnalysis from '@/components/mixins/statisticAnalysis.js'
 
 export default {
   components: {
     NavBar,
     StatisticOrderList
   },
+  mixins: [statisticAnalysis],
   data() {
     return {
+      totalMoney: 0,
+      shopId: window.sessionStorage.getItem('shopId'),
       startTimeIsShow: false,
       endTimeIsShow: false,
-      showTypePopover: false,
+      // showTypePopover: false,
       orderLoading: false,
       orderFinished: false,
       pickerStartTime: new Date(),
@@ -126,11 +138,11 @@ export default {
       startMaxDate: new Date(2025, 10, 1),
       endMinDate: new Date(2020, 0, 1),
       endMaxDate: new Date(2025, 10, 1),
-      typeActions: [
-        { text: '全部' },
-        { text: '订单入账' },
-        { text: '撤销订单' }
-      ],
+      // typeActions: [
+      //   { text: '全部' },
+      //   { text: '订单入账' },
+      //   { text: '撤销订单' }
+      // ],
       form: {
         startTime: '',
         endTime: '',
@@ -211,78 +223,134 @@ export default {
             }
           }
         ]
-      },
-      orderList: [
-        {
-          id: 0,
-          img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name: '哈哈',
-          price: '10',
-          status: 200
-        },
-        {
-          id: 1,
-          img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name: '哈哈',
-          price: '10',
-          status: 500
-        },
-        {
-          id: 2,
-          img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name: '哈哈',
-          price: '10',
-          status: 200
-        }
-      ]
+      }
     }
+  },
+  created() {
+    // statisticAnalysis混入里面的方法
+    this.getOrderNum()
+    // statisticAnalysis混入里面的方法
+    this.getOrderList()
   },
   mounted() {
     this.initEcharts()
   },
   methods: {
+    // 获取总入账
+    async getMoney() {
+      let time = timeForamt.gettime.formatTime()
+      const data = {
+        shopId: this.shopId,
+        startTime: time,
+        endTime: time
+      }
+      const res = await getData('/shop/bill/money/count', data, {
+        showLoading: true
+      })
+      console.log(res)
+
+      if (res.code === '0') {
+        this.totalMoney = this.addNum(res.data.orderMoney)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    async orderSearchConfirm() {
+      // statisticAnalysis混入里面的方法
+      this.searchConfirm()
+      const data = {
+        shopId: this.shopId,
+        startTime: this.form.startTime,
+        endTime: this.form.endTime
+      }
+      const res = await getData('/shop/bill/money/count', data, {
+        showLoading: false
+      })
+      console.log(res)
+      if (res.code === '0') {
+        this.totalMoney = this.addNum(res.data.orderMoney)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 更多开始时间确定
     startTimeConfirm(value) {
-      this.form.startTime = String(value)
+      this.form.startTime = timeForamt.gettime.formatOnlyTime(value)
       this.startTimeIsShow = false
     },
+    // 更多结束时间确定
     endTimeConfirm(value) {
-      this.form.endTime = String(value)
+      this.form.endTime = timeForamt.gettime.formatOnlyTime(value)
       this.endTimeIsShow = false
     },
-    typeSelect(value) {
-      this.form.type = value.text
-    },
+    // typeSelect(value) {
+    //   this.form.type = value.text
+    // },
     initEcharts() {
       const myChart = this.$echarts.init(document.getElementById('main'))
       myChart.showLoading()
       this.getUserPrice(myChart)
     },
     // 获取近七天营收数据
-    getUserPrice(myChart) {
-      const arr = [
-        ['01-25', 13],
-        ['01-26', 24],
-        ['01-27', 33],
-        ['01-28', 20],
-        ['01-29', 0],
-        ['01-30', 25],
-        ['01-31', 43]
-      ]
-      setTimeout(() => {
+    async getUserPrice(myChart) {
+      const endTime = timeForamt.gettime.formatTime()
+      const startTime = timeForamt.gettime.setTime(-6 * 24 * 60 * 60 * 1000)
+      const data = {
+        shopId: this.shopId,
+        startTime,
+        endTime
+      }
+      const res = await getData('/shop/bill/money/count', data, {
+        showLoading: true
+      })
+      console.log(res)
+      if (res.code === '0') {
+        const orderMoneyList = res.data.orderMoney
+        // 获取近七天的日期
+        const timeArr = timeForamt.gettime.getCurrentIntervalDate(-6)
+        console.log(orderMoneyList)
+
+        const echartsArr = [[], [], [], [], [], [], []]
+        for (let index = 0; index < timeArr.length; index++) {
+          echartsArr[index][0] = timeArr[index]
+        }
+        for (let index = 0; index < orderMoneyList.length; index++) {
+          echartsArr[index][1] = orderMoneyList[index]
+        }
+        console.log(echartsArr)
+
         myChart.hideLoading()
-        this.echartsOption.dataset.source = arr
+        this.echartsOption.dataset.source = echartsArr
         this.echartsOption && myChart.setOption(this.echartsOption)
-      }, 1000)
+        return false
+      }
+      this.$handleCode.handleCode(res)
     },
     // 上拉加载数据
     orderOnLoad() {
-      // 异步更新数据
-      // setTimeout 仅做示例，真实场景中一般为 ajax 请求
-      setTimeout(() => {
-        // 加载状态结束
-        this.orderLoading = false
-      }, 1000)
-      this.orderFinished = true
+      if (this.orderList.length > 0) {
+        if (this.isSearch) {
+          this.searchConfirm()
+          return false
+        }
+        this.getOrderList()
+      }
+    },
+    // 将时间相同的数组合并到一个数组
+    handlerDatas(arr) {
+      let obj = {}
+      arr.forEach((item, index) => {
+        let { createTime } = item
+        if (!obj[createTime]) {
+          obj[createTime] = {
+            createTime,
+            children: []
+          }
+        }
+        obj[createTime].children.push(item)
+      })
+      let data = Object.values(obj)
+      return data
     }
   }
 }
@@ -308,9 +376,9 @@ export default {
     .input {
       flex: 3;
     }
-    .popup {
-      flex: 3.6;
-    }
+    // .popup {
+    //   flex: 3.6;
+    // }
     .btn {
       flex: 1.5;
       width: 100%;
@@ -338,6 +406,12 @@ export default {
   .content {
     background-color: #fff;
     padding: 1rem;
+    .tip {
+      color: #999;
+      font-size: 0.8rem;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
     .top {
       display: flex;
       justify-content: space-around;

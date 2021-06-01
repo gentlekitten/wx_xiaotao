@@ -7,6 +7,8 @@
         <van-uploader
           v-model="swiperImg"
           :max-count="2"
+          :max-size="5120 * 1024"
+          @oversize="handleImgLarge"
           :after-read="uploading"
           @delete="deleteImg"
         />
@@ -14,7 +16,7 @@
     </van-field>
     <van-field
       v-if="swiperImg.length >= 1"
-      v-model="form.oneSwiperUrl"
+      v-model="swiperUrl[0]"
       class="animated fadeInDown"
       center
       clearable
@@ -24,7 +26,7 @@
     ></van-field>
     <van-field
       v-if="swiperImg.length >= 2"
-      v-model="form.twoSwiperUrl"
+      v-model="swiperUrl[1]"
       class="animated fadeInDown"
       center
       clearable
@@ -48,11 +50,13 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       swiperImg: [],
+      swiperUrl: [],
       form: {
-        oneSwiperUrl: '',
-        twoSwiperUrl: '',
-        swiperImg: []
+        siteInfoPics: []
       }
     }
   },
@@ -62,23 +66,45 @@ export default {
       // this.form.swiperImg.splice(detail.index, 1)
     },
     // 处理上传图片
-    uploading(file) {
+    async uploading(file) {
       file.status = 'uploading'
       file.message = '上传中...'
-
-      setTimeout(() => {
+      const formData = new FormData()
+      formData.append('jobImg', file.file)
+      const res = await upLogo('/site/job/img', formData)
+      console.log(res)
+      this.form.siteInfoPics.push({
+        picAddress: res.data.filename,
+        siteId: this.siteId,
+        picLink: ''
+      })
+      if (res.code === '0') {
         file.status = 'done'
-      }, 1000)
+        return false
+      }
+      file.status = 'failed'
+      file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
     async saveForm() {
       if (this.swiperImg.length < 1) {
         this.$toast.fail('请上传轮播图再保存哦~')
       }
-      const res = await upData()
-      if (res.code === '0') {
-        return this.$toast.success('保存成功！')
+      for (let index = 0; index < this.swiperUrl.length; index++) {
+        this.form.siteInfoPics[index].picLink = this.swiperUrl[index]
       }
-      return this.$toast.fail(res.msg)
+      const res = await upData('/site/pic/add', this.form, {
+        showLoading: true
+      })
+      if (res.code === '0') {
+        this.$router.go(-1)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过5M')
     }
   }
 }

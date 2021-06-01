@@ -105,6 +105,9 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       id: null,
       tabIndex: Number(sessionStorage.getItem('orderPeopleTabsIndex'))
         ? Number(sessionStorage.getItem('orderPeopleTabsIndex'))
@@ -128,12 +131,12 @@ export default {
         this.taskDetailsObj = res.data
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 发起确认订单
     async confirmOrder() {
       const data = {
-        siteId: 13,
+        siteId: this.siteId,
         deliveryOrderId: Number(this.id)
       }
       const res = await upData('/site/delivery/order/receive', data, {
@@ -144,7 +147,7 @@ export default {
         this.$toast.success('接单成功！')
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 处理拨打电话事件
     toPhone(phone) {

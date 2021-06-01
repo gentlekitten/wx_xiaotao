@@ -93,6 +93,7 @@ export default {
     // }
   },
   methods: {
+    // 获取商品详情
     async getGoodsDetails() {
       const res = await getData(
         '/product/id/find',
@@ -106,7 +107,9 @@ export default {
           this.isProductDetailAddress = true
         }
         this.initViewData()
+        return false
       }
+      this.$handleCode.handleCode(res)
     },
     // 初始化页面数据
     initViewData() {
@@ -155,7 +158,7 @@ export default {
         this.$toast.success('取消成功！')
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 商品规格改变触发
     skuSelected(data) {},
@@ -222,7 +225,7 @@ export default {
         this.$toast.success('加入成功！')
         return (this.shopSelectAttributeShow = false)
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   }
 }

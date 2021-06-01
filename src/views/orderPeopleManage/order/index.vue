@@ -46,6 +46,9 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       searchValue: '',
       isSearch: false,
       loading: false,
@@ -76,7 +79,7 @@ export default {
     // 获取任务列表
     async getTaskList() {
       let data = {
-        siteId: 13,
+        siteId: this.siteId,
         pageIndex: this.pageIndex,
         pageLimit: 10
       }
@@ -86,7 +89,7 @@ export default {
         url = '/site/delivery/order/state/detail'
       } else {
         data = {
-          siteId: 13,
+          siteId: this.siteId,
           pageIndex: this.pageIndex,
           pageLimit: 10
         }
@@ -104,7 +107,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     ListLoading() {
       if (this.isSearch) {
@@ -117,7 +120,7 @@ export default {
     async onloadSearchList() {
       const data = {
         title: this.searchValue,
-        siteId: 13,
+        siteId: this.siteId,
         pageIndex: this.searchPageIndex,
         pageLimit: 10
       }
@@ -133,7 +136,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 点击搜索
     async searchConfirm() {
@@ -143,7 +146,7 @@ export default {
       const data = {
         title: this.searchValue,
         pageIndex: 0,
-        siteId: 13,
+        siteId: this.siteId,
         pageLimit: 10
       }
       const res = await getData('/site/delivery/order/title/search', data, {
@@ -160,7 +163,7 @@ export default {
         this.myTaskList = res.data.deliveryOrder
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 切换tab
     clickTab(index) {

@@ -6,7 +6,12 @@
       <div class="title">选择分类</div>
       <div class="item_warp">
         <van-radio-group v-model="form.radioValue" @change="radioChange">
-          <van-radio class="item" v-for="item in radioList" :key="item.name" :name="item.name">衣服</van-radio>
+          <van-radio
+            class="item"
+            v-for="item in radioList"
+            :key="item.id"
+            :name="item.id"
+          >{{ item.categoryName }}</van-radio>
         </van-radio-group>
       </div>
     </div>
@@ -25,7 +30,7 @@
   </div>
 </template>
 <script>
-import { upData } from '@/api/api.js'
+import { upData, getData } from '@/api/api.js'
 
 import NavBar from '@/components/common/NavBar.vue'
 
@@ -35,17 +40,13 @@ export default {
   },
   data() {
     return {
+      shopId: '',
       form: {
         radioValue: '',
         classifyName: '',
         num: ''
       },
-      radioList: [
-        {
-          name: 6,
-          text: '纸'
-        }
-      ]
+      radioList: []
     }
   },
   computed: {
@@ -53,10 +54,34 @@ export default {
       return this.$store.getters.categoryId
     }
   },
+  created() {
+    this.shopId = window.sessionStorage.getItem('shopId')
+    this.getCategoryList()
+  },
   mounted() {
     // this.form.radioValue = this.getCategoryId
   },
   methods: {
+    async getCategoryList() {
+      const res = await getData(
+        '/product/category/find',
+        {
+          shopId: this.shopId
+        },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.radioList = res.data
+        this.radioList.sort(this.handleSort)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 处理侧边栏排序和商品排序
+    handleSort(a, b) {
+      return b.sort - a.sort
+    },
     radioChange() {
       this.$store.commit('addGoods/CATEGORY_ID', this.form.radioValue)
       sessionStorage.setItem(
@@ -69,7 +94,7 @@ export default {
       const data = {
         categoryName: this.form.classifyName,
         sort: this.form.num,
-        shopId: 23
+        shopId: this.shopId
       }
       const res = await upData('/product/category/add', data, {
         showLoading: true
@@ -77,9 +102,10 @@ export default {
       console.log(res)
       if (res.code === '0') {
         this.$toast.success('添加成功！')
+        this.getCategoryList()
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   }
 }

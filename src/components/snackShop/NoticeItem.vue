@@ -1,12 +1,26 @@
 <template>
   <div class="notice_wrapper">
-    <div class="title">☆☆&nbsp;促销公告&nbsp;☆☆</div>
-    <div class="value">本店满50减3</div>
+    <template v-if="shopInfoObj.shopState === 1">
+      <div class="title">☆☆&nbsp;促销公告&nbsp;☆☆</div>
+      <div class="value">{{ shopInfoObj.salesPromotion }}</div>
+    </template>
+    <template v-else>
+      <div class="title">☆☆&nbsp;店铺提示&nbsp;☆☆</div>
+      <div class="value">当前店铺没在营业哦~</div>
+    </template>
   </div>
 </template>
 <script>
 export default {
   components: {},
+  props: {
+    shopInfoObj: {
+      type: Object,
+      default: () => {
+        return {}
+      }
+    }
+  },
   data() {
     return {}
   },

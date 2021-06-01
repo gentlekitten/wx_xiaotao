@@ -1,34 +1,74 @@
 <template>
   <div class="right_food">
-    <div class="top">
+    <!-- <div class="top">
       <div class="title">{{ dropdownObj.text }}</div>
-    </div>
+    </div>-->
     <div v-for="item in shopList" :key="item.id">
-      <shop-card class="shop_list" v-for="c in item.productInfos" :key="c.id">
-        <template v-slot:title>
-          <div class="shop_title" @click="toShopInfoView(c)">{{ c.productName }}</div>
-        </template>
-        <template v-slot:thumb>
-          <van-image :src="'https://jixi.mynatapp.cc/'+c.logoAddress" @click="toShopInfoView(c)" />
-        </template>
-        <template v-slot:tags>
-          <van-tag plain type="danger" v-if="c.sale > 20" @click="toShopInfoView(c)">热销中</van-tag>
-        </template>
-        <template v-slot:desc>
-          <div class="desc">
-            <div @click="toShopInfoView(c)">
-              <div class="grade">销量：{{ c.sale }}</div>
-              <div class="price">
-                ￥
-                <span class="price_num">{{ c.sellPrice }}</span>
+      <div v-for="c in item.productInfos" :key="c.id">
+        <div v-if="c.productInfoSpecifications.length > 0">
+          <shop-card class="shop_list" v-for="d in c.productInfoSpecifications" :key="d.id">
+            <template v-slot:title>
+              <div
+                class="shop_title"
+                @click="toShopInfoView(c, d.id)"
+              >{{ c.productName + d.specificationName }}</div>
+            </template>
+            <template v-slot:thumb>
+              <van-image
+                :src="'https://jixi.mynatapp.cc/'+c.logoAddress"
+                @click="toShopInfoView(c, d.id)"
+              />
+            </template>
+            <template v-slot:tags>
+              <van-tag plain type="danger" v-if="c.sale > 20" @click="toShopInfoView(c)">热销中</van-tag>
+            </template>
+            <template v-slot:desc>
+              <div class="desc">
+                <div @click="toShopInfoView(c, d.id)">
+                  <div class="grade">销量：{{ c.sale }}</div>
+                  <div class="price">
+                    ￥
+                    <span class="price_num">{{ c.sellPrice + d.price }}</span>
+                  </div>
+                </div>
+                <div class="add" @click="handleAdd(c, d.id)">
+                  <van-icon name="plus" />
+                </div>
               </div>
-            </div>
-            <div class="add" @click="handleAdd(c)">
-              <van-icon name="plus" />
-            </div>
-          </div>
-        </template>
-      </shop-card>
+            </template>
+          </shop-card>
+        </div>
+        <div v-else>
+          <shop-card class="shop_list">
+            <template v-slot:title>
+              <div class="shop_title" @click="toShopInfoView(c)">{{ c.productName }}</div>
+            </template>
+            <template v-slot:thumb>
+              <van-image
+                :src="'https://jixi.mynatapp.cc/'+c.logoAddress"
+                @click="toShopInfoView(c)"
+              />
+            </template>
+            <template v-slot:tags>
+              <van-tag plain type="danger" v-if="c.sale > 20" @click="toShopInfoView(c)">热销中</van-tag>
+            </template>
+            <template v-slot:desc>
+              <div class="desc">
+                <div @click="toShopInfoView(c)">
+                  <div class="grade">销量：{{ c.sale }}</div>
+                  <div class="price">
+                    ￥
+                    <span class="price_num">{{ c.sellPrice }}</span>
+                  </div>
+                </div>
+                <div class="add" @click="handleAdd(c)">
+                  <van-icon name="plus" />
+                </div>
+              </div>
+            </template>
+          </shop-card>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -51,15 +91,20 @@ export default {
       default: () => {
         return {}
       }
+    },
+    shopId: {
+      type: Number,
+      default: 0
     }
   },
   methods: {
-    handleAdd(item) {
+    handleAdd(item, d) {
+      item.d = d
       this.$emit('handleAdd', item)
     },
-    toShopInfoView(item) {
+    toShopInfoView(item, d) {
       window.sessionStorage.setItem('snackShopInfoItem', JSON.stringify(item))
-      this.$router.push('/shopInfoView')
+      this.$router.push(`/shopInfoView?d=${d}&shopId=${this.shopId}`)
     }
   }
 }

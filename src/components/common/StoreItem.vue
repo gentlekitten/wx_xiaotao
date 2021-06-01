@@ -3,7 +3,7 @@
     <div class="shopping_warp animated fadeInLeft">
       <div class="shopping" @click="toShopping(item)">
         <div class="left">
-          <img :src="item.shopPic" />
+          <img :src="'https://jixi.mynatapp.cc/'+item.shopPic" />
         </div>
         <div class="center">
           <div class="name">{{ item.shopName }}</div>
@@ -21,7 +21,7 @@
         </div>
       </div>
       <div v-if="isShowDeleteBtn">
-        <van-button class="btn" round @click="deleteShopping(item)">删除</van-button>
+        <van-button class="btn" round @click="deleteShopping(item)">??</van-button>
       </div>
       <div style="clear: both;"></div>
     </div>
@@ -48,12 +48,7 @@ export default {
     }
   },
   created() {
-    this.item.shopScore &&
-      (this.rate =
-        (this.item.shopScore.attitude +
-          this.item.shopScore.quality +
-          this.item.shopScore.sTime) /
-        6)
+    this.rate = this.item.score ? this.item.score : 0
   },
   methods: {
     toShopping(item) {

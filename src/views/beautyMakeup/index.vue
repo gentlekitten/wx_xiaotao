@@ -64,6 +64,9 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       id: 7,
       pageIndex: 0,
       searchPageIndex: 1,
@@ -93,77 +96,9 @@ export default {
           title: '店铺'
         }
       ],
-      shopList: [
-        // {
-        //   id: 1,
-        //   img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-        //   title: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   newPrice: '10',
-        //   oldPrice: '16',
-        //   buyNum: '200'
-        // },
-        // {
-        //   id: 2,
-        //   img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-        //   title: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   newPrice: '10',
-        //   oldPrice: '',
-        //   buyNum: '200'
-        // },
-        // {
-        //   id: 3,
-        //   img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-        //   title: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   newPrice: '10',
-        //   oldPrice: '16',
-        //   buyNum: '200'
-        // },
-        // {
-        //   id: 4,
-        //   img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-        //   title: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   newPrice: '10',
-        //   oldPrice: '16',
-        //   buyNum: '200'
-        // },
-        // {
-        //   id: 5,
-        //   img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-        //   title: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   newPrice: '10',
-        //   oldPrice: '16',
-        //   buyNum: '200'
-        // },
-        // {
-        //   id: 6,
-        //   img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-        //   title: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   newPrice: '10',
-        //   oldPrice: '16',
-        //   buyNum: '200'
-        // }
-      ],
+      shopList: [],
       //   商品店铺列表
-      shoppingList: [
-        // {
-        //   id: 0,
-        //   img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //   name: '哈哈哈',
-        //   rate: 4
-        // },
-        // {
-        //   id: 1,
-        //   img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //   name: '哈哈哈',
-        //   rate: 4
-        // },
-        // {
-        //   id: 2,
-        //   img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //   name: '哈哈哈',
-        //   rate: 4
-        // }
-      ]
+      shoppingList: []
     }
   },
   created() {
@@ -173,7 +108,7 @@ export default {
     // 获取商品和店铺列表
     async getShopList() {
       const data = {
-        siteId: 50,
+        siteId: this.siteId,
         shopCategoryId: 2,
         pageIndex: this.pageIndex,
         pageLimit: 10
@@ -203,7 +138,7 @@ export default {
       }
       this.finished = true
       this.finishedText = ''
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     //   顶部搜索确认
     searchConfirm(value) {
@@ -231,7 +166,7 @@ export default {
         }
         return this.$toast.fail(res.msg)
       }
-      this.$toast.fail('请输入搜索内容')
+      this.$handleCode.handleCode(res)
     },
     // 加载搜索上拉数据
     async onloadSearchList() {
@@ -256,7 +191,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 点击 tabs
     clickTab(index) {

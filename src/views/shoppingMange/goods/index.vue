@@ -23,6 +23,7 @@
         :is-edit="isEdit"
         :sidebar-list="sidebarList"
         @editGoodsName="editGoodsName"
+        @sidebarChange="sidebarChange"
       />
       <div class="right_warp">
         <goods-list
@@ -44,16 +45,42 @@
       position="top"
       @closed="isShowDeteleBtn = false"
     >
-      <top-popup
+      <van-cell-group>
+        <div class="form">
+          <van-field
+            v-model="form.categoryName"
+            name="分类名称"
+            label="分类名称："
+            required
+            clearable
+            placeholder="商品分类名"
+          />
+          <van-field
+            v-model="form.sort"
+            type="number"
+            required
+            clearable
+            name="排序数值"
+            label="排序数值："
+            placeholder="越大越靠前"
+          />
+          <div class="popup_btn_warp">
+            <van-button class="btn" round @click="saveAlassify">保存</van-button>
+            <van-button v-show="isShowDeteleBtn" class="btn detele" round @click="deleteCategory">删除</van-button>
+          </div>
+        </div>
+      </van-cell-group>
+      <!-- <top-popup
+        :edit-form="form"
         :isShowDeteleBtn="isShowDeteleBtn"
         @onSubmit="saveAlassify"
-        @deleteGoods="deleteGoods"
-      />
+        @deleteGoods="deleteCategory"
+      />-->
     </van-popup>
   </div>
 </template>
 <script>
-import { getData } from '@/api/api.js'
+import { getData, upData } from '@/api/api.js'
 
 import Sidebar from '@/components/manage/Sidebar.vue'
 import TopPopup from '@/components/manage/TopPopup.vue'
@@ -68,91 +95,150 @@ export default {
   },
   data() {
     return {
+      shopId: '',
+      // 分类添加表单
+      form: {
+        categoryName: '',
+        sort: ''
+      },
       searchValue: '',
       isEdit: false,
       topPopupIsShow: false,
       //   弹出层删除按钮
       isShowDeteleBtn: false,
       sidebarActiveKey: 0,
-      sidebarList: [
-        {
-          title: '全部分类'
-        },
-        {
-          title: '优惠商品'
-        },
-        {
-          title: '休闲零食'
-        },
-        {
-          title: '辣条'
-        },
-        {
-          title: '饮料类'
-        },
-        {
-          title: '泡面'
-        },
-        {
-          title: '香烟类'
-        },
-        {
-          title: '香烟类'
-        },
-        {
-          title: '饮料类'
-        },
-        {
-          title: '泡面'
-        },
-        {
-          title: '香烟类'
-        },
-        {
-          title: '香烟类'
-        }
-      ],
-      goodsList: []
+      sidebarList: [],
+      goodsList: [],
+      goodsListCopy: []
     }
   },
   created() {
+    this.shopId = window.sessionStorage.getItem('shopId')
     this.getGoodsList()
+    this.getCategoryList()
+  },
+  watch: {
+    topPopupIsShow() {
+      if (!this.topPopupIsShow) {
+        // 清空输入框
+        this.form.categoryName = ''
+        this.form.sort = ''
+      }
+    }
   },
   methods: {
+    // 获取商品列表
     async getGoodsList() {
       const res = await getData(
         '/product/list',
-        { id: 23 },
+        { id: this.shopId },
         { showLoading: true }
       )
       console.log(res)
       if (res.code === '0') {
+        // res.data.forEach(e => {
+
+        // })
         this.goodsList = res.data
+        this.goodsListCopy = res.data
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
+    },
+    // 获取分类
+    async getCategoryList() {
+      const res = await getData(
+        '/product/category/find',
+        {
+          shopId: this.shopId
+        },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.sidebarList = res.data
+        this.sidebarList.sort(this.handleSort)
+        this.sidebarList.unshift({ categoryName: '全部分类', id: -19 })
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 处理侧边栏排序和商品排序
+    handleSort(a, b) {
+      return b.sort - a.sort
+    },
+    // 侧边栏改变
+    sidebarChange(index) {
+      this.goodsList = this.goodsListCopy
+      const id = this.sidebarList[index].id
+      // 判断是否是全部分类
+      if (id === -19) {
+        return false
+      }
+      this.goodsList = this.goodsList.filter(e => {
+        return e.id === id
+      })
     },
     searchConfirm() {},
     clickEditBtn() {
       this.isEdit = !this.isEdit
     },
-    // 保存分类
-    saveAlassify(form) {},
-    // 删除分类
-    async deleteGoods() {
-      const res = await getData(
-        '/product/category/delete',
-        { id: 1 },
-        { showLoading: true }
-      )
+    // 新增或保存分类
+    async saveAlassify() {
+      const form = this.form
+      if (!form.categoryName || !form.sort) {
+        return this.$toast.fail('请填写相应信息！')
+      }
+      let url = ''
+      let data = {}
+      if (this.isShowDeteleBtn) {
+        url = '/product/category/update'
+        data = {
+          id: form.id,
+          categoryName: form.categoryName,
+          sort: form.sort,
+          shopId: this.shopId
+        }
+      } else {
+        url = '/product/category/add'
+        data = {
+          categoryName: form.categoryName,
+          sort: form.sort,
+          shopId: this.shopId
+        }
+      }
+      const res = await upData(url, data, {
+        showLoading: true
+      })
       console.log(res)
       if (res.code === '0') {
-        this.$router.go(0)
+        this.getCategoryList()
+        this.topPopupIsShow = !this.topPopupIsShow
+        this.form.categoryName = ''
+        this.form.sort = ''
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
-    editGoodsName() {
+    // 删除分类
+    async deleteCategory() {
+      const data = {
+        id: this.form.id,
+        shopId: this.shopId
+      }
+      const res = await getData('/product/category/delete', data, {
+        showLoading: true
+      })
+      console.log(res)
+      if (res.code === '0') {
+        this.topPopupIsShow = !this.topPopupIsShow
+        this.getCategoryList()
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    editGoodsName(item) {
+      this.form = this._.cloneDeep(item)
       this.topPopupIsShow = true
       this.isShowDeteleBtn = true
     },
@@ -166,7 +252,7 @@ export default {
         .then(async () => {
           const res = await getData(
             '/product/delete',
-            { id: item.id, shopId: 23 },
+            { id: item.id, shopId: this.shopId },
             { showLoading: true }
           )
           console.log(res)
@@ -256,6 +342,25 @@ export default {
     box-sizing: border-box;
     overflow: scroll;
     padding-bottom: 5rem;
+  }
+}
+.form {
+  padding: 1rem;
+  .popup_btn_warp {
+    display: flex;
+    justify-content: center;
+    .btn {
+      width: 8rem;
+      height: 2rem;
+      font-size: 1rem;
+      color: #fff;
+      background-color: @themeColor;
+      margin: 1rem 0;
+    }
+    .detele {
+      background-color: #ccc;
+      margin-left: 0.5rem;
+    }
   }
 }
 ::v-deep .van-sidebar {

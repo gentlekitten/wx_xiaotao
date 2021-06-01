@@ -15,16 +15,19 @@
     <div class="express_list_warp">
       <div class="express">
         <div class="title">当前你所添加的快递</div>
-        <div class="list" v-for="item in expressList" :key="item.id">
-          {{ item.name }}
-          <van-button class="dele_btn" round @click="deleteExpress(item.id)">删除</van-button>
-        </div>
+        <template v-if="expressList.length > 0">
+          <div class="list" v-for="item in expressList" :key="item.id">
+            {{ item.name }}
+            <van-button class="dele_btn" round @click="deleteExpress(item.id)">删除</van-button>
+          </div>
+        </template>
+        <van-empty v-else description="还没有添加快递哦~" />
       </div>
     </div>
   </div>
 </template>
 <script>
-import { upData } from '@/api/api.js'
+import { upData, getData } from '@/api/api.js'
 
 import NavBar from '@/components/common/NavBar.vue'
 
@@ -36,16 +39,33 @@ export default {
     return {
       form: {
         expressName: '',
-        siteId: 20
+        siteId: JSON.parse(window.sessionStorage.getItem('mySiteInfo'))
+          ? JSON.parse(window.sessionStorage.getItem('mySiteInfo')).id
+          : 0
       },
-      expressList: [
-        { id: 0, name: '妈妈驿站' },
-        { id: 1, name: '菜鸟驿站' },
-        { id: 2, name: '邮政' }
-      ]
+      expressList: []
     }
   },
+  created() {
+    this.getExpressList()
+  },
   methods: {
+    //  获取添加的快递列表
+    async getExpressList() {
+      const res = await getData(
+        '/site/express/info',
+        { siteId: this.form.siteId },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        res.data.forEach(e => {
+          this.expressList.push({ name: e.apartmentName, id: e.id })
+        })
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
     async addExpress() {
       if (!this.form.expressName) {
         return this.$toast.fail('请填写快递名字！')
@@ -55,11 +75,30 @@ export default {
       })
       console.log(res)
       if (res.code === '0') {
+        this.form.expressName = ''
+        this.expressList.push({
+          id: res.data.id,
+          name: res.data.expressName
+        })
         return this.$toast.success('添加成功！')
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
-    deleteExpress(id) {}
+    async deleteExpress(id) {
+      const res = await upData(
+        '/site/express/delete',
+        { id: id, siteId: this.form.siteId },
+        {
+          showLoading: true
+        }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.$toast.success('删除成功！')
+        return this.getExpressList()
+      }
+      this.$handleCode.handleCode(res)
+    }
   }
 }
 </script>

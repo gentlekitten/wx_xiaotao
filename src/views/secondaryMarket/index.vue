@@ -121,7 +121,7 @@ export default {
       }
       this.finished = true
       this.finishedText = ''
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     //   顶部搜索确认
     async searchConfirm(value) {
@@ -149,7 +149,7 @@ export default {
           }
           return false
         }
-        return this.$toast.fail(res.msg)
+        this.$handleCode.handleCode(res)
       }
       this.$toast.fail('请输入搜索内容')
     },
@@ -195,7 +195,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 上拉刷新
     onLoadRefresh() {
@@ -220,7 +220,7 @@ export default {
         this.$router.go(0)
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     toShoppingDetails(id) {
       this.$router.push('/secondaryMarket/shoppingDetails?id=' + id)

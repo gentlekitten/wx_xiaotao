@@ -36,12 +36,7 @@
         </div>
         <div v-if="tabIndex === 3">
           <template v-if="shopList.length > 0">
-            <div
-              class="shop_list"
-              v-for="item in shopList"
-              :key="item.id"
-              @click="toShopDetails(item)"
-            >
+            <div v-for="item in shopList" :key="item.id" @click="toShopDetails(item)">
               <shop-list :item="item" />
             </div>
           </template>
@@ -80,11 +75,15 @@ export default {
     OrderPeopleList,
     CommonChatList,
     ReportList,
+    ShopList,
     FeedBackList
   },
   data() {
     return {
       searchValue: '',
+      siteId: JSON.parse(window.sessionStorage.getItem('mySiteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('mySiteInfo')).id
+        : 0,
       tabIndex: Number(window.sessionStorage.getItem('tabActiveMySiteManage')),
       // 是否显示加载
       loading: false,
@@ -144,7 +143,7 @@ export default {
     // 获取领跑申请列表
     async getOrderPeopleList() {
       const data = {
-        siteId: 23,
+        siteId: this.siteId,
         pageIndex: this.pageIndex,
         pageLimit: 10
       }
@@ -161,12 +160,12 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 获取举报信息列表
     async getReportList() {
       const data = {
-        siteId: 23,
+        siteId: this.siteId,
         pageIndex: this.pageIndex,
         pageLimit: 10
       }
@@ -183,12 +182,12 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 获取店铺申请列表
     async getShopList() {
       const data = {
-        siteId: 50,
+        siteId: this.siteId,
         pageIndex: this.pageIndex,
         pageLimit: 10
       }
@@ -205,13 +204,13 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 获取意见反馈列表
     async getFeedBackList() {
       // console.log(this.pageIndex)
       const data = {
-        siteId: 23,
+        siteId: this.siteId,
         pageIndex: this.pageIndex,
         pageLimit: 10
       }
@@ -228,7 +227,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     getChatList() {
       const arr = [
@@ -314,26 +313,16 @@ export default {
     // 上拉刷新
     onLoadRefresh() {
       // 解决点击tab会重复发送请求
-      if (this.tabIndex === 0) {
-        if (this.reportList.length > 0) {
-          this.getOrderPeopleList()
-        }
-      } else if (this.tabIndex === 1) {
-        if (this.reportList.length > 0) {
-          this.getReportList()
-        }
-      } else if (this.tabIndex === 2) {
-        if (this.reportList.length > 0) {
-          this.getReportList()
-        }
-      } else if (this.tabIndex === 3) {
-        if (this.shopList.length > 0) {
-          this.getShopList()
-        }
-      } else if (this.tabIndex === 4) {
-        if (this.feedBackList.length > 0) {
-          this.getFeedBackList()
-        }
+      if (this.tabIndex === 0 && this.reportList.length > 0) {
+        this.getOrderPeopleList()
+      } else if (this.tabIndex === 1 && this.reportList.length > 0) {
+        this.getReportList()
+      } else if (this.tabIndex === 2 && this.reportList.length > 0) {
+        this.getReportList()
+      } else if (this.tabIndex === 3 && this.shopList.length > 0) {
+        this.getShopList()
+      } else if (this.tabIndex === 4 && this.feedBackList.length > 0) {
+        this.getFeedBackList()
       }
     },
     clickTab(index) {
@@ -390,25 +379,5 @@ export default {
 }
 .tabs {
   // margin-top: 20rem;
-}
-.shop_list {
-  padding: 1rem;
-  background-color: #fff;
-  display: flex;
-  justify-content: space-between;
-  .type {
-    font-weight: 900;
-  }
-  .status {
-    color: cadetblue;
-    font-size: 0.8rem;
-    transform: rotate(10deg);
-  }
-  .red {
-    color: @priceColor;
-  }
-  .gray {
-    color: #999;
-  }
 }
 </style>

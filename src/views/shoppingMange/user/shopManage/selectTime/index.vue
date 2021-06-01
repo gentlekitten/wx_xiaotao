@@ -56,6 +56,8 @@
   </div>
 </template>
 <script>
+import { upData } from '@/api/api.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 export default {
@@ -67,8 +69,8 @@ export default {
       startTimeIsShow: false,
       endTimeIsShow: false,
       form: {
-        startTime: '12:00',
-        endTime: '12:00'
+        startTime: '',
+        endTime: ''
       }
     }
   },
@@ -79,16 +81,22 @@ export default {
     endTimeConfirm(value) {
       this.endTimeIsShow = false
     },
-    saveTime() {
+    async saveTime() {
       if (this.form.startTime >= this.form.endTime) {
         return this.$toast.fail('结束时间比开始时间早或相同哦~')
       }
-      this.$store.commit('addShopping/TIME', this.form)
-      sessionStorage.setItem(
-        'addShopping',
-        JSON.stringify(this.$store.state.addShopping)
-      )
-      this.$router.go(-1)
+      const data = {
+        startTime: this.form.startTime,
+        endTime: this.form.endTime,
+        id: Number(window.sessionStorage.getItem('shopId'))
+      }
+      const res = await upData('/shop/time/update', data, { showLoading: true })
+      console.log(res)
+      if (res.code === '0') {
+        this.$router.go(-1)
+        return false
+      }
+      this.$handleCode.handleCode(res)
     }
   }
 }

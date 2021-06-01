@@ -32,7 +32,13 @@
       </div>
       <van-field class="uploaderImg" label="附图(最多5张)：">
         <template #input>
-          <van-uploader v-model="form.uploaderImg" multiple :max-count="5" :after-read="uploading" />
+          <van-uploader
+            v-model="form.uploaderImg"
+            :max-size="5120 * 1024"
+            @oversize="handleImgLarge"
+            :max-count="5"
+            :after-read="uploading"
+          />
         </template>
       </van-field>
     </div>
@@ -118,6 +124,10 @@ export default {
     }
   },
   methods: {
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过5M')
+    },
     // 处理上传图片
     uploading(file) {
       file.status = 'uploading'

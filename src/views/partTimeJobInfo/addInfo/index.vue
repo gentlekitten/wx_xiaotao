@@ -81,6 +81,8 @@
           <van-uploader
             v-model="uploaderImg"
             :max-count="5"
+            :max-size="5120 * 1024"
+            @oversize="handleImgLarge"
             :after-read="uploading"
             @delete="deleteImg"
           />
@@ -166,6 +168,11 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
+    },
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过5M')
     },
     // 提交发布
     async formSubmit() {
@@ -181,7 +188,7 @@ export default {
           }, 500)
           return false
         }
-        return this.$toast.fail(res.msg)
+        this.$handleCode.handleCode(res)
       }
       const res = await upData('/site/job/info/update', this.form, {
         showLoading: true
@@ -194,7 +201,7 @@ export default {
         }, 500)
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   },
   beforeDestroy() {

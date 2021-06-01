@@ -257,7 +257,7 @@ export default {
       if (res.code === '0') {
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     toSearch() {
       this.searchIsShow = true
@@ -286,7 +286,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     clickNoticeBar() {
       this.noticeOverlayIsShow = true

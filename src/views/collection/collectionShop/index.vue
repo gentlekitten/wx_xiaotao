@@ -21,21 +21,24 @@
             <shop-card
               class="shop_warp animated fadeInLeft"
               v-for="(item, index) in shopList"
-              :key="index + item.id"
+              :key="index + item.shopId"
             >
               <template v-slot:title>
-                <div class="shop_title" @click="toFoodShopping(item)">{{ item.title }}</div>
+                <div class="shop_title" @click="toFoodShopping(item)">{{ item.shopName }}</div>
               </template>
               <template v-slot:thumb>
-                <van-image :src="item.imgUrl" @click="toFoodShopping(item)" />
+                <van-image
+                  :src="'https://jixi.mynatapp.cc/'+item.shopPic"
+                  @click="toFoodShopping(item)"
+                />
               </template>
               <template v-slot:tags>
                 <van-tag
                   plain
                   type="danger"
-                  v-if="item.isDiscounts"
+                  v-if="item.shopDiscount && item.shopDiscount.discountPrice"
                   @click="toFoodShopping(item)"
-                >满16减￥2</van-tag>
+                >满{{ item.requirePrice }}减￥{{ item.discountPrice }}</van-tag>
               </template>
               <template v-slot:desc>
                 <div class="desc" @click="toFoodShopping(item)">
@@ -44,26 +47,26 @@
                       <van-icon name="star-o" />
                       {{ item.score }}
                     </span>
-                    月售：{{ item.onSale }}单
+                    已售：{{ item.sale }}单
                   </div>
                   <div class="price">
                     起价:
-                    <span class="price_item">￥{{ item.firstPrice }}</span>
+                    <span class="price_item">￥{{ item.lowPrice }}</span>
                     配送:
-                    <span class="price_item">￥{{ item.distributionPrice }}</span>
+                    <span class="price_item">￥{{ item.deliveryFee }}</span>
                   </div>
                   <div class="type">
                     <van-icon name="shop-o" />
-                    {{ item.shopType }}
+                    {{ item.businessInfo }}
                   </div>
                   <div class="address">
                     <van-icon name="eye-o" />
-                    {{ item.shopAddress }}
+                    {{ item.addressDetail }}
                   </div>
                 </div>
                 <div class="shop_status">
-                  <div class="text" v-if="item.status === 200">营业中</div>
-                  <div class="text stop" v-else-if="item.status === 400">停业中</div>
+                  <div class="text" v-if="item.shopState === 1">营业中</div>
+                  <div class="text stop" v-else-if="item.shopState === 2">停业中</div>
                   <div class="text stop" v-else>打烊中</div>
                 </div>
               </template>
@@ -80,9 +83,10 @@
           <template v-if="shoppingList.length > 0">
             <store-item
               v-for="item in shoppingList"
-              :key="item.id"
+              :key="item.shopId"
               :item="item"
               @toShopping="toShopping"
+              @deleteShopping="deleteShopping"
             />
           </template>
           <van-empty v-else description="暂无收藏的店铺"></van-empty>
@@ -92,7 +96,7 @@
   </div>
 </template>
 <script>
-import { getData } from '@/api/api.js'
+import { getData, upData } from '@/api/api.js'
 
 import NavBar from '@/components/common/NavBar.vue'
 import Tabs from '@/components/common/Tabs.vue'
@@ -122,60 +126,7 @@ export default {
           title: '商品店铺'
         }
       ],
-      shopList: [
-        // {
-        //   id: 0,
-        //   status: 200,
-        //   title: '书香苑',
-        //   imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-        //   isDiscounts: true,
-        //   score: 4.5,
-        //   onSale: 133,
-        //   firstPrice: 10,
-        //   distributionPrice: 5,
-        //   shopType: '川菜',
-        //   shopAddress: '昆明冶金高等专科学校'
-        // },
-        // {
-        //   id: 1,
-        //   status: 500,
-        //   title: '书香苑',
-        //   imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-        //   isDiscounts: true,
-        //   score: 4.5,
-        //   onSale: 133,
-        //   firstPrice: 10,
-        //   distributionPrice: 5,
-        //   shopType: '川菜',
-        //   shopAddress: '昆明冶金高等专科学校'
-        // },
-        // {
-        //   id: 2,
-        //   status: 400,
-        //   title: '书香苑',
-        //   imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-        //   isDiscounts: true,
-        //   score: 4.5,
-        //   onSale: 133,
-        //   firstPrice: 10,
-        //   distributionPrice: 5,
-        //   shopType: '川菜',
-        //   shopAddress: '昆明冶金高等专科学校'
-        // },
-        // {
-        //   id: 3,
-        //   status: 500,
-        //   title: '书香苑',
-        //   imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-        //   isDiscounts: true,
-        //   score: 4.5,
-        //   onSale: 133,
-        //   firstPrice: 10,
-        //   distributionPrice: 5,
-        //   shopType: '川菜',
-        //   shopAddress: '昆明冶金高等专科学校'
-        // }
-      ],
+      shopList: [],
       //   商品店铺列表
       shoppingList: []
     }
@@ -199,8 +150,8 @@ export default {
       this.loading = false
       if (res.code === '0') {
         this.tabIndex === 0
-          ? this.shopList.push(...res.data.shopInfos)
-          : this.shoppingList.push(...res.data.shopInfos)
+          ? this.shopList.push(...res.data.customerShopRecordVos)
+          : this.shoppingList.push(...res.data.customerShopRecordVos)
         this.pageIndex += 1
         if (this.pageIndex * 10 >= res.data.number) {
           this.finished = true
@@ -208,7 +159,7 @@ export default {
         return false
       }
       this.finished = true
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 上拉加载数据
     onLoadData() {
@@ -216,9 +167,43 @@ export default {
         this.getShopDataList()
       }
     },
-    deleteFoodShopping(item) {},
+    // 删除收藏的外卖或者零食铺
+    async deleteFoodShopping(item) {
+      const res = await upData(
+        '/shop/record/delete',
+        { shopId: item.shopId },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.$router.go(0)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 删除收藏的商城铺
+    async deleteShopping(item) {
+      const res = await upData(
+        '/shop/record/delete',
+        { shopId: item.shopId },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.$router.go(0)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 去外卖或者零食铺详情
     toFoodShopping(item) {
-      this.$router.push(`/takeOutShop?id=` + item.id)
+      if (item.state !== 1) {
+        return this.$toast.fail('抱歉，该店铺已经不存在！')
+      }
+      // 区别零食还是外卖
+      const url =
+        item.shopCategoryId === 1 ? 'snackShop?id=' : '/takeOutShop?id='
+      this.$router.push(url + item.shopId)
     },
     clickTab(index) {
       this.tabIndex = index
@@ -229,7 +214,7 @@ export default {
       this.getShopDataList()
     },
     toShopping(item) {
-      this.$router.push(`/shoppingShop?id=` + item.id)
+      this.$router.push(`/shoppingShop?id=` + item.shopId)
     }
   }
 }
@@ -255,6 +240,13 @@ export default {
     .price_item {
       color: @priceColor;
     }
+  }
+  .address,
+  .type {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 11.6rem;
   }
 }
 .van-cell {

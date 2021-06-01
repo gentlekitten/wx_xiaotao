@@ -1,9 +1,9 @@
 <template>
   <div class="top">
     <!-- 定位区域 -->
-    <div class="location">
+    <div class="location" @click="toGetLocation">
       <van-icon name="location-o" size="1.5rem" />
-      <span>昆明冶金高等专科安宁校区</span>
+      <span>{{ siteInfo.siteName }}</span>
     </div>
     <van-search
       class="search"
@@ -18,7 +18,7 @@
 <script>
 export default {
   props: {
-    siteInfoObj: {
+    siteInfo: {
       type: Object,
       default: () => {
         return {}
@@ -28,6 +28,9 @@ export default {
   methods: {
     toSearch() {
       this.$emit('toSearch')
+    },
+    toGetLocation() {
+      this.$emit('toGetLocation')
     }
   }
 }

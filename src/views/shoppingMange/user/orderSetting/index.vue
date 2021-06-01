@@ -5,38 +5,38 @@
     <div class="home">
       <!-- <div class="order_type">
         <div class="title">支持订单类型</div>
-        <van-checkbox-group class="checkbox_group" v-model="checkboxValue" checked-color="#CEAC20">
+        <van-checkbox-group class="checkbox_group" v-model="radioValue" checked-color="#CEAC20">
           <van-checkbox name="a">到店消费</van-checkbox>
           <van-checkbox class="checkbox" name="b">校内邮寄</van-checkbox>
           <van-checkbox name="c">快递邮寄</van-checkbox>
         </van-checkbox-group>
       </div>-->
       <div class="send_price">
-        <van-field class="input" type="number" v-model="sendPrice" label="外卖起送价格" />
-        <van-button class="btn" round>确认</van-button>
+        <van-field class="input" type="number" v-model.number="sendPrice" label="外卖起送价格" />
+        <!-- <van-button class="btn" round>确认</van-button> -->
       </div>
       <div class="send_setting">
         <div class="title">配送设置</div>
         <div class="method">
           配送方式：
-          <van-checkbox-group
-            class="checkbox_group"
-            v-model="checkboxValue"
-            checked-color="#CEAC20"
-          >
-            <van-checkbox name="a" class="checkbox">商家配送</van-checkbox>
-            <van-checkbox name="b">快递邮寄</van-checkbox>
-          </van-checkbox-group>
+          <van-radio-group class="checkbox_group" v-model="radioValue" checked-color="#CEAC20">
+            <van-radio name="a" class="checkbox">商家配送</van-radio>
+            <van-radio name="b">快递邮寄</van-radio>
+          </van-radio-group>
         </div>
-        <div v-show="checkboxValue.indexOf('a') > -1" class="dispatching_price animated fadeInDown">
+        <div v-show="radioValue === 'a'" class="dispatching_price animated fadeInDown">
           商家配送费：
-          <van-field class="input" type="number" v-model="merchantDispatchingPrice" />元
+          <van-field class="input" type="number" v-model.number="merchantDispatchingPrice" />元
+        </div>
+        <div v-show="radioValue === 'b'" class="dispatching_price animated fadeInDown">
+          统一邮费：
+          <van-field class="input" type="number" v-model.number="merchantDispatchingPrice" />元
         </div>
         <div class="btn_warp">
-          <van-button class="btn" round>保存</van-button>
+          <van-button class="btn" round @click="upOrderSetting">保存</van-button>
         </div>
       </div>
-      <div v-show="checkboxValue.indexOf('b') > -1" class="post_setting animated fadeInDown">
+      <!-- <div v-show="radioValue.indexOf('b') > -1" class="post_setting animated fadeInDown">
         <div class="title">邮寄设置</div>
         <div class="post_price">
           统一邮费：
@@ -45,11 +45,13 @@
         <div class="btn_warp">
           <van-button class="btn" round>保存</van-button>
         </div>
-      </div>
+      </div>-->
     </div>
   </div>
 </template>
 <script>
+import { getData, upData } from '@/api/api.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 export default {
@@ -58,13 +60,61 @@ export default {
   },
   data() {
     return {
-      checkboxValue: [],
+      shopId: Number(window.sessionStorage.getItem('shopId'))
+        ? Number(window.sessionStorage.getItem('shopId'))
+        : 0,
+      radioValue: 'a',
+      // 起送价
       sendPrice: 0,
       //   商家配送价格
       merchantDispatchingPrice: 0
     }
   },
-  methods: {}
+  created() {
+    this.getOrderSetting()
+  },
+  methods: {
+    // 上传订单配置
+    async upOrderSetting() {
+      const data = {
+        shopId: this.shopId,
+        lowPrice: this.sendPrice,
+        shopOrder: {
+          deliverySn: this.radioValue === 'a' ? 0 : 1,
+          deliveryFee: this.merchantDispatchingPrice
+        }
+      }
+      const res = await upData('/shop/order/update', data, {
+        showLoading: true
+      })
+      console.log(res)
+      if (res.code === '0') {
+        this.$router.go(-1)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 获取订单配置
+    async getOrderSetting() {
+      const res = await getData(
+        '/shop/order/get',
+        { shopId: this.shopId },
+        {
+          showLoading: true
+        }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.sendPrice = res.data.lowPrice
+        if (Object.keys(res.data.shopOrder).length > 0) {
+          this.merchantDispatchingPrice = res.data.shopOrder.deliveryFee
+          this.radioValue = res.data.shopOrder.deliverySn === 0 ? 'a' : 'b'
+        }
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    }
+  }
 }
 </script>
 <style lang="less" scoped>
@@ -129,22 +179,22 @@ export default {
       }
     }
   }
-  .post_setting {
-    padding: 1rem;
-    background-color: #fff;
-    border-radius: 0.5rem;
-    margin-top: 0.8rem;
-    .title {
-      font-weight: 900;
-    }
-    .post_price {
-      display: flex;
-      align-items: center;
-    }
-    .input {
-      width: 30%;
-    }
-  }
+  // .post_setting {
+  //   padding: 1rem;
+  //   background-color: #fff;
+  //   border-radius: 0.5rem;
+  //   margin-top: 0.8rem;
+  //   .title {
+  //     font-weight: 900;
+  //   }
+  //   .post_price {
+  //     display: flex;
+  //     align-items: center;
+  //   }
+  //   .input {
+  //     width: 30%;
+  //   }
+  // }
   .btn_warp {
     display: flex;
     justify-content: center;

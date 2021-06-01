@@ -6,7 +6,11 @@
       联系方式等必要信息请填入
       <span>备注信息</span>中
     </div>
-    <address-select-cell v-if="id !== '2'" :addressSelectList="addressSelectList" />
+    <address-select-cell
+      v-if="id !== '2'"
+      :addressObj="addressObj"
+      :addressSelectList="addressSelectList"
+    />
     <!-- 取件地址输入框 -->
     <van-cell-group>
       <van-field v-model="taskForm.title" required label="任务标题：" placeholder="请输入任务标题" clearable />
@@ -40,6 +44,8 @@
         <van-uploader
           v-model="uploaderImg"
           :max-count="3"
+          :max-size="5120 * 1024"
+          @oversize="handleImgLarge"
           :after-read="uploading"
           @delete="deleteImg"
         />
@@ -95,7 +101,7 @@
   </div>
 </template>
 <script>
-import { upData, upLogo } from '@/api/api.js'
+import { upData, upLogo, getData } from '@/api/api.js'
 
 import timeFilter from '@/assets/js/time.js'
 
@@ -177,7 +183,9 @@ export default {
         beforeTime: '今天-尽快',
         otherMsg: '备注',
         price: 3,
-        siteId: 13,
+        siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+          ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+          : 0,
         deliveryOrderPics: []
       },
       //   地址选择cell信息
@@ -255,7 +263,8 @@ export default {
           id: 2,
           expressName: '女性'
         }
-      ]
+      ],
+      addressObj: {}
     }
   },
   watch: {
@@ -320,8 +329,46 @@ export default {
     }
     this.id = id
     this.navTitle = title
+    this.getAddress()
   },
   methods: {
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过5M')
+    },
+    async getAddress() {
+      // 获取地址对象
+      JSON.parse(window.sessionStorage.getItem('addressObj')) &&
+        (this.addressObj = JSON.parse(
+          window.sessionStorage.getItem('addressObj')
+        ))
+      if (Object.keys(this.addressObj).length > 0) {
+        return false
+      }
+      const res = await getData(
+        '/customer/address/my/find',
+        {
+          siteId: this.siteId
+        },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        const addressObj = res.data.filter(e => {
+          return e.addressDefault === 1
+        })[0]
+        addressObj.name = addressObj.realname
+        addressObj.phone = addressObj.phone
+        addressObj.address =
+          addressObj.province +
+          addressObj.city +
+          addressObj.district +
+          addressObj.addressDetail
+        this.addressObj = addressObj
+        return false
+      }
+      this.$handelCode.handleCode(res)
+    },
     // 接单时效radio改变
     orderTimeRadioChange(radioIndex) {
       const index = this.orderTimeRadioList.findIndex(e => {
@@ -395,6 +442,7 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
     // 删除上传图片
     deleteImg(file, detail) {
@@ -425,7 +473,7 @@ export default {
         this.$toast.success('发布成功！')
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   }
 }

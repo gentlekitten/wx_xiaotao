@@ -22,6 +22,9 @@ export default {
   },
   data() {
     return {
+      siteInfo: JSON.parse(window.sessionStorage.getItem('mySiteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('mySiteInfo'))
+        : {},
       map: '',
       circle: '',
       circleEditor: ''
@@ -32,26 +35,49 @@ export default {
   },
   methods: {
     initMap() {
-      this.map = new AMap.Map('container', {
-        center: [116.433322, 39.900256],
-        zoom: 14
-      })
+      if (Object.keys(this.siteInfo).length > 0) {
+        this.map = new AMap.Map('container', {
+          center: [this.siteInfo.longitude, this.siteInfo.latitude],
+          zoom: 14
+        })
 
-      this.circle = new AMap.Circle({
-        center: [116.433322, 39.900255],
-        radius: 1000, //半径
-        borderWeight: 3,
-        strokeColor: '#FF33FF',
-        strokeOpacity: 1,
-        strokeWeight: 6,
-        strokeOpacity: 0.2,
-        fillOpacity: 0.4,
-        strokeStyle: 'dashed',
-        strokeDasharray: [10, 10],
-        // 线样式还支持 'dashed'
-        fillColor: '#1791fc',
-        zIndex: 50
-      })
+        this.circle = new AMap.Circle({
+          center: [this.siteInfo.longitude, this.siteInfo.latitude],
+          radius: this.siteInfo.radius, //半径
+          borderWeight: 3,
+          strokeColor: '#FF33FF',
+          strokeOpacity: 1,
+          strokeWeight: 6,
+          strokeOpacity: 0.2,
+          fillOpacity: 0.4,
+          strokeStyle: 'dashed',
+          strokeDasharray: [10, 10],
+          // 线样式还支持 'dashed'
+          fillColor: '#1791fc',
+          zIndex: 50
+        })
+      } else {
+        this.map = new AMap.Map('container', {
+          center: [102.478304, 24.919612],
+          zoom: 14
+        })
+
+        this.circle = new AMap.Circle({
+          center: [102.478304, 24.919612],
+          radius: 1000, //半径
+          borderWeight: 3,
+          strokeColor: '#FF33FF',
+          strokeOpacity: 1,
+          strokeWeight: 6,
+          strokeOpacity: 0.2,
+          fillOpacity: 0.4,
+          strokeStyle: 'dashed',
+          strokeDasharray: [10, 10],
+          // 线样式还支持 'dashed'
+          fillColor: '#1791fc',
+          zIndex: 50
+        })
+      }
 
       this.circle.setMap(this.map)
       // 缩放地图到合适的视野级别

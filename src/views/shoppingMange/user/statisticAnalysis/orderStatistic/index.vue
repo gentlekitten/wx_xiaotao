@@ -31,20 +31,20 @@
           placeholder="结束日期"
           @click="endTimeIsShow = true"
         />
-        <van-button class="btn" round>搜索</van-button>
+        <van-button class="btn" round @click="moreSearchOrder">搜索</van-button>
       </div>
     </div>
     <div class="order_warp">
       <div class="order_content">
         <div class="item">
           <div class="text">普通订单</div>
-          <div class="price">￥0</div>
-          <div class="num">0单</div>
+          <div class="price">￥--</div>
+          <div class="num">{{ orderNumObj.orderNumber }}单</div>
         </div>
         <div class="item">
           <div class="text">撤销订单</div>
-          <div class="price">￥0</div>
-          <div class="num">0单</div>
+          <div class="price">￥--</div>
+          <div class="num">{{ orderNumObj.revokeOrderNumber }}单</div>
         </div>
       </div>
     </div>
@@ -52,10 +52,13 @@
       v-model="orderLoading"
       class="order_list"
       :finished="orderFinished"
-      finished-text="没有更多了"
+      finished-text="哼，我也是有底线的~"
+      :immediate-check="false"
+      :offset="0"
       @load="orderOnLoad"
     >
-      <statistic-order-list class="items" :orderList="orderList" />
+      <statistic-order-list v-if="orderList.length > 0" class="items" :orderList="orderList" />
+      <van-empty v-else description="暂无该数据" />
     </van-list>
     <!-- 开始时间选择 -->
     <van-overlay :show="startTimeIsShow" @click="startTimeIsShow = false">
@@ -92,17 +95,25 @@
   </div>
 </template>
 <script>
+import { upData, getData } from '@/api/api.js'
+
+import timeForamt from '@/assets/js/time.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 import StatisticOrderList from '@/components/manage/StatisticOrderList.vue'
+
+import statisticAnalysis from '@/components/mixins/statisticAnalysis.js'
 
 export default {
   components: {
     NavBar,
     StatisticOrderList
   },
+  mixins: [statisticAnalysis],
   data() {
     return {
+      shopId: window.sessionStorage.getItem('shopId'),
       selectTimeIndex: 0,
       startTimeIsShow: false,
       endTimeIsShow: false,
@@ -123,53 +134,53 @@ export default {
       form: {
         startTime: '',
         endTime: ''
-      },
-      orderList: [
-        {
-          id: 0,
-          img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name: '哈哈',
-          price: '10',
-          status: 200
-        },
-        {
-          id: 1,
-          img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name: '哈哈',
-          price: '10',
-          status: 500
-        },
-        {
-          id: 2,
-          img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name: '哈哈',
-          price: '10',
-          status: 200
-        }
-      ]
+      }
     }
   },
+  created() {
+    // statisticAnalysis混入里面的方法
+    this.getOrderNum()
+    // statisticAnalysis混入里面的方法
+    this.getOrderList()
+  },
   methods: {
+    // 昨日，7日的更换
     clickTimeSelect(i, index) {
+      if (index !== 3) {
+        this.orderList = []
+        this.orderNumObj.orderNumber = 0
+        this.orderNumObj.revokeOrderNumber = 0
+        this.orderFinished = false
+        this.pageIndex = 0
+        this.isSearch = false
+      }
       this.selectTimeIndex = index
+      this.getOrderList()
     },
+    // 更多开始时间确定
     startTimeConfirm(value) {
-      this.form.startTime = String(value)
+      this.form.startTime = timeForamt.gettime.formatOnlyTime(value)
       this.startTimeIsShow = false
     },
+    // 更多结束时间确定
     endTimeConfirm(value) {
-      this.form.endTime = String(value)
+      this.form.endTime = timeForamt.gettime.formatOnlyTime(value)
       this.endTimeIsShow = false
     },
-    // 上拉加载数据
+    // 更多搜索确定
+    moreSearchOrder() {
+      // statisticAnalysis混入里面的方法
+      this.searchConfirm()
+    },
+    // 上拉加载
     orderOnLoad() {
-      // 异步更新数据
-      // setTimeout 仅做示例，真实场景中一般为 ajax 请求
-      setTimeout(() => {
-        // 加载状态结束
-        this.orderLoading = false
-      }, 1000)
-      this.orderFinished = true
+      if (this.orderList.length > 0) {
+        if (this.isSearch) {
+          this.searchConfirm()
+          return false
+        }
+        this.getOrderList()
+      }
     }
   }
 }
@@ -263,6 +274,9 @@ export default {
   .order_content .item:nth-child(1) {
     border-right: 1px solid #eee;
   }
+  // .order_content .item:nth-child(2) {
+  //   border-right: 1px solid #eee;
+  // }
 }
 .order_list {
   padding: 1rem;
@@ -271,6 +285,12 @@ export default {
     background-color: #fff;
     padding: 1rem;
     border-radius: 0.5rem;
+  }
+  .tip {
+    color: #999;
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 0.5rem;
   }
 }
 </style>

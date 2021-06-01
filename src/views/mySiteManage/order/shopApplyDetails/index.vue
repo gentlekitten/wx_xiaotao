@@ -86,7 +86,7 @@ export default {
         this.shopDetails = res.data
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 处理拨打电话事件
     toPhone(phoneNum) {
@@ -107,6 +107,11 @@ export default {
         showLoading: true
       })
       console.log(res)
+      if (res.code === '0') {
+        this.$toast.success('操作成功！')
+        this.$router.go(-1)
+      }
+      this.$handleCode.handleCode(res)
     }
   }
 }

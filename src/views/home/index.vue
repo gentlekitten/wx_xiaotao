@@ -1,6 +1,9 @@
 <template>
   <div id="home">
-    <router-view />
+    <keep-alive :include="include">
+      <router-view />
+    </keep-alive>
+
     <van-tabbar v-model="tabbarActive" route active-color="#EE9611" @change="tabbarChange">
       <van-tabbar-item to="/index">
         <span>首页</span>
@@ -35,6 +38,7 @@ export default {
   name: 'Home',
   data() {
     return {
+      include: ['Index', 'User', 'Cart'],
       tabbarActive: Number(window.sessionStorage.getItem('indexTabbarIndex'))
         ? Number(window.sessionStorage.getItem('indexTabbarIndex'))
         : 0

@@ -1,11 +1,10 @@
-import request from '@/utils/request'
+import axios from 'axios'
 
-export function login(params, showLoading) {
-    return request({
-      url: `/login`,
-      method: 'get',
-      params,
-      showLoading
-    })
-  }
-  
+export function login(url, params, showLoading) {
+  return axios.get({
+    url,
+    method: 'get',
+    params,
+    showLoading
+  })
+}

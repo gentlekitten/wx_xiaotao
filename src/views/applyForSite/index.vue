@@ -102,6 +102,7 @@ export default {
       this.$store.state.scopeSetting.form = this.form
       this.$router.push('/mySiteManage/user/mySiteManage/scopeSetting')
     },
+    // 提交
     async onFormSubmit() {
       if (this.form.latitude === '') {
         return this.$toast.fail('请设置站点范围')
@@ -111,7 +112,7 @@ export default {
       if (res.code === '0') {
         return this.$toast.success('发送成功，请静候佳音哦~')
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   }
 }

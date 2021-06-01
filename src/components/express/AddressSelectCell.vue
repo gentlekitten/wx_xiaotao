@@ -5,7 +5,14 @@
         <template #title>
           <div class="cell_item" @click="selectAddress">
             <div class="title" :class="{ 'title_qu':item.type === '起' }">{{ item.type }}</div>
-            <div class="content">{{ item.title }}</div>
+            <div v-if="Object.keys(addressObj).length > 0" class="address_text">
+              <div class="user_info">
+                <span>{{ addressObj.name }}</span>
+                {{ addressObj.phone }}
+              </div>
+              <div class="text">{{ addressObj.address }}</div>
+            </div>
+            <div v-else class="content">{{ item.title }}</div>
           </div>
         </template>
       </van-cell>
@@ -19,6 +26,12 @@ export default {
       type: Array,
       default: () => {
         return []
+      }
+    },
+    addressObj: {
+      type: Object,
+      default: () => {
+        return {}
       }
     },
     id: {
@@ -62,6 +75,24 @@ export default {
     }
     .content_qu {
       font-weight: 900;
+    }
+    .address_text {
+      margin-top: -1.2rem;
+      font-size: 0.9rem;
+      height: 3rem;
+      .user_info {
+        span {
+          color: #000;
+        }
+      }
+      .text {
+        word-break: break-all;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+      }
     }
   }
 }

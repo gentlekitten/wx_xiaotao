@@ -68,6 +68,9 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       searchValue: '',
       overlayIsShow: false,
       loading: false,
@@ -97,44 +100,7 @@ export default {
           title: '我的'
         }
       ],
-      infoList: [
-        // {
-        //   id: 0,
-        //   img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //   sex: 0,
-        //   name: '哈哈哈哈',
-        //   title: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   price: '100',
-        //   value:
-        //     '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   img_list: [
-        //     'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //     'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //     'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //     'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //     'https://img01.yzcdn.cn/vant/cat.jpeg'
-        //   ],
-        //   time: '12-08 13:00'
-        // },
-        // {
-        //   id: 1,
-        //   img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //   sex: 1,
-        //   name: '哈哈哈哈',
-        //   title: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   price: '100',
-        //   value:
-        //     '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   img_list: [
-        //     'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //     'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //     'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //     'https://img01.yzcdn.cn/vant/cat.jpeg',
-        //     'https://img01.yzcdn.cn/vant/cat.jpeg'
-        //   ],
-        //   time: '12-08 13:00'
-        // }
-      ]
+      infoList: []
     }
   },
   created() {
@@ -161,12 +127,12 @@ export default {
           console.log(res)
           return false
         }
-        return this.$toast.fail(res.msg)
+        this.$handleCode.handleCode(res)
       }
       // console.log(this.pageIndex)
 
       const data = {
-        siteId: 1,
+        siteId: this.siteId,
         category: this.tabIndex,
         pageIndex: this.pageIndex,
         pageLimit: this.pageLimit
@@ -187,7 +153,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     async infoOnLoad() {
       if (this.isSearch) {
@@ -220,7 +186,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 点击搜索
     async searchConfirm() {
@@ -242,7 +208,7 @@ export default {
 
           return false
         }
-        return this.$toast.fail(res.msg)
+        this.$handleCode.handleCode(res)
       }
       this.$toast.fail('请输入搜索内容')
     },
@@ -282,7 +248,7 @@ export default {
           if (res.code === '0') {
             return this.$toast.success('删除成功！')
           }
-          return this.$toast.fail(res.msg)
+          this.$handleCode.handleCode(res)
         })
         .catch(() => {})
     }

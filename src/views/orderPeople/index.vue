@@ -98,6 +98,9 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       tabIndex: Number(sessionStorage.getItem('orderPeopleTabsIndex'))
         ? Number(sessionStorage.getItem('orderPeopleTabsIndex'))
         : 0,
@@ -143,7 +146,7 @@ export default {
       const res = await getData(
         '/site/delivery/person/state/find',
         {
-          siteId: 23
+          siteId: this.siteId
         },
         { showLoading: false }
       )
@@ -156,12 +159,12 @@ export default {
 
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 获取任务列表
     async getTaskList(showLoading) {
       const data = {
-        siteId: 13,
+        siteId: this.siteId,
         pageIndex: this.pageIndex,
         pageLimit: 10
       }
@@ -178,12 +181,12 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 获取我的任务列表
     async getMyTaskList(showLoading) {
       const data = {
-        siteId: 13,
+        siteId: this.siteId,
         pageIndex: this.pageIndex,
         pageLimit: 10
       }
@@ -203,7 +206,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 商品搜索事件
     clickShopSearch(shopSearchValue) {

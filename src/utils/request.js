@@ -1,11 +1,14 @@
 import axios from 'axios'
-import qs from 'qs'
+// import NProgress from 'nprogress' // progress bar
+import 'nprogress/nprogress.css' // progress bar style
 import { Toast } from 'vant'
 
+// NProgress.configure({ showSpinner: false }) // NProgress Configuration
 // create an axios instance
 const service = axios.create({
-  baseURL: '/api',
-  timeout: 5000,
+  // https://jixi.mynatapp.cc/wechat
+  baseURL: 'https://jixi.mynatapp.cc/wechat',
+  timeout: 300000,
   // transformRequest: [data => qs.stringify(data)]
   headers: {
     'Content-Type': 'application/json; charset=UTF-8'
@@ -20,7 +23,7 @@ service.interceptors.request.use(
     //   // please modify it according to the actual situation
     //   config.headers['X-Token'] = getToken()
     // }
-
+    // Nprogress.start()
     if (config.showLoading && config.showLoading.showLoading) {
       Toast.loading({
         message: '加载中...',
@@ -41,6 +44,7 @@ service.interceptors.request.use(
 // response interceptor
 service.interceptors.response.use(
   response => {
+    // Nprogress.done()
     if (response.config.showLoading && response.config.showLoading.showLoading) {
       Toast.clear()
     }

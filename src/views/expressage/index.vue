@@ -14,7 +14,7 @@
     <!-- tabs -->
     <tabs :tab-list="tabList" :sticky="true" tabsIndexName="expressageTabActive">
       <template v-slot:tab0>
-        <address-select-cell :addressSelectList="tab0AddressSelectList" />
+        <address-select-cell :addressObj="addressObj" :addressSelectList="tab0AddressSelectList" />
         <div class="cell">
           <van-cell>
             <template #title>
@@ -65,7 +65,13 @@
           <!-- 文件上传 -->
           <van-field class="uploaderImg" name="uploaderImg" label="可选附图（至多6张）：" autosize>
             <template #input>
-              <van-uploader v-model="uploaderImg" :max-count="6" :after-read="uploading" />
+              <van-uploader
+                v-model="uploaderImg"
+                :max-count="6"
+                :max-size="5120 * 1024"
+                @oversize="handleImgLarge"
+                :after-read="uploading"
+              />
             </template>
           </van-field>
           <!-- 单选 -->
@@ -128,7 +134,7 @@
         </van-form>
       </template>
       <template v-slot:tab1>
-        <address-select-cell :addressSelectList="tab1AddressSelectList" />
+        <address-select-cell :addressObj="addressObj" :addressSelectList="tab1AddressSelectList" />
         <div class="address_require">
           <van-cell>
             <template #title>
@@ -179,6 +185,8 @@
                 v-model="sendOffuploaderImg"
                 multiple
                 :max-count="6"
+                :max-size="5120 * 1024"
+                @oversize="handleImgLarge"
                 :after-read="sendOffuploading"
               />
             </template>
@@ -231,6 +239,9 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       // 是否显示遮蔽层
       overlayIsShow: true,
       // tab0 遮蔽层
@@ -253,7 +264,9 @@ export default {
         expressOrderServiceIds: [],
         productNumber: 1,
         smallChange: 0,
-        siteId: 20,
+        siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+          ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+          : 0,
         expressOrderPics: []
       },
       sendOffuploaderImg: [],
@@ -265,7 +278,9 @@ export default {
         toPhone: '',
         toAddress: '',
         otherMessage: '',
-        siteId: 20,
+        siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+          ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+          : 0,
         expressOrderPics: []
       },
       // 取件地址对象
@@ -349,7 +364,9 @@ export default {
           type: '揽',
           title: '请新增或选择地址'
         }
-      ]
+      ],
+      // 地址对象
+      addressObj: {}
     }
   },
   computed: {
@@ -372,9 +389,46 @@ export default {
     this.getSiteExpressName()
   },
   methods: {
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过5M')
+    },
+    async getAddress() {
+      // 获取地址对象
+      JSON.parse(window.sessionStorage.getItem('addressObj')) &&
+        (this.addressObj = JSON.parse(
+          window.sessionStorage.getItem('addressObj')
+        ))
+      if (Object.keys(this.addressObj).length > 0) {
+        return false
+      }
+      const res = await getData(
+        '/customer/address/my/find',
+        {
+          siteId: this.siteId
+        },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        const addressObj = res.data.filter(e => {
+          return e.addressDefault === 1
+        })[0]
+        addressObj.name = addressObj.realname
+        addressObj.phone = addressObj.phone
+        addressObj.address =
+          addressObj.province +
+          addressObj.city +
+          addressObj.district +
+          addressObj.addressDetail
+        this.addressObj = addressObj
+        return false
+      }
+      this.$handelCode.handleCode(res)
+    },
     async getSiteExpressName() {
       const data = {
-        siteId: 20
+        siteId: this.siteId
       }
       const res = await getData('/site/express/info', data, {
         showLoading: false
@@ -386,7 +440,7 @@ export default {
         this.sendOffExpressName.push(...res.data)
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 处理上传图片
     async uploading(file) {
@@ -403,6 +457,7 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
     // 处理上传图片
     async sendOffuploading(file) {
@@ -421,6 +476,7 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
     // radio改变
     tab0RadioChange(radioIndex) {
@@ -448,7 +504,7 @@ export default {
       if (res.code === '0') {
         return this.$toast.success('提交成功！')
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 寄出快递表单提交
     async sendOffFormSubmit() {
@@ -462,6 +518,10 @@ export default {
         showLoading: true
       })
       console.log(res)
+      if (res.code === '0') {
+        return false
+      }
+      this.$handleCode.handleCode(res)
     },
     // 小费输入框失去焦点
     tipInputBlur() {

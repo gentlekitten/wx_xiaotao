@@ -30,7 +30,7 @@
             v-model="shopImg"
             :max-count="1"
             :after-read="upLogo"
-            :max-size="500 * 1024"
+            :max-size="5120 * 1024"
             @oversize="handleImgLarge"
             @delete="deleteLogoImg"
           />
@@ -53,6 +53,7 @@
         :rules="[{ required: true}]"
       />
       <van-field
+        v-if="shopManageId !== 1 || shopManageId !== 2"
         v-model.number="form.deliveryFee"
         type="number"
         label="邮费"
@@ -92,7 +93,7 @@
             v-model="swiperImg"
             :max-count="9"
             :after-read="upSwiperImg"
-            :max-size="500 * 1024"
+            :max-size="5120 * 1024"
             @oversize="handleImgLarge"
             @delete="deleteSwiperImg"
           />
@@ -117,6 +118,7 @@
           placeholder="每单限购数，0为不限购"
           clearable
         />
+        <!-- 上架或下架 -->
         <van-cell>
           <template #title>
             <div class="title">
@@ -127,6 +129,19 @@
           </template>
           <template #default>
             <van-switch v-model="form.state" size="1.5rem" />
+          </template>
+        </van-cell>
+        <!-- 是否支持7天退款 -->
+        <van-cell v-if="shopManageId !== 1 || shopManageId !== 2">
+          <template #title>
+            <div class="title">
+              是否支持七天退款
+              <div v-if="form.sRefund" class="text">(支持)</div>
+              <div v-else class="text">(不支持)</div>
+            </div>
+          </template>
+          <template #default>
+            <van-switch v-model="form.sRefund" size="1.5rem" />
           </template>
         </van-cell>
       </div>
@@ -148,7 +163,10 @@ export default {
   },
   data() {
     return {
-      // 是编辑还是添加
+      // 店铺类型
+      shopManageId: Number(window.sessionStorage.getItem('shopManageId'))
+        ? Number(window.sessionStorage.getItem('shopManageId'))
+        : 1, // 是编辑还是添加
       type: 'add',
       moreSettingIsShow: false,
       // 库存值
@@ -156,16 +174,17 @@ export default {
       shopImg: [],
       swiperImg: [],
       form: {
-        shopId: 23,
+        shopId: window.sessionStorage.getItem('shopId'),
         categoryId: null,
         productName: '',
-        originalPrice: 16,
-        sellPrice: 10,
-        productDesc: '1',
+        originalPrice: '',
+        sellPrice: '',
+        productDesc: '',
         sort: 0,
         restriction: 0,
-        deliveryFee: 1,
+        deliveryFee: '',
         state: true,
+        sRefund: true,
         inventory: 0,
         logoAddress: '',
         detailUrl: '',
@@ -202,7 +221,7 @@ export default {
   },
   created() {
     this.handlePageRefresh()
-    this.$route.query.type && (this.type = this.$route.query.type)
+    this.type = this.$route.query.type ? this.$route.query.type : 'add'
     this.initView()
   },
   methods: {
@@ -247,7 +266,7 @@ export default {
     },
     // 处理上传图片过大
     handleImgLarge() {
-      this.$toast.fail('上传的图片不能超过**')
+      this.$toast.fail('上传的图片不能超过5M')
     },
     // 商品图片
     async upLogo(file) {
@@ -264,6 +283,7 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
     // 商品轮播图片
     async upSwiperImg(file) {
@@ -280,24 +300,31 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
+    // 处理删除轮播图片
     deleteSwiperImg(file, detail) {
       this.swiperImg.splice(detail.index, 1)
       this.form.productInfoPicList.splice(detail.index, 1)
     },
+    // 处理删除logo图片
     deleteLogoImg() {
       this.shopImg = []
       this.form.logoAddress = ''
     },
+    //
     toSettingGoodsType() {
       this.handleSaveFormData()
-      this.$router.push('/shoppingMange/addGoods/settingGoodsType')
+      this.$router.push(
+        `/shoppingMange/addGoods/settingGoodsType?type=${this.type}`
+      )
     },
     toClassifySetting() {
       this.handleSaveFormData()
       this.$router.push('/shoppingMange/addGoods/goodsClassifySetting')
     },
     async onFormSubmit() {
+      // 提交后重置vuex数据模板
       const data = {
         categoryId: null,
         inventory: 0,
@@ -311,10 +338,13 @@ export default {
         this.$toast.fail('请填写相应内容')
         return false
       }
+      // 处理要提交的数据
       this.form.productInventory.productNumber = this.form.inventory
       this.form.inventory = this.form.inventory > 0 ? 1 : 0
       this.form.state = this.form.state ? 1 : 0
+      this.form.sRefund = this.form.sRefund ? 1 : 0
       this.form.sort = this.form.sort ? this.form.sort : 0
+      this.form.deliveryFee = this.form.deliveryFee ? this.form.deliveryFee : 0
       this.form.restriction = this.form.restriction ? this.form.restriction : 0
       const res = await upData('/product/add', this.form, {
         showLoading: true
@@ -327,7 +357,7 @@ export default {
         this.$store.commit('addGoods/UPDATE_DATA', data)
         return this.$toast.success('保存成功！')
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     toGoodsInfoEditor() {
       // 页面跳转，保存表单信息

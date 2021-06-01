@@ -1,13 +1,4 @@
 const state = {
-    time: {
-        startTime: '',
-        endTime: '',
-    },
-    discounts: {
-        requirePrice: '',
-        discountPrice: '',
-        time: ''
-    },
     imgList: {
         shopLogoImg: [],
         shopQualificationImg: []
@@ -16,12 +7,6 @@ const state = {
 }
 
 const mutations = {
-    TIME: (state, time) => {
-        state.time = time
-    },
-    DISCOUNTS: (state, discounts) => {
-        state.discounts = discounts
-    },
     IMG_LIST: (state, data) => {
         state.imgList.shopQualificationImg = data.shopQualificationImg
         state.imgList.shopLogoImg = data.shopLogoImg

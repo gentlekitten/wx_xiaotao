@@ -4,21 +4,26 @@
     <!-- 轮播图 -->
     <van-swipe :autoplay="3000">
       <van-swipe-item>
-        <img v-lazy="'https://jixi.mynatapp.cc/'+cartItem.logoAddress" class="img" />
+        <img class="image" v-lazy="'https://jixi.mynatapp.cc/'+cartItem.logoAddress" />
       </van-swipe-item>
     </van-swipe>
-    <div class="shop_name">{{ cartItem.productName }}</div>
+    <div
+      class="shop_name"
+    >{{ cartItem.productName +(cartItem.productInfoSpecifications.length > 0 ? cartItem.productInfoSpecifications[index].specificationName : '') }}</div>
     <div class="shop_info">
       <div class="shop_info_item">
-        <div class="price">￥{{ cartItem.sellPrice }}</div>
+        <div
+          class="price"
+        >￥{{ cartItem.sellPrice + (cartItem.productInfoSpecifications.length > 0 ? cartItem.productInfoSpecifications[index].price : 0) }}</div>
         <div class="num">销量：{{ cartItem.sale}}</div>
       </div>
       <van-button type="primary" class="add_shop" @click="handleAdd">来一份</van-button>
     </div>
-    <template v-if="cartList.length > 0">
+    <template v-if="Object.keys(cartList).length > 0">
       <!-- 购物车 -->
       <food-cart
         :cart-list="cartList"
+        :shop-info-obj="shopInfoObj"
         :is-cart-list="isCartList"
         :get-food-total-price="getFoodTotalPrice"
         :handle-food-num="handleFoodNum"
@@ -41,14 +46,26 @@ export default {
     FoodCart
   },
   props: {
+    // 規格id
+    d: {
+      type: Number,
+      default: 0
+    },
     isCartList: {
       type: Boolean,
       default: false
     },
     cartList: {
-      type: Array,
+      type: Object,
       default: () => {
-        return []
+        return {}
+      }
+    },
+    // 店铺信息
+    shopInfoObj: {
+      type: Object,
+      default: () => {
+        return {}
       }
     },
     cartItem: {
@@ -66,10 +83,21 @@ export default {
       default: 0
     }
   },
+  data() {
+    return {
+      // 选择商品的规格索引
+      index: 0
+    }
+  },
+  created() {
+    this.index = this.cartItem.productInfoSpecifications.findIndex(e => {
+      return this.d === e.id
+    })
+  },
   methods: {
     // 购物车提交
-    cartSubmit() {
-      this.$emit('cartSubmit')
+    cartSubmit(foodTotalPrice) {
+      this.$emit('cartSubmit', foodTotalPrice)
     },
     showCart() {
       this.$emit('showCart')
@@ -121,5 +149,9 @@ export default {
     height: 2rem;
     font-size: 0.8rem;
   }
+}
+.image {
+  width: 100%;
+  height: 15rem;
 }
 </style>

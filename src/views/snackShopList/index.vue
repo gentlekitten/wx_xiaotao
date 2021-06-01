@@ -51,22 +51,20 @@ export default {
     // 获取零食铺
     async getSnackShopList() {
       const res = await getData(
-        '/shop/snack/shop/list',
-        {
-          siteId: 23
-        },
+        '/site/snack/apart/info/find',
+        {},
         { showLoading: true }
       )
       console.log(res)
       res.data.forEach(e => {
-        e.url = `snackShop?id=${e.id}`
+        e.url = `snackShop?id=${e.shopId}`
         e.img = require('../../assets/img/index/snackShop.png')
-        e.text = e.shopName
+        e.text = e.apartmentName
       })
       if (res.code === '0') {
         return this.snackShopList.push(...res.data)
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     clickSnackDormitory(item) {
       // 去重

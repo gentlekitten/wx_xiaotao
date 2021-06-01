@@ -30,7 +30,7 @@
             checked-color="#f2af49"
             @click="clickGoodsCheckbox(item,c)"
           />
-          <img :src="'https://jixi.mynatapp.cc/'+c.img" @click="toShoppingDetails" />
+          <img :src="'https://jixi.mynatapp.cc/'+c.img" @click="toShoppingDetails(item, c)" />
           <div class="right_content">
             <div class="name" @click="toShoppingDetails(item, c)">{{ c.name }}</div>
             <div class="type" @click="clickSelectAttribute(item, c)">
@@ -87,12 +87,14 @@ import { getData, upData } from '@/api/api.js'
 import cartSku from '@/components/mixins/cartSku.js'
 
 export default {
+  name: 'Cart',
   components: {},
   mixins: [cartSku],
   data() {
     return {
       // 商品id
       id: 0,
+      totalPrice: 0,
       allChecked: false,
       isClickAdmin: false,
       shopSelectAttributeShow: false,
@@ -122,22 +124,41 @@ export default {
     }
   },
   computed: {
+    // 获取选中商品总价格
     getChatTotalNum() {
-      let shopList = []
+      // 深拷贝
+      let shopList = this._.cloneDeep(this.cartList)
+      // 总价格
       let total = 0
-      this.cartList.forEach(i => {
-        i.shopList.forEach(c => {
-          shopList.push(c)
+      // 每个店铺的总价格
+      let shopPrice = 0
+      // 优惠的最低价格
+      let requirePrice = 0
+      // 优惠的减免价格
+      let discountPrice = 0
+      shopList.forEach(e => {
+        e.shopList = e.shopList.filter(c => {
+          return c.isCheck === true
         })
       })
-      const selectShopList = shopList.filter(i => {
-        return i.isCheck === true
+      shopList.forEach(e => {
+        e.shopList.forEach(c => {
+          shopPrice += c.num * c.price
+        })
+        // // 判断店铺是否优惠，
+        if (e.shopList[0] && e.shopList[0].shopDiscount.requirePrice) {
+          requirePrice = e.shopList[0].shopDiscount.requirePrice
+          discountPrice = e.shopList[0].shopDiscount.discountPrice
+          // 满足优惠最低价格减去优惠价格
+          shopPrice =
+            shopPrice >= requirePrice ? shopPrice - discountPrice : shopPrice
+        }
+        total += shopPrice
       })
-      selectShopList.forEach(i => {
-        total += i.price * i.num
-      })
+      this.totalPrice = total
       return total * 100
     },
+    // 获取商品数量
     getCartNum() {
       let shopList = []
       let num = 0
@@ -176,8 +197,9 @@ export default {
       idList.forEach(e => {
         data.orderCarts.push({ id: e.id })
       })
-      console.log(data)
-
+      if (data.orderCarts.length <= 0) {
+        this.$toast.fail('请选择删除的商品！')
+      }
       const res = await upData('/order/cart/delete', data, {
         showLoading: true
       })
@@ -186,7 +208,7 @@ export default {
         this.$router.go(0)
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
       // this.cartList = this.cartList.filter(i => {
       //   return i.isCheck !== true
       // })
@@ -242,16 +264,23 @@ export default {
             shopType,
             price,
             rePrice: e.productInfo.sellPrice,
+            deliveryFee: e.productInfo.deliveryFee,
             restriction: e.productInfo.restriction,
             inventory: e.productInfo.inventory,
             productInventory: e.productInfo.productInventory,
-            num: e.productAmount
+            num: e.productAmount,
+            shopOrders: e.shopInfo.shopOrders ? e.shopInfo.shopOrders : '',
+            productInfoProperties: e.productInfo.productInfoProperties,
+            productInfoSpecifications: e.productInfo.productInfoSpecifications,
+            shopDiscount: e.productInfo.shopDiscount
+              ? e.productInfo.shopDiscount
+              : ''
           }
           this.cartList[index].shopList.push(arr)
         })
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
 
       const arr = [
         {
@@ -351,7 +380,25 @@ export default {
     },
     // 结算
     cartSubmit() {
-      this.$router.push('/shoppingOrderView')
+      const cartSubmitList = []
+      this.cartList.forEach(e => {
+        const isCheck = e.shopList.some(c => {
+          return c.isCheck === true
+        })
+        if (isCheck) {
+          cartSubmitList.push(e)
+        }
+      })
+      if (cartSubmitList.length <= 0) {
+        return this.$toast.fail('请选择商品！')
+      }
+      cartSubmitList[0].totalPrice = this.totalPrice
+      window.sessionStorage.setItem(
+        'shopCartList',
+        JSON.stringify(cartSubmitList)
+      )
+      // 0外卖 1商城
+      this.$router.push('/shoppingOrderView?form=1')
     },
     // 商品规格改变触发
     skuSelected(data) {
@@ -420,7 +467,7 @@ export default {
         this.$router.go(0)
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
       // const index = this.cartList.findIndex(i => {
       //   return item.id === i.id
       // })
@@ -436,10 +483,9 @@ export default {
     toShoppingShop() {
       this.$router.push('/shoppingShop')
     },
-    toShoppingDetails() {
-      this.$router.push('/shoppingDetails')
+    toShoppingDetails(item, c) {
+      this.$router.push(`/shoppingDetails?id=${c.productId}`)
     },
-    // shopSelectAttributeShow = true
     // 点击选择属性
     clickSelectAttribute(item, c) {
       this.shopSelectAttributeShow = true
@@ -453,7 +499,7 @@ export default {
       this.sku.price = c.rePrice
       this.sku.stock_num =
         c.inventory === 0 ? 9999999999999 : c.productInventory.productNumber
-      // this.goods.picture = 
+      // this.goods.picture =
       if (this.sku.list.length <= 0) {
         this.$toast.loading({ message: '加载中...', forbidClick: true })
       }

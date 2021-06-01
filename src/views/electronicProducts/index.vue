@@ -64,6 +64,9 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       id: 7,
       pageIndex: 0,
       searchPageIndex: 1,
@@ -107,7 +110,7 @@ export default {
     // 获取商品和店铺列表
     async getShopList() {
       const data = {
-        siteId: 50,
+        siteId: this.siteId,
         shopCategoryId: 3,
         pageIndex: this.pageIndex,
         pageLimit: 10
@@ -137,7 +140,7 @@ export default {
       }
       this.finished = true
       this.finishedText = ''
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     //   顶部搜索确认
     async searchConfirm(value) {
@@ -159,7 +162,7 @@ export default {
             : (this.shopList = [...res.data.productInfo])
           return false
         }
-        return this.$toast.fail(res.msg)
+        this.$handleCode.handleCode(res)
       }
       this.$toast.fail('请输入搜索内容')
     },
@@ -186,7 +189,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 点击 tabs
     clickTab(index) {

@@ -6,7 +6,7 @@ const state = {
     },
     form: {
         username: '',
-        phone: '14708701960',
+        phone: '',
         siteName: '',
         latitude: '',
         longitude: '',

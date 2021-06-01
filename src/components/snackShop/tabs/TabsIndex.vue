@@ -14,15 +14,15 @@
           <!-- 右侧商品列表 -->
           <food-list
             class="right"
+            :shop-id="shopId"
             :shop-list="shopList"
             :dropdown-obj="dropdownObj"
             @handleAdd="handleAdd"
           />
-        </div>
-
-        <!-- 下拉选择框 -->
-        <div class="dropdown">
-          <dropdown-menu :dropdown-list="dropdownList" @dropdownChange="dropdownChange" />
+          <!-- 下拉选择框 -->
+          <!-- <div class="dropdown">
+            <dropdown-menu :dropdown-list="dropdownList" @dropdownChange="dropdownChange" />
+          </div>-->
         </div>
       </template>
       <template v-slot:tab1>
@@ -40,15 +40,16 @@
         </div>
       </template>
       <template v-slot:tab2>
-        <merchant-shop-info :shopInfoObj="shopInfoObj" @clickImg="clickImg" />
+        <merchant-shop-info :shop-info-obj="shopInfoObj" @clickImg="clickImg" />
       </template>
     </tabs>
-    <template v-if="tabIndex === 0 && cartList.length > 0">
+    <template v-if="tabIndex === 0 && Object.keys(cartList).length > 0">
       <!-- 底部购物车 -->
       <food-cart
         :cart-list="cartList"
         :is-cart-list="isCartList"
         :get-food-total-price="getFoodTotalPrice"
+        :shop-info-obj="shopInfoObj"
         :handle-food-num="handleFoodNum"
         @showCart="showCart"
         @clearCart="clearCart"
@@ -62,6 +63,8 @@
   </div>
 </template>
 <script>
+// import commonJs from '@/assets/js/common.js'
+
 import BackTop from '@/components/common/BackTop.vue'
 import FoodCart from '@/components/common/FoodCart.vue'
 import DropdownMenu from '@/components/common/DropdownMenu.vue'
@@ -94,11 +97,11 @@ export default {
     },
     // 购物车列表
     cartList: {
-      type: Array,
+      type: Object,
       default: () => {
         return JSON.parse(window.sessionStorage.getItem('cartList'))
           ? JSON.parse(window.sessionStorage.getItem('cartList'))
-          : []
+          : {}
       }
     },
     // 下拉选择框列表
@@ -156,6 +159,10 @@ export default {
       default: () => {
         return {}
       }
+    },
+    shopId: {
+      type: Number,
+      default: 0
     }
   },
   computed: {
@@ -163,8 +170,9 @@ export default {
     handleFoodNum() {
       let $total = 0
       const cartList = this.cartList
-      $total = cartList.reduce(
-        (total, currentValue, currentIndex, cartList) => {
+      let shopList = cartList.shopList ? cartList.shopList : []
+      $total = shopList.reduce(
+        (total, currentValue, currentIndex, shopList) => {
           return currentValue['num'] ? total + currentValue['num'] : total
         },
         0
@@ -174,15 +182,36 @@ export default {
     // 计算总价格
     getFoodTotalPrice() {
       let $total = 0
+      // const priceList = []
       const cartList = this.cartList
-      $total = cartList.reduce(
-        (total, currentValue, currentIndex, cartList) => {
+      let shopList = cartList.shopList ? cartList.shopList : []
+      console.log(shopList)
+
+      // shopList.forEach(e => {
+      //   priceList.push(e.num * e.sellPrice)
+      // })
+      // $total = commonJs.addItem(priceList)
+      $total = shopList.reduce(
+        (total, currentValue, currentIndex, shopList) => {
           return currentValue['num']
             ? total + currentValue['num'] * currentValue['sellPrice']
             : total
         },
         0
       )
+      if (shopList.length > 0) {
+        shopList.forEach(e => {
+          if (e.productInfoSpecifications.length > 0) {
+            $total += e.productInfoSpecifications[0].price * e.num
+          }
+        })
+      }
+      // 判断有无商家优惠
+      if (this.shopInfoObj.shopDiscount) {
+        if ($total >= this.shopInfoObj.shopDiscount.requirePrice) {
+          $total -= this.shopInfoObj.shopDiscount.discountPrice
+        }
+      }
       return $total
     }
   },
@@ -198,8 +227,8 @@ export default {
       this.$emit('handleAdd', addItem)
     },
     // 购物车提交
-    cartSubmit() {
-      this.$emit('cartSubmit')
+    cartSubmit(foodTotalPrice) {
+      this.$emit('cartSubmit', foodTotalPrice)
     },
     showCart() {
       this.isCartList = !this.isCartList
@@ -249,6 +278,7 @@ export default {
 }
 .contnet {
   overflow: hidden;
+  position: relative;
   height: 100vh;
   top: 0;
   bottom: 0;
@@ -269,13 +299,12 @@ export default {
     overflow: auto;
     background-color: #fff;
   }
+  .dropdown {
+    position: absolute;
+    top: 0;
+    right: 1rem;
+  }
 }
-.dropdown {
-  position: fixed;
-  top: 0;
-  right: 1rem;
-}
-
 .evaluate {
   border-top: 1px solid #ccc;
   box-sizing: border-box;

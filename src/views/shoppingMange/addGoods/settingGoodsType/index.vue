@@ -69,9 +69,15 @@
         </div>
       </van-collapse-item>
     </van-collapse>
-    <div class="up_img_warp">
+    <div class="up_img_warp" v-if="type === 'add'">
       <div class="title">图片上传</div>
-      <van-uploader class="uploader" v-model="imgList" :after-read="upImg" />
+      <van-uploader
+        class="uploader"
+        v-model="imgList"
+        :max-size="5120 * 1024"
+        @oversize="handleImgLarge"
+        :after-read="upImg"
+      />
     </div>
     <div class="submit_btn">
       <van-button class="btn" round @click="clickSaveBtn">确定保存</van-button>
@@ -89,6 +95,7 @@ export default {
   },
   data() {
     return {
+      type: '',
       upImgActice: [],
       form: {
         goodsSpecification: '',
@@ -97,38 +104,18 @@ export default {
         goodsAttributeValue: []
       },
       imgList: [],
-      goodsSpecificationList: [
-        {
-          id: 0,
-          specificationName: '小份',
-          price: 1
-        },
-        {
-          id: 1,
-          specificationName: '中份',
-          price: 2
-        },
-        {
-          id: 2,
-          specificationName: '大份',
-          price: 3
-        }
-      ],
-      goodsAttributeList: [
-        {
-          id: 0,
-          propertyName: '颜色',
-          productPropertyValues: [
-            {
-              id: 101,
-              propertyValue: '黑色'
-            }
-          ]
-        }
-      ]
+      goodsSpecificationList: [],
+      goodsAttributeList: []
     }
   },
+  created() {
+    this.type = this.$route.query.type ? this.$route.query.type : 'add'
+  },
   methods: {
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过5M')
+    },
     // 上传商品图片
     async upImg(file, index) {
       const length = this.goodsAttributeList[0].productPropertyValues.length - 1
@@ -145,14 +132,17 @@ export default {
       const res = await upLogo('/product/img', formData)
       console.log(res)
       if (res.code === '0') {
-        console.log(this.goodsAttributeList[0].productPropertyValues[index.index])
+        console.log(
+          this.goodsAttributeList[0].productPropertyValues[index.index]
+        )
 
-        this.goodsAttributeList[0].productPropertyValues[index.index].picAddress =
-          res.data.filename
+        this.goodsAttributeList[0].productPropertyValues[
+          index.index
+        ].picAddress = res.data.filename
         file.status = 'done'
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 添加规格
     addSpecificationBtn() {

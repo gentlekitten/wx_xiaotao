@@ -25,6 +25,8 @@
           <van-uploader
             v-model="uploaderImg"
             :max-count="1"
+            :max-size="2048 * 1024"
+            @oversize="handleImgLarge"
             :after-read="uploadingLogo"
             @delete="deleteLogoImg"
           />
@@ -52,6 +54,8 @@
             v-model="swiperImg"
             multiple
             :max-count="9"
+            :max-size="2048 * 1024"
+            @oversize="handleImgLarge"
             :after-read="uploadingShoppingPic"
             @delete="deleteSwiperImg"
           />
@@ -154,6 +158,10 @@ export default {
       this.form.productDetailAddress = this.getProductDetailAddress
       // console.log(this.uploaderImg)
     },
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过2M')
+    },
     // 处理页面刷新
     handlePageRefresh() {
       //在页面刷新时将vuex里的信息保存到sessionStorage里
@@ -191,6 +199,7 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
     // 处理上传轮播图片
     async uploadingShoppingPic(file) {
@@ -207,6 +216,7 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
     // 处理删除轮播图片
     deleteSwiperImg(file, detail) {
@@ -241,7 +251,7 @@ export default {
         this.$store.commit('secondaryMarket/UPDATE_DATA', data)
         this.$router.push('/secondaryMarket')
       }
-      return false
+      this.$handleCode.handleCode(res)
     },
     toGoodsInfoEditor() {
       this.$store.state.secondaryMarket.logoImg = this.uploaderImg

@@ -22,23 +22,26 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       chosenAddressId: 1,
       // 地址配送列表
       addressList: [],
       // 不可配送地址列表
       disabledList: [
-        {
-          id: '2',
-          name: '王五',
-          tel: '1320000000',
-          address: '浙江省杭州市滨江区江南大道 15 号'
-        },
-        {
-          id: '3',
-          name: '王五',
-          tel: '1320000000',
-          address: '浙江省杭州市滨江区江南大道 15 号'
-        }
+        // {
+        //   id: '2',
+        //   name: '王五',
+        //   tel: '1320000000',
+        //   address: '浙江省杭州市滨江区江南大道 15 号'
+        // },
+        // {
+        //   id: '3',
+        //   name: '王五',
+        //   tel: '1320000000',
+        //   address: '浙江省杭州市滨江区江南大道 15 号'
+        // }
       ]
     }
   },
@@ -51,29 +54,46 @@ export default {
       const data = {}
       const res = await getData(
         '/customer/address/my/find',
-        { siteId: 13 },
+        { siteId: this.siteId },
         { showLoading: true }
       )
       console.log(res)
       if (res.code === '0') {
-        this.addressList = res.data
-        this.disabledList = this.addressList.filter(e => {
-          return e.state === 0
-        })
-        this.addressList.forEach(e => {
-          e.name = e.realname
-          e.tel = e.phone
-          e.county = e.district
-          e.isDefault = e.addressDefault === 0 ? false : true
-          e.address = e.city + e.province + e.district + e.addressDetail
-        })
-        this.chosenAddressId = res.data.filter(e => {
-          return e.addressDefault === 1
-        })[0].id
-
+        if (res.data.length > 0) {
+          this.addressList = res.data
+          this.disabledList = this.addressList.filter(e => {
+            return e.state === 0
+          })
+          this.addressList.forEach(e => {
+            e.name = e.realname
+            e.tel = e.phone
+            e.county = e.district
+            e.isDefault = e.addressDefault === 0 ? false : true
+            e.address = e.city + e.province + e.district + e.addressDetail
+          })
+          const addressList = res.data.filter(e => {
+            return e.addressDefault === 1
+          })
+          if (addressList.length > 0) {
+            this.chosenAddressId = addressList[0].id
+            const addressObj = {
+              address: addressList[0].address,
+              customerId: addressList[0].customerId,
+              id: addressList[0].id,
+              name: addressList[0].name,
+              phone: addressList[0].phone,
+              siteId: addressList[0].siteId,
+              state: addressList[0].state
+            }
+            window.sessionStorage.setItem(
+              'addressObj',
+              JSON.stringify(addressObj)
+            )
+          }
+        }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 点击新增地址
     addAddress() {
@@ -89,13 +109,16 @@ export default {
       const isExist = this.disabledList.some(e => {
         return e.id === item.id
       })
-      console.log(isExist)
-
       if (isExist) {
-        return this.$toast.fail('该地址不在配送范围哦！')
+        this.$toast.fail('该地址可能不在配送范围哦！')
       }
-      this.$toast.success('更改成功')
       console.log(item)
+      window.sessionStorage.setItem('addressObj', JSON.stringify(item))
+      if (!isExist) {
+        setTimeout(e => {
+          this.$router.go(-1)
+        }, 1000)
+      }
     }
   }
 }

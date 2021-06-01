@@ -2,9 +2,9 @@
   <div>
     <div class="user_info">
       <div class="user_img">
-        <img class="user_img" v-lazy="userImg" />
+        <img class="user_img" v-lazy="shopInfoObj.headimgurl" />
       </div>
-      <div class="username">店主：小明</div>
+      <div class="username">店主：{{ shopInfoObj.nickname }}</div>
       <div class="option">
         <van-icon
           class="icon"
@@ -18,9 +18,9 @@
     <div class="dispatching">
       <div class="left">起送价：￥{{ shopInfoObj.lowPrice ? shopInfoObj.lowPrice : 0 }}</div>
       <div
-        v-if="shopInfoObj.shopOrders"
+        v-if="shopInfoObj.shopOrder"
         class="right"
-      >配送费：￥{{ shopInfoObj.shopOrders[0].deliveryFee ? shopInfoObj.shopOrders[0].deliveryFee : 0 }}</div>
+      >配送费：￥{{ shopInfoObj.shopOrder.deliveryFee ? shopInfoObj.shopOrder.deliveryFee : 0 }}</div>
     </div>
     <div class="shop_info">
       <div class="top">
@@ -30,10 +30,11 @@
         </div>
         <div class="cell">店铺电话：{{ shopInfoObj.shopPhone }}</div>
         <div class="cell">
-          店铺地址：{{ shopInfoObj.addressDetail }}
-          <van-icon name="location-o" />
+          店铺地址：{{ shopInfoObj.shopAddress }}
         </div>
-        <div class="cell">营业时间：{{ shopInfoObj.startTime }}</div>
+        <div
+          class="cell"
+        >营业时间：{{ shopInfoObj.startTime ? shopInfoObj.startTime : ''}}-{{ shopInfoObj.endTime ? shopInfoObj.endTime : '' }}</div>
         <div class="cell">主营业务：{{ shopInfoObj.businessInfo }}</div>
         <div class="cell">店铺简介：{{ shopInfoObj.introduce }}</div>
       </div>
@@ -75,7 +76,12 @@
       <div class="bottom">
         <div class="cell">
           举报商家：
-          <van-icon class="icon" name="phone-o" size="1.5rem" @click="toPhone" />
+          <van-icon
+            class="icon"
+            name="phone-o"
+            size="1.5rem"
+            @click="toPhoneBySite(shopInfoObj.sitePhone)"
+          />
           <van-icon class="icon" name="warning-o" size="1.5rem" @click="toReportView" />
         </div>
       </div>
@@ -109,9 +115,8 @@ export default {
     toChatView() {
       this.$router.push('/chatView')
     },
-    // 拨打举报电话
-    toPhone() {
-      const phoneNum = 14708701960
+    // 向站长举报
+    toPhoneBySite(phoneNum) {
       window.location.href = 'tel:' + phoneNum
     },
     // 跳转到举报界面

@@ -45,8 +45,10 @@ export default {
     }
   },
   created() {
-    const id = Number(this.$route.query.id)
-    this.initNavBar(id)
+    const id = this.$route.query.id
+      ? this.$route.query.id
+      : window.sessionStorage.getItem('shopManageId')
+    this.initNavBar(Number(id))
   },
   methods: {
     initNavBar(id) {

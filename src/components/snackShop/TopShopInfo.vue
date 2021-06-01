@@ -1,7 +1,12 @@
 <template>
   <div>
     <!-- 背景图片 -->
-    <van-image class="img" width="100%" height="14.5rem" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+    <van-image
+      class="img"
+      width="100%"
+      height="14.5rem"
+      :src="'https://jixi.mynatapp.cc/'+shopInfoObj.shopPic"
+    />
     <!-- 顶部商店信息 -->
     <div class="shop">
       <div class="shop_info">
@@ -21,7 +26,7 @@
           <span
             class="sore"
           >评分：{{ shopInfoObj.shopScore ? (shopScore.attitude + shopScore.quality + shopScore.sTime) / 6 : '暂无' }}</span>
-          <span class="sale_num">月售：{{ shopInfoObj.sale }}</span>
+          <span class="sale_num">已售：{{ shopInfoObj.sale }}</span>
         </div>
         <div class="tag">
           <van-tag plain type="danger">专人配送</van-tag>

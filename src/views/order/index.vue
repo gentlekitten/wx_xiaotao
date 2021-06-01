@@ -10,6 +10,14 @@
       tabsIndexName="tabActiveIndexOrder"
       @clickTab="clickTab"
     >
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        finished-text="哼，我也是有底线的~"
+        :immediate-check="false"
+        :offset="0"
+        @load="onLoadData"
+      ></van-list>
       <div class="shopping_warp">
         <div class="shopping">
           <div class="shopping_item" @click="toOrderDetails">
@@ -108,6 +116,8 @@
   </div>
 </template>
 <script>
+import { getData } from '@/api/api.js'
+
 import Tabs from '@/components/common/Tabs.vue'
 
 import TopSearch from '@/components/shoping/TopSearch.vue'
@@ -119,12 +129,18 @@ export default {
   },
   data() {
     return {
+      loading: false,
+      finished: false,
+      pageIndex: 0,
+      tabIndex: Number(sessionStorage.getItem('tabActiveIndexOrder'))
+        ? Number(sessionStorage.getItem('tabActiveIndexOrder'))
+        : 0,
       tabList: [
         {
           title: '全部'
         },
         {
-          title: '代付款'
+          title: '待付款'
         },
         {
           title: '待发货'
@@ -138,12 +154,78 @@ export default {
         {
           title: '退款/售后'
         }
-      ]
+      ],
+      orderList: [],
+      nonPaymentOrderList: []
     }
   },
   methods: {
+    // 处理获取数据
+    handleGetData() {
+      if (this.tabIndex === 0) {
+        this.orderList()
+      } else if (this.tabIndex === 1) {
+        this.getNonPaymentOrder()
+      } else if (this.tabIndex === 2) {
+      } else if (this.tabIndex === 3) {
+      } else if (this.tabIndex === 4) {
+      } else {
+      }
+    },
+    // 获取用户全部订单
+    async getUserAllOrder() {
+      const data = {
+        pageIndex: this.pageIndex,
+        pageLimit: 10
+      }
+      const res = await getData('/order/info/user/all', data, {
+        showLoading: true
+      })
+      this.loading = false
+      console.log(res)
+      if (res.code === '0') {
+        this.orderList.push(...res.data.orderMaster)
+        this.pageIndex += 1
+        if (this.pageIndex * 10 >= res.data.number) {
+          this.finished = true
+        }
+        return false
+      }
+      this.$handleCode.handleCode()
+    },
+    // 获取用户未支付订单
+    async getNonPaymentOrder() {
+      const data = {
+        pageIndex: this.pageIndex,
+        pageLimit: 10
+      }
+      const res = await getData('/order/info/user/pay/check', data, {
+        showLoading: true
+      })
+      this.loading = false
+      console.log(res)
+      if (res.code === '0') {
+        this.nonPaymentOrderList.push(...res.data.orderMaster)
+        this.pageIndex += 1
+        if (this.pageIndex * 10 >= res.data.number) {
+          this.finished = true
+        }
+        return false
+      }
+      this.$handleCode.handleCode()
+    },
     searchConfirm(value) {},
-    clickTab(index) {},
+    clickTab(index) {
+      this.tabIndex = index
+      this.orderList = []
+      this.nonPaymentOrderList = []
+      this.pageIndex = 0
+      // this.searchPageIndex = 1
+      this.finished = false
+      // this.isSearch = false
+      // this.searchValue = ''
+      this.getData()
+    },
     toOrderDetails() {
       this.$router.push('/order/orderDetails')
     },
@@ -154,6 +236,22 @@ export default {
     // 去退款
     toRefundView() {
       this.$router.push('/order/refundView')
+    },
+    // 上拉加载数据
+    onLoadData() {
+      // 解决点击tab会重复发送请求
+      if (this.tabIndex === 0 && this.orderList.length > 0) {
+        this.getUserAllOrder()
+      } else if (this.tabIndex === 1 && this.nonPaymentOrderList.length > 0) {
+        this.getNonPaymentOrder()
+      } else if (this.tabIndex === 2 && this.reportList.length > 0) {
+        this.getReportList()
+      } else if (this.tabIndex === 3 && this.shopList.length > 0) {
+        this.getShopList()
+      } else if (this.tabIndex === 4 && this.feedBackList.length > 0) {
+        this.getFeedBackList()
+      } else if (this.tabIndex === 5 && this.feedBackList.length > 0) {
+      }
     }
   }
 }

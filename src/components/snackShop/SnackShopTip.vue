@@ -13,7 +13,7 @@
       <span class="text">{{ snackShopTipObj.snackShopTip }}</span>
       <span class="time">
         发布时间：
-        {{ new Date() | datefmt('YYYY-MM-DD HH:mm:ss') }}
+        <!-- {{ new Date() | datefmt('YYYY-MM-DD HH:mm:ss') }} -->
       </span>
     </div>
     <!-- 分享遮蔽层 -->

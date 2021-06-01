@@ -6,7 +6,7 @@
       <div class="discount">
         <div class="text">满</div>
         <van-field
-          v-model="form.requirePrice"
+          v-model.number="form.requirePrice"
           required
           clearable
           type="number"
@@ -15,7 +15,7 @@
         />
         <div class="text">减</div>
         <van-field
-          v-model="form.discountPrice"
+          v-model.number="form.discountPrice"
           required
           clearable
           type="number"
@@ -24,7 +24,7 @@
         />
       </div>
       <van-field
-        v-model="form.time"
+        v-model="form.endTime"
         required
         clearable
         type="number"
@@ -39,6 +39,10 @@
   </div>
 </template>
 <script>
+import { upData, getData } from '@/api/api.js'
+
+import timeFormat from '@/assets/js/time.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 export default {
@@ -50,22 +54,59 @@ export default {
       form: {
         requirePrice: '',
         discountPrice: '',
-        time: ''
+        endTime: '',
+        shopId: Number(window.sessionStorage.getItem('shopId'))
       }
     }
   },
+  created() {
+    this.getShopDisCount()
+  },
   methods: {
-    formSubmit() {
+    // 获取店铺优惠
+    async getShopDisCount() {
+      const res = await getData(
+        '/shop/discount/find',
+        { shopId: this.form.shopId },
+        {
+          showLoading: true
+        }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.form = res.data
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 发布优惠
+    async formSubmit() {
       if (Number(this.form.time) < 1) {
         this.$toast.fail('优惠天数不能小于1')
         return false
       }
-      this.$store.commit('addShopping/DISCOUNTS', this.form)
-      sessionStorage.setItem(
-        'addShopping',
-        JSON.stringify(this.$store.state.addShopping)
+      const endTime = timeFormat.gettime.setTime(
+        this.form.endTime * 24 * 60 * 60 * 1000
       )
-      this.$router.go(-1)
+      console.log(endTime)
+      const data = this._.cloneDeep(this.form)
+      data.endTime = endTime
+      const res = await upData('/shop/discount/add', data, {
+        showLoading: true
+      })
+      console.log(res)
+      if (res.code === '0') {
+        this.$router.go(-1)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+
+      // this.$store.commit('addShopping/DISCOUNTS', this.form)
+      // sessionStorage.setItem(
+      //   'addShopping',
+      //   JSON.stringify(this.$store.state.addShopping)
+      // )
+      // this.$router.go(-1)
     }
   }
 }

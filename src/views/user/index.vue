@@ -4,11 +4,11 @@
     <div class="avtor">
       <div class="user_img_warp">
         <div class="backdrop" />
-        <img class="image_big" :src="user.avatar" />
+        <img class="image_big" :src="userInfo.headImgUrl" />
         <div class="avtor_logo" @click="editUserInfo">
-          <img class="image_icon" :src="user.avatar" />
+          <img class="image_icon" :src="userInfo.headImgUrl" />
           <div class="user_name">
-            {{ user.name }}
+            {{ userInfo.nickName }}
             <div class="edit_user">编辑资料</div>
           </div>
         </div>
@@ -18,11 +18,11 @@
     <div class="grid">
       <van-grid :border="false" :column-num="2">
         <van-grid-item to="/collectionGoods">
-          <div class="num">0</div>
+          <div class="num">{{ userInfo.productRecordNum }}</div>
           <div class="text">收藏的商品</div>
         </van-grid-item>
         <van-grid-item to="/collectionShop">
-          <div class="num">0</div>
+          <div class="num">{{ userInfo.shopRecordNum }}</div>
           <div class="text">收藏的店铺</div>
         </van-grid-item>
         <!-- <van-grid-item>
@@ -68,17 +68,13 @@
       </van-grid>
     </div>
     <div class="shop_anagement other">
-      <van-cell title="领跑者" is-link class="text" to="/orderPeopleManage/user" />
+      <van-cell title="领跑者" is-link class="text" @click="checkPeople" />
       <van-cell title="二手市场" is-link class="text" to="/secondaryMarketManage/user" />
       <van-cell title="店铺" is-link class="text" to="/myShoppingList" />
-      <van-cell
-        title="站点"
-        is-link
-        class="text"
-        :to="isSite ? '/mySiteManage/user' : '/applyForSite'"
-      />
+      <van-cell title="站点" is-link class="text" @click="checkSite" />
     </div>
     <div class="other">
+      <van-cell title="我的淘币" is-link class="text" to="/user/taoCoins" />
       <van-cell title="收货地址管理" is-link class="text" to="/user/userInfo/addressList" />
       <van-cell title="联系客服" is-link class="text" to="/chatView" />
       <van-cell title="意见反馈" is-link class="text" to="/feedback" />
@@ -94,24 +90,69 @@
   </div>
 </template>
 <script>
+import { getData } from '@/api/api.js'
+
 import OverlayItem from '@/components/snackShop/OverlayItem.vue'
 
 export default {
+  name: 'User',
   components: {
     OverlayItem
   },
   data() {
     return {
       overlayIsShow: false,
-      isSite: true,
-      user: {
-        name: '小明',
-        avatar:
-          'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=183326193,1784969774&fm=26&gp=0.jpg'
-      }
+      isSite: false,
+      userInfo: {}
     }
   },
+  created() {
+    this.getMyUserData()
+  },
   methods: {
+    // 获取我的页面数据
+    async getMyUserData() {
+      const res = await getData('/page/userInfo', {}, { showLoading: true })
+      console.log(res)
+      if (res.code === '0') {
+        this.userInfo = res.data
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 获取站点个人信息
+    async checkSite() {
+      const res = await getData('/site/basic/my', {}, { showLoading: true })
+      console.log(res)
+      if (res.code === '0') {
+        if (this.userInfo.siteId || this.userInfo.siteId === 0) {
+          this.isSite = true
+        }
+        window.sessionStorage.setItem('mySiteInfo', JSON.stringify(res.data))
+        const url = this.isSite ? '/mySiteManage/user' : '/applyForSite'
+        this.$router.push(url)
+        return false
+      }
+      if (res.code === '5x10004') {
+        this.$router.push('/applyForSite')
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 判断有无领跑者
+    checkPeople() {
+      let isOrderPeopPeolple = false
+      if (
+        this.userInfo.deliveryPersonId ||
+        this.userInfo.deliveryPersonId === 0
+      ) {
+        isOrderPeopPeolple = true
+      }
+      const url = isOrderPeopPeolple
+        ? '/orderPeopleManage/user'
+        : '/orderPeople/registerOrderPeople'
+      this.$router.push(url)
+    },
     editUserInfo() {
       this.$router.push('/user/userInfo')
     },

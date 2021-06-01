@@ -71,7 +71,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 上拉加载数据
     onLoadData() {
@@ -91,7 +91,7 @@ export default {
         this.$router.go(0)
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     toShoppingDetails(item) {
       this.$router.push('/shoppingDetails?id=' + item.id)

@@ -126,3 +126,6 @@ Vue.use(Step)
 Vue.use(Steps)
 Vue.use(Dialog)
 Vue.use(Switch)
+
+// 将所有 loading Toast 设置为背景不可点击
+Toast.setDefaultOptions('loading', { forbidClick: true })

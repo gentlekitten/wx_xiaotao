@@ -52,7 +52,9 @@ export default {
       form: {
         expressTip: '',
         snackShopTip: '',
-        siteId: 20
+        siteId: JSON.parse(window.sessionStorage.getItem('mySiteInfo'))
+          ? JSON.parse(window.sessionStorage.getItem('mySiteInfo')).id
+          : 0
       }
     }
   },
@@ -69,9 +71,10 @@ export default {
       })
       console.log(res)
       if (res.code === '0') {
+        this.$touter.go(-1)
         return this.$toast.success('保存成功！')
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   }
 }

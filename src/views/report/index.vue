@@ -22,6 +22,8 @@
           <van-uploader
             v-model="reportUploaderImg"
             :max-count="3"
+            :max-size="5120 * 1024"
+            @oversize="handleImgLarge"
             :after-read="uploading"
             @delete="deleteImg"
           />
@@ -67,7 +69,9 @@ export default {
         msg: '',
         reportPics: [],
         phone: '',
-        siteId: 23,
+        siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+          ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+          : 0,
         shopId: 1
       },
       popupIsShow: false
@@ -94,6 +98,11 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
+    },
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过5M')
     },
     // 提交
     async reportSubmit() {
@@ -104,7 +113,7 @@ export default {
       if (res.code === '0') {
         return (this.popupIsShow = true)
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 点击好的
     reportOver() {

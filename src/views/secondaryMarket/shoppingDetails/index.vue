@@ -85,7 +85,7 @@ export default {
         }
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // https://jixi.mynatapp.cc/static/product/11/8/detail/1616482377691.html
     toShare() {

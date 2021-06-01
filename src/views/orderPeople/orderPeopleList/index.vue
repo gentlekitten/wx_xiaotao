@@ -57,6 +57,9 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       activeNames: '1',
       popupIsShow: false,
       orderPeopleList: []
@@ -71,7 +74,7 @@ export default {
       const res = await getData(
         '/site/delivery/person/state/find',
         {
-          siteId: 23
+          siteId: this.siteId
         },
         { showLoading: false }
       )
@@ -80,7 +83,7 @@ export default {
         this.orderPeopleList = res.data
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     toRegist() {
       this.$router.push('/orderPeople/registerOrderPeople')

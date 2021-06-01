@@ -29,6 +29,9 @@ export default {
   },
   data() {
     return {
+      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+        : 0,
       // 添加还是编辑
       type: 'add',
       // 地址id
@@ -98,7 +101,7 @@ export default {
         formData.city = city
         formData.district = county
         formData.addressDetail = addressDetail
-        formData.siteId = 13
+        formData.siteId = this.siteId
         formData.id = this.id
         data = formData
       } else {
@@ -110,7 +113,7 @@ export default {
         this.formDataObj.city = city
         this.formDataObj.district = county
         this.formDataObj.addressDetail = addressDetail
-        this.formDataObj.siteId = 13
+        this.formDataObj.siteId = this.siteId
         data = this.formDataObj
       }
       // const id = this.$store.getters.addressId + 1
@@ -129,7 +132,7 @@ export default {
         this.$router.go(-1)
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode()
     },
     // 删除地址
     async deleteAddress(content) {
@@ -144,7 +147,7 @@ export default {
         this.$router.go(-1)
         return false
       }
-      return this.$toast.fail(res.code)
+      this.$handleCode.handleCode(res)
     },
     // 修改默认地址
     async defaultAddressChange(value) {
@@ -152,7 +155,7 @@ export default {
         const data = {
           addressDefault: value ? 1 : 0,
           id: this.id,
-          siteId: 13
+          siteId: this.siteId
         }
         const res = await getData('/customer/address/default/update', data, {
           showLoading: true
@@ -162,7 +165,7 @@ export default {
           this.$toast.success('修改成功！')
           return false
         }
-        return this.$toast.fail(res.mas)
+        this.$handleCode.handleCode(res)
       }
     }
   }

@@ -25,6 +25,99 @@ const gettime = {
         let Spare = date + ' ' + time
         return Spare
     },
+    //获取当前日期前后duration的日期
+    getCurrentIntervalDate(duration) {
+        let myDate = new Date(); //获取今天日期
+        myDate.setDate(myDate.getDate() + duration);
+        let dateArray = [];
+        let dateTemp;
+        let flag = 1;
+        duration = duration < 0 ? -duration : duration
+        for (let i = 0; i < duration + 1; i++) {
+            dateTemp = (myDate.getMonth() + 1) + "-" + myDate.getDate();
+            dateArray.push(dateTemp);
+            myDate.setDate(myDate.getDate() + flag);
+        }
+        return dateArray
+    },
+    // 获取当前时间的格式化时间
+    formatTime() {
+        let d = new Date()
+        let theMonth = d.getMonth() + 1
+        let theDate = d.getDate()
+        let theHours = d.getHours()
+        let theMinutes = d.getMinutes()
+        let theSeconds = d.getSeconds()
+        if (theMonth < 10) {
+            theMonth = '0' + theMonth
+        }
+        if (theDate < 10) {
+            theDate = '0' + theDate
+        }
+        if (theHours < 10) {
+            theHours = '0' + theHours
+        }
+        if (theMinutes < 10) {
+            theMinutes = '0' + theMinutes
+        }
+        let date = d.getFullYear() + '-' + theMonth + '-' + theDate
+        let time = theHours + ':' + theMinutes + ':' + theSeconds
+        let Spare = date + ' ' + time
+        return Spare
+    },
+    // 获取当前时间的格式化时间(年月日)
+    formatTime1() {
+        let d = new Date()
+        let theMonth = d.getMonth() + 1
+        let theDate = d.getDate()
+        if (theMonth < 10) {
+            theMonth = '0' + theMonth
+        }
+        if (theDate < 10) {
+            theDate = '0' + theDate
+        }
+        let date = d.getFullYear() + '-' + theMonth + '-' + theDate
+        return date
+    },
+    // 比较时间大小
+    compareDate(date1, date2) {
+        var oDate1 = new Date(date1);
+        var oDate2 = new Date(date2);
+        // false 第一个大 true; //第二个大
+        return oDate1.getTime() >= oDate2.getTime()
+    },
+    // 比较时间大小（与当前时间）
+    compareDateForToday(date1) {
+        var oDate1 = new Date(date1);
+        var oDate2 = new Date();
+        // false 第一个大 true; //第二个大
+        return oDate1.getTime() >= oDate2.getTime()
+    },
+    // 获取格式化时间
+    formatOnlyTime(times) {
+        let d = new Date(times)
+        let theMonth = d.getMonth() + 1
+        let theDate = d.getDate()
+        // let theHours = d.getHours()
+        // let theMinutes = d.getMinutes()
+        // let theSeconds = d.getSeconds()
+        if (theMonth < 10) {
+            theMonth = '0' + theMonth
+        }
+        if (theDate < 10) {
+            theDate = '0' + theDate
+        }
+        if (theHours < 10) {
+            theHours = '0' + theHours
+        }
+        if (theMinutes < 10) {
+            theMinutes = '0' + theMinutes
+        }
+        let date = d.getFullYear() + '-' + theMonth + '-' + theDate
+        let time = theHours + ':' + theMinutes + ':' + theSeconds
+        let Spare = date + ' ' + time
+        return Spare
+    },
     // 计算当前日期星座
     getHoroscope(date) {
         let c = ['摩羯', '水瓶', '双鱼', '白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯']

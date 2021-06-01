@@ -3,11 +3,13 @@
     <!-- 顶部返回 -->
     <nav-bar :title="navBarTitle" is-arrow isBackUp />
     <van-form @submit="formSubmit">
-      <van-field class="uploaderImg" label="店铺头像" required>
+      <van-field v-if="!isShop" class="uploaderImg" label="店铺头像" required>
         <template #input>
           <van-uploader
             v-model="shopLogoImg"
             :max-count="1"
+            :max-size="5120 * 1024"
+            @oversize="handleImgLarge"
             :after-read="uploading"
             @delete="deleteImg('logo')"
           />
@@ -68,7 +70,7 @@
       <van-field
         v-if="isShop"
         class="textarea"
-        v-model="form.tip"
+        v-model="form.salesPromotion"
         type="textarea"
         row="2"
         autosize
@@ -102,7 +104,7 @@
         :rules="[{required: true}]"
       />
       <!-- 店铺资质 -->
-      <div class="shop_qualification">
+      <div v-if="!isShop" class="shop_qualification">
         <div class="title">店铺资质</div>
         <div class="item_warp">
           <div class="item">
@@ -111,6 +113,8 @@
                 <van-uploader
                   v-model="shopQualificationImg"
                   :after-read="upBusinessLicense"
+                  :max-size="5120 * 1024"
+                  @oversize="handleImgLarge"
                   max-count="1"
                   @delete="deleteImg('qualification')"
                 />
@@ -130,14 +134,8 @@
       <div class="btn_warp">
         <van-button class="btn" round @click="isAddressSelect = true">选择地址</van-button>
       </div>
-      <van-field class="input" v-model="address.address" required placeholder="地址" readonly />
-      <van-field
-        class="input"
-        v-model="address.addressDetails"
-        required
-        placeholder="详细地址"
-        clearable
-      />
+      <van-field class="input" v-model="form.shopAddress" required placeholder="地址" readonly />
+      <van-field class="input" v-model="form.addressDetail" required placeholder="详细地址" clearable />
       <!-- <van-field
         class="input"
         v-model="address.coordinate"
@@ -154,7 +152,7 @@
           <van-area
             class="area"
             v-show="isAddressSelect"
-            title="标题"
+            title="选择地址"
             :area-list="areaList"
             :columns-placeholder="['请选择', '请选择', '请选择']"
             @confirm="areaConfirm"
@@ -180,7 +178,7 @@
   </div>
 </template>
 <script>
-import { upData, upLogo } from '@/api/api.js'
+import { upData, upLogo, getData } from '@/api/api.js'
 import { getProvinceList, getCityList, getCountyList } from '@/address.js'
 
 import NavBar from '@/components/common/NavBar.vue'
@@ -193,6 +191,7 @@ export default {
     return {
       // 店铺类型
       shopManageId: 1,
+      shopId: Number(window.sessionStorage.getItem('shopId')),
       topPopupIsShow: false,
       isAddressSelect: false,
       overlayIsShow: false,
@@ -210,59 +209,37 @@ export default {
         city_list: getCityList(),
         county_list: getCountyList()
       },
-      // 店铺地址
-      address: {
-        address: '',
-        addressDetails: ''
-      },
-      snackShopValue: 1,
-      snackShopList: [
-        { text: '3栋零食铺', value: 1 },
-        { text: '4栋零食铺', value: 2 },
-        { text: '5栋零食铺', value: 3 }
-      ],
+      snackShopValue: 0,
+      snackShopList: [],
       // 外卖类型
       takeOutType: 1,
       form: {
-        shopName: '店铺名字',
-        shopPhone: '14708701960',
+        shopName: '',
+        shopPhone: '',
+        // 店铺地址
+        shopAddress: '',
+        // 店铺详细地址
         addressDetail: '',
-        tip: '',
-        businessInfo: '主营业务',
-        introduce: '店铺介绍',
+        salesPromotion: '',
+        businessInfo: '',
+        introduce: '',
         shopPic: '',
         businessLicense: '',
-        // 营业时间
-        businessTime: {
-          // 开始时间
-          startTime: '',
-          // 结束时间
-          endTime: ''
-        },
-        // 优惠
-        discountValue: {
-          // 满多少
-          requirePrice: '',
-          // 减多少
-          discountPrice: '',
-          // 多少天
-          time: ''
-        },
-        shopAddress: '',
-        siteId: 23,
+        // 店铺类型
         shopCategoryId: '',
         // 所属楼栋
         siteApartment: {}
+      },
+      // 营业时间对象
+      businessTime: {
+        // 开始时间
+        startTime: '',
+        // 结束时间
+        endTime: ''
       }
     }
   },
   computed: {
-    getBusinessTime() {
-      return this.$store.getters.time
-    },
-    getDisounts() {
-      return this.$store.getters.discounts
-    },
     getImgList() {
       return this.$store.getters.addShoppingList
     },
@@ -271,33 +248,31 @@ export default {
     },
     // 格式化营业时间
     getBusinessTimeValue() {
-      if (this.form.businessTime.startTime) {
-        return (
-          this.form.businessTime.startTime +
-          '-' +
-          this.form.businessTime.endTime
-        )
-      }
-      return ''
-    },
-    // 格式化优惠
-    getDisountsValue() {
-      if (this.form.discountValue.discountPrice) {
-        return (
-          '满' +
-          this.form.discountValue.requirePrice +
-          '减' +
-          this.form.discountValue.discountPrice +
-          '-' +
-          this.form.discountValue.time +
-          '天'
-        )
+      if (this.businessTime.startTime) {
+        return this.businessTime.startTime + '-' + this.businessTime.endTime
       }
       return ''
     }
+    // 格式化优惠
+    // getDisountsValue() {
+    //   if (this.discountValue.discountPrice) {
+    //     return (
+    //       '满' +
+    //       this.discountValue.requirePrice +
+    //       '减' +
+    //       this.discountValue.discountPrice +
+    //       '-' +
+    //       this.discountValue.time +
+    //       '天'
+    //     )
+    //   }
+    //   return ''
+    // }
   },
   created() {
     this.initViewData()
+    this.getSnackShopList()
+    this.getShopManageInfo()
   },
   methods: {
     initViewData() {
@@ -313,10 +288,12 @@ export default {
       if (Object.keys(this.getFormData).length > 0) {
         this.form = this.getFormData
       }
-      this.form.businessTime = this.getBusinessTime
-      this.form.discountValue = this.getDisounts
       this.shopLogoImg = this.getImgList.shopLogoImg
       this.shopQualificationImg = this.getImgList.shopQualificationImg
+    },
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过5M')
     },
     //   验证手机号
     validator(val) {
@@ -344,8 +321,69 @@ export default {
         )
       }
     },
+    // 获取店铺管理信息
+    async getShopManageInfo() {
+      // 判断是否有无店铺
+      if (!this.isShop) {
+        return false
+      }
+      const res = await getData(
+        '/shop/info/manger/find',
+        { shopId: this.shopId },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        // 处理数据
+        this.form.shopName = res.data.shopName
+        this.form.shopPhone = res.data.shopPhone
+        this.form.salesPromotion = res.data.salesPromotion
+        this.form.businessInfo = res.data.businessInfo
+        this.form.introduce = res.data.introduce
+        this.businessTime.startTime = res.data.startTime
+        this.businessTime.endTime = res.data.endTime
+        this.form.shopAddress = res.data.shopAddress
+        this.form.addressDetail = res.data.addressDetail
+        // 4周边外卖 5 食堂
+        this.takeOutType = res.data.shopCategoryId === 4 ? 1 : 2
+        this.snackShopList.push({
+          text: res.data.apartmentName,
+          value: res.data.siteApartmentId
+        })
+        this.snackShopValue = res.data.siteApartmentId
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 获取零食铺楼栋
+    async getSnackShopList() {
+      let data = {}
+      // 判断是否有无店铺
+      if (this.isShop) {
+        // 因为申请店铺和店铺管理是共用这个接口，所以要改一下上传的参数
+        data.shopId = this.shopId
+      }
+      const res = await getData('/shop/snack/apart/free/find', data, {
+        showLoading: true
+      })
+      console.log(res)
+      if (res.code === '0') {
+        res.data.forEach(e => {
+          this.snackShopList.push({ text: e.apartmentName, value: e.id })
+        })
+        // 判断是否有无店铺
+        if (!this.isShop) {
+          this.snackShopValue =
+            Object.keys(this.snackShopList).length > 0
+              ? this.snackShopList[0].value
+              : 0
+        }
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
     // 删除图片
-    deleteLogoImg(type) {
+    deleteImg(type) {
       if (type === 'logo') {
         this.shopLogoImg = []
         this.form.shopPic = ''
@@ -369,6 +407,7 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
     // 处理上传营业执照
     async upBusinessLicense(file) {
@@ -385,6 +424,7 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
+      this.$handleCode.handleCode(res)
     },
     // 地址选择框确认
     areaConfirm(address) {
@@ -393,15 +433,13 @@ export default {
       address.forEach(e => {
         addr = addr + e.name
       })
-      this.address.address = addr
+      this.form.shopAddress = addr
     },
     // 保存地址
     saveAddress() {
-      if (!this.address.address || !this.address.addressDetails) {
+      if (!this.form.shopAddress || !this.form.addressDetail) {
         return this.$toast.fail('请填写相应信息！')
       }
-      this.form.shopAddress = this.address.address
-      this.form.addressDetail = this.address.addressDetails
       this.topPopupIsShow = false
     },
     // 去选择营业时间
@@ -421,6 +459,10 @@ export default {
       if (!this.form.shopAddress) {
         return this.$toast.fail('请先选择店铺地址哦~')
       }
+      // 店铺申请，表单数据要更改
+      // (1零食2美妆3数码4外卖5食堂)
+      let res = null
+      this.form.siteApartment.id = this.snackShopValue
       const data = {
         time: {
           startTime: '',
@@ -434,35 +476,40 @@ export default {
         imgList: {},
         form: {}
       }
-      if (
-        this.shopLogoImg.length <= 0 ||
-        this.shopQualificationImg.length <= 0
-      ) {
-        this.$toast.fail('请填写相应信息')
-        return false
+      // 处理店铺类型
+      const shopManageId = this.shopManageId
+      if (shopManageId !== 2) {
+        // this.form.shopCategoryId = 5
+        this.form.shopCategoryId =
+          shopManageId === 1
+            ? 1
+            : shopManageId === 2
+            ? 4
+            : shopManageId === 3
+            ? 2
+            : 3
+      } else {
+        this.form.shopCategoryId = this.takeOutType === 1 ? 4 : 5
       }
-      // 店铺申请，表单数据要更改
-      // (1零食2美妆3数码4外卖5食堂)
       if (!this.isShop) {
-        const shopManageId = this.shopManageId
-        if (shopManageId !== 2) {
-          this.form.shopCategoryId =
-            shopManageId === 1
-              ? 1
-              : shopManageId === 2
-              ? 4
-              : shopManageId === 3
-              ? 2
-              : 3
-        } else {
-          this.form.shopCategoryId = this.takeOutType === 1 ? 4 : 5
+        if (
+          this.shopLogoImg.length <= 0 ||
+          this.shopQualificationImg.length <= 0
+        ) {
+          this.$toast.fail('请填写相应信息')
+          return false
         }
-        this.form.siteApartment.id = this.snackShopValue
-        delete this.form.tip
-        delete this.form.businessTime
-        delete this.form.discountValue
+        this.form.siteId = JSON.parse(window.sessionStorage.getItem('siteInfo'))
+          ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
+          : 0
+        res = await upData('/shop/add', this.form, { showLoading: true })
+      } else {
+        this.form.id = this.shopId
+        // 存在店铺，修改店铺信息
+        res = await upData('/shop/info/update', this.form, {
+          showLoading: true
+        })
       }
-      const res = await upData('/shop/add', this.form, { showLoading: true })
       console.log(res)
       if (res.code === '0') {
         sessionStorage.removeItem('addShopping')
@@ -470,7 +517,7 @@ export default {
         this.$router.go(-1)
         return this.$toast.success('操作成功！')
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     // 页面跳转保存数据
     handlePageTurns() {
@@ -540,7 +587,7 @@ export default {
   height: 4rem;
 }
 .shop_qualification {
-  margin: 1rem 0;
+  margin-top: 1rem;
   box-sizing: border-box;
   background-color: #fff;
   font-size: 0.8rem;
@@ -572,6 +619,7 @@ export default {
   }
 }
 .btn_warp {
+  margin-top: 1rem;
   display: flex;
   justify-content: center;
   .btn {

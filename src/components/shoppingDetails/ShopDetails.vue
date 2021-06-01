@@ -19,10 +19,12 @@
 export default {
   components: {},
   props: {
+    // 商品详情地址
     productDetailAddress: {
       type: String,
       default: ''
     },
+    // 是否有商品详情地址
     isProductDetailAddress: {
       type: Boolean
     }
@@ -40,15 +42,14 @@ export default {
     setIframeHeight() {
       const iframe = document.getElementsByClassName('goods_details')
       try {
-        // var bHeight = iframe.contentWindow.document.body.scrollHeight
-        // var dHeight = iframe.contentWindow.document.documentElement.scrollHeight
-        // var height = Math.min(bHeight, dHeight)
-        // this.deviceHeight = height
-        const iframe = document.getElementsByClassName('goods_details')
         const dHeight =
           iframe[0].contentWindow.document.documentElement.scrollHeight
         iframe[0].height = dHeight
-      } catch (ex) {}
+        console.log(dHeight)
+        console.log(iframe)
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 }

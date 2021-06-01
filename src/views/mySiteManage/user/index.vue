@@ -4,11 +4,11 @@
     <div class="user_warp">
       <div class="user_info">
         <div class="user_top">
-          <img :src="userInfoObj.img" />
+          <img :src="userInfoObj.headimgurl" />
           <div class="content">
-            <div class="name">{{ userInfoObj.name }}</div>
-            <div class="phone">{{ userInfoObj.phone }}</div>
-            <div class="site">昆明冶金高等专科学校安宁校区</div>
+            <div class="name">{{ siteInfo.username }}</div>
+            <div class="phone">{{ siteInfo.phone }}</div>
+            <div class="site">{{ siteInfo.siteName }}</div>
           </div>
         </div>
         <div class="order_status">
@@ -38,6 +38,9 @@ export default {
   },
   data() {
     return {
+      siteInfo: JSON.parse(window.sessionStorage.getItem('mySiteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('mySiteInfo'))
+        : {},
       userStatusShowPopover: false,
       girdList: [
         {
@@ -66,14 +69,9 @@ export default {
           url: '/mySiteManage/user/code'
         }
       ],
-      userInfoObj: {
-        img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-        name: '哈哈',
-        phone: '147918348388',
-        status: '接单中',
-        todayOrder: 0,
-        todayPrice: 0
-      }
+      userInfoObj: JSON.parse(window.sessionStorage.getItem('userInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('userInfo'))
+        : {}
     }
   },
   methods: {

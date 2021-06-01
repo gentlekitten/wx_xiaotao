@@ -4,7 +4,7 @@
       class="animated fadeInLeft"
       v-for="(item, index) in shopList"
       :key="index + item.id"
-      @click="toTakeOutShop(item)"
+      @click="toSnackShopInfo(item)"
     >
       <shop-card>
         <template v-slot:title>
@@ -25,9 +25,7 @@
             <div class="trade">
               <span class="grade">
                 <van-icon name="star-o" />
-                <template
-                  v-if="item.shopScore"
-                >{{ (item.shopScore.attitude + item.shopScore.quality + item.shopScore.quality) / 3 / item.shopScore.commentNumber}}</template>
+                <template v-if="item.score">{{ item.score }}</template>
                 <template v-else>暂无</template>
               </span>
               已售：{{ item.sale }}单
@@ -37,10 +35,8 @@
               <span class="price_item">￥{{ item.lowPrice }}</span>
               配送:
               <span
-                v-if="item.shopOrders"
                 class="price_item"
-              >￥{{ item.shopOrders[0].deliveryFee ? item.shopOrders[0].deliveryFee: 0 }}</span>
-              <span v-else class="price_item">￥0</span>
+              >￥{{ item.deliveryFee ? item.deliveryFee: 0 }}</span>
             </div>
             <div class="type">
               <van-icon name="shop-o" />
@@ -48,12 +44,12 @@
             </div>
             <div class="address">
               <van-icon name="eye-o" />
-              {{ item.shopAddress }}
+              {{ item.addressDetail }}
             </div>
           </div>
-          <div class="shop_status" v-if="item.shopState">
-            <div class="text" v-if="item.shopState.state === 0">营业中</div>
-            <div class="text stop" v-else-if="item.shopState.state === 2">停业中</div>
+          <div class="shop_status">
+            <div class="text" v-if="item.shopState === 1">营业中</div>
+            <div class="text stop" v-else-if="item.shopState === 2">停业中</div>
             <div class="text stop" v-else>打烊中</div>
           </div>
         </template>
@@ -88,8 +84,12 @@ export default {
     return {}
   },
   methods: {
-    toTakeOutShop(item) {
-      this.$router.push(`/takeOutShop?id=` + item.id)
+    toSnackShopInfo(item) {
+      if (item.shopCategoryId === 4 || item.shopCategoryId === 5) {
+        this.$router.push(`/takeOutShop?id=` + item.id)
+        return false
+      }
+      this.$router.push(`/snackShop?id=` + item.shopId)
     }
   }
 }
@@ -111,6 +111,12 @@ export default {
     .price_item {
       color: @priceColor;
     }
+  }
+  .address,
+  .type {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 

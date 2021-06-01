@@ -6,12 +6,18 @@ const orderPeopleManageRouter = {
         {
             path: '/orderPeopleManage/user',
             name: 'OrderPeopleManageUser',
-            component: () => import('@/views/orderPeopleManage/user/index.vue')
+            component: () => import('@/views/orderPeopleManage/user/index.vue'),
+            meta: {
+                keepAlive: false // 不需要被缓存
+            }
         },
         {
             path: '/orderPeopleManage/order',
             name: 'OrderPeopleManageOrder',
-            component: () => import('@/views/orderPeopleManage/order/index.vue')
+            component: () => import('@/views/orderPeopleManage/order/index.vue'),
+            meta: {
+                keepAlive: false // 不需要被缓存
+            }
         }
     ]
 }

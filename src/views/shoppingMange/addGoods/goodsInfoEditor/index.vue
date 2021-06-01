@@ -108,7 +108,7 @@ export default {
       }
       file.status = 'failed'
       file.message = '上传失败'
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
     async saveGoodsInfo() {
       if (!this.goodsInfo) {
@@ -148,7 +148,7 @@ export default {
         this.$router.go(-1)
         return false
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     }
   }
 }

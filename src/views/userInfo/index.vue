@@ -4,10 +4,10 @@
     <div class="user_info">
       <div class="item1 item">
         <van-cell class="disabled" title="头像" />
-        <van-cell class="disabled" title="昵称" value="小明" />
+        <van-cell class="disabled" title="昵称" :value="userInfo.nickname" />
       </div>
       <div class="item2 item">
-        <van-cell title="性别" :value="sex" @click="sexSelectShow = true" />
+        <van-cell title="性别" :value="userInfo.sex === 1 ? '男' : '女'" @click="sexSelectShow = true" />
         <van-action-sheet
           v-model="sexSelectShow"
           :actions="userInfoForm.sexValue"
@@ -15,7 +15,7 @@
           close-on-click-action
           @select="sexConfirm"
         />
-        <van-cell title="生日" :value="birthday" @click="birthdayShow = true" />
+        <van-cell title="生日" :value="userInfo.birthday" @click="birthdayShow = true" />
         <div class="bri">
           <van-action-sheet v-model="birthdayShow">
             <van-datetime-picker
@@ -31,7 +31,7 @@
         </div>
       </div>
       <div class="item3 item">
-        <van-cell title="学校" :value="school" @click="schoolSelectShow = true" />
+        <van-cell title="学校" :value="userInfo.school" @click="schoolSelectShow = true" />
         <van-action-sheet v-model="schoolSelectShow" title="填写学校">
           <van-cell-group class="action_sheet_input">
             <van-field
@@ -45,7 +45,7 @@
           </van-cell-group>
         </van-action-sheet>
 
-        <van-cell title="院系" :value="department" @click="departmentSelectShow = true" />
+        <van-cell title="院系" :value="userInfo.department" @click="departmentSelectShow = true" />
         <van-action-sheet v-model="departmentSelectShow" title="填写院系">
           <van-cell-group class="action_sheet_input">
             <van-field
@@ -59,7 +59,7 @@
           </van-cell-group>
         </van-action-sheet>
 
-        <van-cell title="班号" :value="grade" @click="gradeSelectShow = true" />
+        <van-cell title="班号" :value="userInfo.classNumber" @click="gradeSelectShow = true" />
         <van-action-sheet v-model="gradeSelectShow" title="填写班号">
           <van-cell-group class="action_sheet_input">
             <van-field
@@ -73,7 +73,7 @@
           </van-cell-group>
         </van-action-sheet>
 
-        <van-cell title="学号" :value="studentNo" @click="studentNoSelectShow = true" />
+        <van-cell title="学号" :value="userInfo.studentNumber" @click="studentNoSelectShow = true" />
         <van-action-sheet v-model="studentNoSelectShow" title="填写学号">
           <van-cell-group class="action_sheet_input">
             <van-field
@@ -88,7 +88,11 @@
           </van-cell-group>
         </van-action-sheet>
 
-        <van-cell title="宿舍号" :value="dormitoryNo" @click="dormitoryNoSelectShow = true" />
+        <van-cell
+          title="宿舍号"
+          :value="userInfo.dormitoryNumber"
+          @click="dormitoryNoSelectShow = true"
+        />
         <van-action-sheet v-model="dormitoryNoSelectShow" title="填写宿舍号">
           <van-cell-group class="action_sheet_input">
             <van-field
@@ -104,7 +108,7 @@
       </div>
 
       <div class="item4 item">
-        <van-cell title="邮箱" :value="email" @click="emailSelectShow = true" />
+        <van-cell title="邮箱" :value="userInfo.email" @click="emailSelectShow = true" />
         <van-action-sheet v-model="emailSelectShow" title="填写邮箱">
           <van-cell-group class="action_sheet_input">
             <van-field
@@ -117,7 +121,7 @@
             <van-button class="btn" type="primary" @click="saveEmail">确认</van-button>
           </van-cell-group>
         </van-action-sheet>
-        <van-cell title="电话" :value="phone" @click="phoneSelectShow = true" />
+        <van-cell title="电话" :value="userInfo.phone" @click="phoneSelectShow = true" />
         <van-action-sheet v-model="phoneSelectShow" title="填写电话">
           <van-cell-group class="action_sheet_input">
             <van-field
@@ -143,6 +147,8 @@
   </div>
 </template>
 <script>
+import { getData } from '@/api/api.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 export default {
@@ -151,6 +157,19 @@ export default {
   },
   data() {
     return {
+      userInfo: JSON.parse(window.sessionStorage.getItem('userInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('userInfo'))
+        : {
+            sex: '',
+            school: '',
+            department: '',
+            birthday: '',
+            classNumber: '',
+            studentNumber: '',
+            dormitoryNumber: '',
+            phone: '',
+            email: ''
+          },
       schoolSelectShow: false,
       sexSelectShow: false,
       departmentSelectShow: false,
@@ -160,15 +179,6 @@ export default {
       phoneSelectShow: false,
       studentNoSelectShow: false,
       dormitoryNoSelectShow: false,
-      sex: '男',
-      school: '',
-      department: '',
-      birthday: '',
-      grade: '',
-      studentNo: '',
-      dormitoryNo: '',
-      phone: '',
-      email: '',
       userInfoForm: {
         sexValue: [{ name: '男' }, { name: '女' }],
         schoolValue: '',
@@ -180,23 +190,24 @@ export default {
         phValue: '',
         selectBirthdayDate: new Date()
       },
-      minBirthdayDate: new Date(2000, 0, 1),
-      maxBirthdayDate: new Date(2020, 10, 1)
+      minBirthdayDate: new Date(1990, 0, 1),
+      maxBirthdayDate: new Date(2020, 11, 31)
     }
   },
+  created() {},
   methods: {
     sexConfirm(item) {
-      this.sex = item.name
+      this.userInfo.sex = item.name === '男' ? 1 : 0
     },
-    roleConfirm(item) {
-      this.role = item.name
-    },
+    // roleConfirm(item) {
+    //   this.role = item.name
+    // },
     confirmBirthday() {
       const birthdayTime = this.userInfoForm.selectBirthdayDate
       const y = birthdayTime.getFullYear()
       const m = (birthdayTime.getMonth() + 1 + '').padStart(2, '0')
       const d = (birthdayTime.getDate() + '').padStart(2, '0')
-      this.birthday = `${y}-${m}-${d}`
+      this.userInfo.birthday = `${y}-${m}-${d}`
 
       this.birthdayShow = false
     },
@@ -215,49 +226,49 @@ export default {
       if (!this.handleInputValueIsNull(this.userInfoForm.schoolValue)) {
         return false
       }
-      this.school = this.userInfoForm.schoolValue
+      this.userInfo.school = this.userInfoForm.schoolValue
       this.schoolSelectShow = false
     },
     saveDepartment() {
       if (!this.handleInputValueIsNull(this.userInfoForm.departmentValue)) {
         return false
       }
-      this.department = this.userInfoForm.departmentValue
+      this.userInfo.department = this.userInfoForm.departmentValue
       this.departmentSelectShow = false
     },
     saveGrade() {
       if (!this.handleInputValueIsNull(this.userInfoForm.gradeValue)) {
         return false
       }
-      this.grade = this.userInfoForm.gradeValue
+      this.userInfo.classNumber = this.userInfoForm.gradeValue
       this.gradeSelectShow = false
     },
     saveStudentNo() {
       if (!this.handleInputValueIsNull(this.userInfoForm.studentNoValue)) {
         return false
       }
-      this.studentNo = this.userInfoForm.studentNoValue
+      this.userInfo.studentNumber = this.userInfoForm.studentNoValue
       this.studentNoSelectShow = false
     },
     saveDormitoryNo() {
       if (!this.handleInputValueIsNull(this.userInfoForm.dormitoryNoValue)) {
         return false
       }
-      this.dormitoryNo = this.userInfoForm.dormitoryNoValue
+      this.userInfo.dormitoryNumber = this.userInfoForm.dormitoryNoValue
       this.dormitoryNoSelectShow = false
     },
     saveEmail() {
       if (!this.handleInputValueIsNull(this.userInfoForm.emailValue)) {
         return false
       }
-      this.email = this.userInfoForm.emailValue
+      this.userInfo.email = this.userInfoForm.emailValue
       this.emailSelectShow = false
     },
     savePh() {
       if (!this.handleInputValueIsNull(this.userInfoForm.phValue)) {
         return false
       }
-      this.phone = this.userInfoForm.phValue
+      this.userInfo.phone = this.userInfoForm.phValue
       this.phoneSelectShow = false
     },
     // 处理表单值为空

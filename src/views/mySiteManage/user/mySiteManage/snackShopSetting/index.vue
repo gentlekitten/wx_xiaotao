@@ -15,16 +15,19 @@
     <div class="express_list_warp">
       <div class="express">
         <div class="title">当前你所添加的零食铺楼栋</div>
-        <div class="list" v-for="item in snackShopList" :key="item.id">
-          {{ item.name }}
-          <van-button class="dele_btn" round @click="deleteExpress(item.id)">删除</van-button>
-        </div>
+        <template v-if="snackShopList.length > 0">
+          <div class="list" v-for="item in snackShopList" :key="item.id">
+            {{ item.name }}
+            <van-button class="dele_btn" round @click="deleteSnackShopName(item)">删除</van-button>
+          </div>
+        </template>
+        <van-empty v-else description="还没有添加零食铺楼栋哦~" />
       </div>
     </div>
   </div>
 </template>
 <script>
-import { upData } from '@/api/api.js'
+import { upData, getData } from '@/api/api.js'
 
 import NavBar from '@/components/common/NavBar.vue'
 
@@ -36,16 +39,38 @@ export default {
     return {
       form: {
         apartmentName: '',
-        siteId: 20
+        siteId: JSON.parse(window.sessionStorage.getItem('mySiteInfo'))
+          ? JSON.parse(window.sessionStorage.getItem('mySiteInfo')).id
+          : 0
       },
-      snackShopList: [
-        { id: 0, name: '3栋零食铺' },
-        { id: 1, name: '4栋零食铺' },
-        { id: 2, name: '5栋零食铺' }
-      ]
+      snackShopList: []
     }
   },
+  created() {
+    this.getSnackShopList()
+  },
   methods: {
+    // 获取零食铺楼栋
+    async getSnackShopList() {
+      const res = await getData(
+        '/shop/snack/apart/find',
+        { siteId: this.form.siteId },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        res.data.forEach(e => {
+          this.snackShopList.push({
+            name: e.apartmentName,
+            id: e.id,
+            shopState: e.shopState
+          })
+        })
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 添加零食铺楼栋
     async addSnackShopName() {
       if (!this.form.apartmentName) {
         return this.$toast.fail('请填写楼栋名！')
@@ -55,11 +80,34 @@ export default {
       })
       console.log(res)
       if (res.code === '0') {
+        this.form.apartmentName = ''
+        this.snackShopList.push({
+          id: res.data.id,
+          name: res.data.apartmentName
+        })
         return this.$toast.success('添加成功！')
       }
-      return this.$toast.fail(res.msg)
+      this.$handleCode.handleCode(res)
     },
-    deleteSnackShopName(id) {}
+    // 删除零食铺楼栋
+    async deleteSnackShopName(item) {
+      if (item.shopState === 0 || item.shopState === '') {
+        return this.$toast.fail('当前店铺楼栋正在被占用，不能删除！')
+      }
+      const res = await upData(
+        '/site/apart/delete',
+        { id: item.id, siteId: this.form.siteId },
+        {
+          showLoading: true
+        }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.$toast.success('删除成功！')
+        return this.getSnackShopList()
+      }
+      this.$handleCode.handleCode(res)
+    }
   }
 }
 </script>

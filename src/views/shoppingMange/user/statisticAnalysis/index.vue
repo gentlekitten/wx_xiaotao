@@ -5,11 +5,11 @@
     <div class="home">
       <div class="top_prive">
         <div class="left">
-          <div class="price">￥0</div>
+          <div class="price">￥{{ todayMoney }}</div>
           <div class="text">今日入账</div>
         </div>
         <div class="right">
-          <div class="price">￥0</div>
+          <div class="price">￥{{ yesterdayMoney }}</div>
           <div class="text">昨日入账</div>
         </div>
       </div>
@@ -20,16 +20,23 @@
   </div>
 </template>
 <script>
+import { upData, getData } from '@/api/api.js'
+
+import timeForamt from '@/assets/js/time.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 import Grid from '@/components/common/Grid.vue'
+import statisticAnalysis from '@/components/mixins/statisticAnalysis.js'
 
 export default {
   components: {
     NavBar,
     Grid
   },
+  // mixins: [statisticAnalysis],
   data() {
     return {
+      shopId: window.sessionStorage.getItem('shopId'),
       girdList: [
         {
           img: require('../../../../assets/img/mange/price.png'),
@@ -42,10 +49,43 @@ export default {
           text: '订单统计',
           url: '/shoppingMange/user/shopManage/statisticAnalysis/orderStatistic'
         }
-      ]
+      ],
+      // 今日入账列表
+      todayMoneyList: [],
+      // 昨日入账列表
+      yesterdayMoneyList: [],
+      // 今日入账总
+      todayMoney: 0,
+      // 昨日入账总
+      yesterdayMoney: 0
     }
   },
-  methods: {}
+  created() {
+    this.getMoney()
+  },
+  methods: {
+    // 获取今日入账
+    async getMoney() {
+      let startTime = timeForamt.gettime.setTime(-24 * 60 * 60 * 1000)
+      let endTime = timeForamt.gettime.formatTime()
+      const data = {
+        shopId: this.shopId,
+        startTime,
+        endTime
+      }
+      const res = await getData('/shop/bill/money/count', data, {
+        showLoading: true
+      })
+      console.log(res)
+
+      if (res.code === '0') {
+        this.yesterdayMoney = res.data.orderMoney[0]
+        this.todayMoney = res.data.orderMoney[1]
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    }
+  }
 }
 </script>
 <style lang="less" scoped>

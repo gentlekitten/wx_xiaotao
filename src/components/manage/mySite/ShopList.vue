@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="shop_list">
     <div class="type" v-if="item.shopCategoryId === 1">零食铺</div>
     <div class="type" v-else-if="item.shopCategoryId === 2 || item.shopCategoryId === 3">商城</div>
     <div class="type" v-if="item.shopCategoryId === 4">外卖店铺</div>
@@ -26,4 +26,24 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.shop_list {
+  padding: 1rem;
+  background-color: #fff;
+  display: flex;
+  justify-content: space-between;
+  .type {
+    font-weight: 900;
+  }
+  .status {
+    color: cadetblue;
+    font-size: 0.8rem;
+    transform: rotate(10deg);
+  }
+  .red {
+    color: @priceColor;
+  }
+  .gray {
+    color: #999;
+  }
+}
 </style>

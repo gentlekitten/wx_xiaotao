@@ -7,6 +7,7 @@
     <van-cell title="公告配置" is-link to="/mySiteManage/user/mySiteManage/noticeSetting" />
     <van-cell title="添加站点快递" is-link to="/mySiteManage/user/mySiteManage/addExpressName" />
     <van-cell title="站点范围" is-link to="/mySiteManage/user/mySiteManage/scopeSetting" />
+    <van-cell title="快递配置" is-link to="/mySiteManage/user/mySiteManage/expressSetting" />
   </div>
 </template>
 <script>

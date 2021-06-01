@@ -1,27 +1,57 @@
 import router from './router'
-import store from './store'
 import NProgress from 'nprogress' // progress bar
+import { Toast } from 'vant'
 import 'nprogress/nprogress.css' // progress bar style
 
-NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-router.beforeEach(async(to, from, next) => {
+NProgress.inc(0.2);
+NProgress.configure({
+  easing: 'ease',  // 动画方式
+  speed: 500,  // 递增进度条的速度
+  showSpinner: false, // 是否显示加载ico
+  trickleSpeed: 200, // 自动递增间隔
+  minimum: 0.3 // 初始化时的最小百分比
+})
+
+router.beforeEach(async (to, from, next) => {
+  // let backlen = history.length - 1
+  // history.go(-backlen)
   // start progress bar
   NProgress.start()
-  next()
-
-  // determine whether the user has logged in
-//   const hasToken = getToken()
-
-//   if (hasToken) {
-//       next()
-//       NProgress.done()
-//   } else {
-//     /* has no token*/
-//       // other pages that do not have permission to access are redirected to the login page.
-//       next(`/login?redirect=${to.path}`)
-//       NProgress.done()
-//   }
+  if (window.sessionStorage.getItem('cartList')) {
+    if (to.name === 'ShopInfoView' || to.name === 'SnackShop') {
+      next()
+      return false
+    }
+    window.sessionStorage.removeItem('cartList')
+    next()
+  }
+  // next()
+  if (to.path === '/login') {
+    next()
+  } else {
+    // window.sessionStorage.getItem('wxCode')
+    if (true) {
+      if (to.path === '/index') {
+        next()
+      } else {
+        // next()
+        const siteId = JSON.parse(window.sessionStorage.getItem('siteInfo')) ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id : ''
+        if (siteId) {
+          next()
+        } else {
+          if (to.path === '/snackShopList' || to.path === '/expressage' || to.path === '/takeOutShopList' || to.path === '/secondaryMarket' || to.path === '/partTimeJobInfo' || to.path === '/orderPeople') {
+            next('/index')
+            Toast.fail('您所在的地区还无站点，不能操作，请谅解！')
+            return false
+          }
+          next()
+        }
+      }
+    } else {
+      next(`/login`)
+    }
+  }
 })
 
 router.afterEach(() => {

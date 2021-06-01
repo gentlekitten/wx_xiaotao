@@ -4,6 +4,7 @@
       :title="title"
       :left-text="leftText"
       :left-arrow="isArrow"
+      :z-index="2"
       fixed
       :placeholder="isPlaceholder"
       :border="isBorder"

@@ -1,10 +1,15 @@
 <template>
   <div>
     <div class="cart animated fadeIn">
-      <van-submit-bar :price="getFoodTotalPrice * 100" button-text="提交订单" @submit="submit">
+      <van-submit-bar
+        :price="getFoodTotalPrice * 100"
+        :button-text="buttomText"
+        :disabled="disabled"
+        @submit="submit"
+      >
         <div class="submit_item" @click="showCart">
           <van-icon class="icon" name="shopping-cart" color="#fff" size="1.8rem" />
-          <div class="shop_num">{{ cartList.length }}样{{ handleFoodNum }}份</div>
+          <div class="shop_num">{{ cartList.shopList.length }}样{{ handleFoodNum }}份</div>
         </div>
       </van-submit-bar>
     </div>
@@ -15,8 +20,10 @@
           <span class="left">所选商品</span>
           <span class="left" @click="clearCart">清空</span>
         </div>
-        <div class="shop_list" v-for="(item, index) in cartList" :key="index">
-          <div class="title">{{ item.productName }}</div>
+        <div class="shop_list" v-for="(item, index) in cartList.shopList" :key="item + index">
+          <div
+            class="title"
+          >{{ item.productName + (item.productInfoSpecifications.length > 0 ? item.productInfoSpecifications[0].specificationName : '')}}</div>
           <van-stepper
             class="stepper"
             v-model="item.num"
@@ -26,7 +33,9 @@
             disable-input
             @change="shopNumChange"
           />
-          <div class="price">￥{{ item.sellPrice * item.num }}</div>
+          <div
+            class="price"
+          >￥{{Math.round(((item.sellPrice + (item.productInfoSpecifications.length > 0 ? item.productInfoSpecifications[0].price : 0)) * item.num) * 10) / 10}}</div>
           <div class="drop_bt">
             <van-button class="btn" type="warning" size="small" @click="deleteFood(item)">删除</van-button>
           </div>
@@ -36,16 +45,25 @@
   </div>
 </template>
 <script>
+import formatTime from '@/assets/js/time.js'
+
 export default {
   props: {
     // 商品列表
     cartList: {
-      type: Array,
+      type: Object,
       default: () => {
-        return []
+        return {}
       }
     },
-    // 获取商品总数量
+    // 店铺信息
+    shopInfoObj: {
+      type: Object,
+      default: () => {
+        return {}
+      }
+    },
+    // 获取商品总价格
     getFoodTotalPrice: {
       type: Number,
       default: 0
@@ -61,7 +79,72 @@ export default {
       default: false
     }
   },
+  data() {
+    return {
+      buttomText: '提交订单',
+      // 提交按钮是否可点击
+      disabled: false,
+      // 是否营业
+      isState: false
+    }
+  },
+  watch: {
+    getFoodTotalPrice: {
+      immediate: true,
+      handler() {
+        if (this.isState) {
+          this.getLowPrice()
+        }
+      }
+    }
+  },
+  created() {
+    this.initCart()
+  },
   methods: {
+    // 初始化购物车
+    initCart() {
+      // 这里主要是看店铺是否在营业中，先看商家自己选择的状态，再看商家设置的营业时间段
+      if (this.shopInfoObj.shopState || this.shopInfoObj.shopState === 0) {
+        const state = this.shopInfoObj.shopState
+        // 0打烊 1营业 2停业
+        if (state !== 1) {
+          this.buttomText = state === 0 ? '打烊中' : '停业中'
+          this.disabled = true
+          return false
+        }
+        // 如果商家的店铺是营业还要看商家自己设置的时间段是否在营业中
+        // 获取当前时间年月日
+        // const toDay = formatTime.gettime.formatTime1
+        // const startTime = this.shopInfoObj.startTime + ' ' + toDay
+        // const endTime = this.shopInfoObj.endTime + ' ' + toDay
+        // // 比较营业时间和当前时间 return false; //第一个大 反之
+        // const isStartTime = formatTime.gettime.compareDateForToday(startTime)
+        // const isEndTime = formatTime.gettime.compareDateForToday(endTime)
+        // // 满足开始时间小于等于当前时间并且结束时间大于等于当前时间
+        // if (isStartTime && !isEndTime) {
+        //   this.buttomText = '打烊中'
+        //   this.disabled = true
+        //   return false
+        // }
+        // 设置是否营业为true
+        this.isState = true
+        this.getLowPrice()
+      }
+    },
+    // 获取起送价
+    getLowPrice() {
+      const lowPrice = this.shopInfoObj.lowPrice
+        ? Number(this.shopInfoObj.lowPrice)
+        : 0
+      if (this.getFoodTotalPrice < lowPrice) {
+        this.disabled = true
+        this.buttomText = lowPrice + '元起送'
+      } else {
+        this.disabled = false
+        this.buttomText = '提交订单'
+      }
+    },
     // 显示购物车
     showCart() {
       this.$emit('showCart')
@@ -72,7 +155,7 @@ export default {
     },
     // 提交订单
     submit() {
-      this.$emit('submit')
+      this.$emit('submit', this.getFoodTotalPrice)
     },
     // 删除商品
     deleteFood(item) {
