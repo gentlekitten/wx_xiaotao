@@ -6,14 +6,15 @@
           class="shop_item"
           v-for="item in shopList"
           :key="item.id"
-          @click="toShoppingDetails(item.id)"
+          @click="toShoppingDetails(item.productId)"
         >
           <img v-lazy="'https://jixi.mynatapp.cc/'+item.logoAddress" />
           <div class="title">{{ item.productName }}</div>
           <div class="info">
             <div class="new_price">￥{{ item.sellPrice }}</div>
             <div v-if="item.originalPrice" class="old_price">￥{{ item.originalPrice }}</div>
-            <div v-if="item.sale || item.sale===0" class="sale">已售：{{ item.sale }}</div>
+            <div v-if="item.sale || item.sale === 0" class="sale">已售：{{ item.sale }}</div>
+            <!-- 二手市场 -->
             <div v-if="tabIndex === 1" class="status">
               <div v-if="item.state === 2">已售出</div>
               <div v-else-if="item.state === 0" class="text">
@@ -67,6 +68,12 @@ export default {
         return []
       }
     },
+    dropdownObj: {
+      type: Object,
+      default: () => {
+        return {}
+      }
+    },
     // 类别，3是二手市场
     type: {
       type: Number,
@@ -76,22 +83,23 @@ export default {
   data() {
     return {
       searchValue: '',
-      dropdownObj: this.dropdownList[0],
       tabIndex: Number(
         window.sessionStorage.getItem('tabActiveIndexSecondaryMarket')
       )
+        ? Number(window.sessionStorage.getItem('tabActiveIndexSecondaryMarket'))
+        : 0
     }
   },
   methods: {
     dropdownChange(index) {
-      this.dropdownObj = this.dropdownList[index]
+      this.$emit('dropdownChange', index)
     },
     toShoppingDetails(id) {
       this.$emit('toShoppingDetails', id)
     },
     toUpdateShop(item) {
       this.$router.push(
-        '/secondaryMarket/addGoods?id=' + item.id + '&type=update'
+        '/secondaryMarket/addGoods?id=' + item.productId + '&type=update'
       )
     },
     toDeleteShop(item) {

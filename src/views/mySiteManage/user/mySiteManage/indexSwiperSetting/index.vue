@@ -40,13 +40,13 @@
   </div>
 </template>
 <script>
-import { upData } from '@/api/api.js'
+import { upData, upLogo } from '@/api/api.js'
 
 import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -56,8 +56,8 @@ export default {
       swiperImg: [],
       swiperUrl: [],
       form: {
-        siteInfoPics: []
-      }
+        siteInfoPics: [],
+      },
     }
   },
   methods: {
@@ -70,15 +70,15 @@ export default {
       file.status = 'uploading'
       file.message = '上传中...'
       const formData = new FormData()
-      formData.append('jobImg', file.file)
-      const res = await upLogo('/site/job/img', formData)
+      formData.append('img', file.file)
+      const res = await upLogo('/site/img/upload', formData)
       console.log(res)
-      this.form.siteInfoPics.push({
-        picAddress: res.data.filename,
-        siteId: this.siteId,
-        picLink: ''
-      })
       if (res.code === '0') {
+        this.form.siteInfoPics.push({
+          picAddress: res.data.filename,
+          siteId: this.siteId,
+          picLink: '',
+        })
         file.status = 'done'
         return false
       }
@@ -86,6 +86,7 @@ export default {
       file.message = '上传失败'
       this.$handleCode.handleCode(res)
     },
+    // 保存首页轮播
     async saveForm() {
       if (this.swiperImg.length < 1) {
         this.$toast.fail('请上传轮播图再保存哦~')
@@ -94,7 +95,7 @@ export default {
         this.form.siteInfoPics[index].picLink = this.swiperUrl[index]
       }
       const res = await upData('/site/pic/add', this.form, {
-        showLoading: true
+        showLoading: true,
       })
       if (res.code === '0') {
         this.$router.go(-1)
@@ -105,8 +106,8 @@ export default {
     // 处理上传图片过大
     handleImgLarge() {
       this.$toast.fail('上传的图片不能超过5M')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

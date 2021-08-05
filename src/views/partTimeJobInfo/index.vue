@@ -3,7 +3,7 @@
     <!-- 顶部返回 -->
     <nav-bar title="兼职信息" is-arrow backTo="/index" />
     <div class="top_warp">
-      <div class="title">昆明冶金高等专科学校安宁校区兼职信息墙</div>
+      <div class="title">{{ infoTitle }}</div>
       <div class="info_num">{{ infoTotalNum }}条兼职信息</div>
     </div>
     <tabs
@@ -68,6 +68,7 @@ export default {
   },
   data() {
     return {
+      id: 0,
       siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
         ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
         : 0,
@@ -76,14 +77,11 @@ export default {
       loading: false,
       finished: false,
       infoTotalNum: 0,
+      infoTitle: '',
       // 起始数据
       pageIndex: 0,
-      // 请求数据量
-      pageLimit: 5,
       // 搜索起始数据
       searchPageIndex: 1,
-      //  我的信息起始数据
-      myInfoPageIndex: 0,
       searchNum: 0,
       isSearch: false,
       tabIndex: Number(sessionStorage.getItem('tabActiveIndexPartTime'))
@@ -109,46 +107,50 @@ export default {
   },
   methods: {
     async getInfoTotalNum() {
-      const { data: res } = await getData('/site/job/info/num')
-      this.infoTotalNum = res.jobNumber
+      const res = await getData('/site/job/info/num')
+      if (res.code === '0') {
+        this.infoTotalNum = res.data.jobNumber
+        this.infoTitle = res.data.jobInfoWall
+        return false
+      }
+      this.$handleCode.handleCode(res)
     },
     async getInfoList() {
       if (this.tabIndex === 2) {
         const data = {
-          pageIndex: this.myInfoPageIndex,
-          pageLimit: 10
+          pageIndex: this.pageIndex,
+          pageLimit: 5
         }
         const res = await getData('/site/job/info/find/customer', data, {
           showLoading: true
         })
+        console.log(res)
+        this.loading = false
         if (res.code === '0') {
-          this.infoList = res.data.jobInfo
-          this.pageIndex += this.infoList.length
-          console.log(res)
+          this.infoList = [...this.infoList, ...res.data.jobInfo]
+          this.pageIndex += 1
+          if (this.pageIndex * 5 >= res.data.jobNumber) {
+            this.finished = true
+          }
           return false
         }
         this.$handleCode.handleCode(res)
+        return false
       }
-      // console.log(this.pageIndex)
-
       const data = {
-        siteId: this.siteId,
         category: this.tabIndex,
         pageIndex: this.pageIndex,
-        pageLimit: this.pageLimit
+        pageLimit: 5
       }
-      // console.log(totalNum)
-
       const res = await getData('/site/job/info/find', data, {
         showLoading: true
       })
       console.log(res)
-
       this.loading = false
       if (res.code === '0') {
         this.infoList = [...this.infoList, ...res.data.jobInfo]
         this.pageIndex += 1
-        if (this.pageIndex * this.pageLimit >= res.data.jobNumber) {
+        if (this.pageIndex * 5 >= res.data.jobNumber) {
           this.finished = true
         }
         return false
@@ -204,8 +206,6 @@ export default {
         console.log(res)
         if (res.code === '0') {
           this.infoList = [...res.data.jobInfo]
-          console.log(this.infoList)
-
           return false
         }
         this.$handleCode.handleCode(res)
@@ -214,13 +214,13 @@ export default {
     },
     handleMyInfo(item) {
       this.overlayIsShow = true
-      sessionStorage.setItem('partTimeObj', JSON.stringify(item))
+      this.id = item.id
     },
     toAddInfoView() {
       this.$router.push('/partTimeJobInfo/addInfo')
     },
     updateMyInfo() {
-      this.$router.push(`/partTimeJobInfo/addInfo?type=${1}`)
+      this.$router.push(`/partTimeJobInfo/addInfo?type=${this.id}`)
     },
     // 点击tabs
     clickTab(name) {
@@ -239,7 +239,7 @@ export default {
       })
         .then(async () => {
           const data = {
-            id: 2
+            id: this.id
           }
           const res = await getData('/site/job/info/delete', data, {
             showLoading: true

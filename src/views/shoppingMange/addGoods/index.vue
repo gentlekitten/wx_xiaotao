@@ -2,7 +2,7 @@
   <div>
     <!-- 顶部返回 -->
     <nav-bar v-if="type === 'add'" title="新增商品" is-arrow backTo="/shoppingMange/goods" />
-    <nav-bar v-else title="新增商品" is-arrow backTo="/shoppingMange/goods" />
+    <nav-bar v-else title="更改商品" is-arrow backTo="/shoppingMange/goods" />
     <div class="tip">
       如要更改
       <span>图片和商品详情</span>内容，请删除商品再添加
@@ -53,7 +53,7 @@
         :rules="[{ required: true}]"
       />
       <van-field
-        v-if="shopManageId !== 1 || shopManageId !== 2"
+        v-if="shopManageId !== 1 && shopManageId !== 2"
         v-model.number="form.deliveryFee"
         type="number"
         label="邮费"
@@ -152,7 +152,7 @@
   </div>
 </template>
 <script>
-import { upData, upLogo } from '@/api/api.js'
+import { upData, upLogo, getData } from '@/api/api.js'
 import axios from 'axios'
 
 import NavBar from '@/components/common/NavBar.vue'
@@ -163,10 +163,13 @@ export default {
   },
   data() {
     return {
+      // 商品id
+      productId: '',
       // 店铺类型
       shopManageId: Number(window.sessionStorage.getItem('shopManageId'))
         ? Number(window.sessionStorage.getItem('shopManageId'))
-        : 1, // 是编辑还是添加
+        : 1,
+      // 是编辑还是添加
       type: 'add',
       moreSettingIsShow: false,
       // 库存值
@@ -222,11 +225,16 @@ export default {
   created() {
     this.handlePageRefresh()
     this.type = this.$route.query.type ? this.$route.query.type : 'add'
+    this.productId = this.$route.query.id ? this.$route.query.id : ''
     this.initView()
+    this.getGoodsInfo()
   },
   methods: {
     // 初始化页面数据
     initView() {
+      if (this.type === 'edit') {
+        return false
+      }
       if (Object.keys(this.getFormData).length > 0) {
         this.form = this.getFormData
       }
@@ -263,6 +271,51 @@ export default {
           )
         )
       }
+    },
+    // 获取商品信息
+    async getGoodsInfo() {
+      if (this.type === 'add') {
+        return false
+      }
+      const res = await getData(
+        '/product/info/detail/find',
+        { productId: this.productId },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        res.data.state = res.data.state === 1 ? true : false
+        res.data.sRefund = res.data.sRefund === 1 ? true : false
+        res.data.productInfoPicList = res.data.productInfoPicList
+          ? res.data.productInfoPicList
+          : []
+        res.data.productInfoProperties = res.data.productInfoProperties
+          ? res.data.productInfoProperties
+          : []
+        res.data.productInfoSpecifications = res.data.productInfoSpecifications
+          ? res.data.productInfoSpecifications
+          : []
+        this.form = _.cloneDeep(res.data)
+        // 改变库存设置的字
+        this.inventoryValue =
+          this.form.inventory === 1
+            ? `限${this.form.productInventory.productNumber}份`
+            : '不限库存'
+        this.form.productInventory = this.form.productInventory
+          ? this.form.productInventory
+          : {}
+        if (Object.keys(this.getFormData).length > 0) {
+          this.form = this.getFormData
+        }
+        if (this.getCategoryId || this.getCategoryId === 0) {
+          this.form.categoryId = this.getCategoryId
+        }
+        if (this.getInventory || this.getInventory === 0) {
+          this.form.inventory = this.getInventory
+        }
+        return false
+      }
+      this.$handleCode.handleCode(res)
     },
     // 处理上传图片过大
     handleImgLarge() {
@@ -316,7 +369,7 @@ export default {
     toSettingGoodsType() {
       this.handleSaveFormData()
       this.$router.push(
-        `/shoppingMange/addGoods/settingGoodsType?type=${this.type}`
+        `/shoppingMange/addGoods/settingGoodsType?type=${this.type}&id=${this.productId}`
       )
     },
     toClassifySetting() {
@@ -324,6 +377,8 @@ export default {
       this.$router.push('/shoppingMange/addGoods/goodsClassifySetting')
     },
     async onFormSubmit() {
+      // 添加还是修改
+      const url = this.type === 'add' ? '/product/add' : '/product/update'
       // 提交后重置vuex数据模板
       const data = {
         categoryId: null,
@@ -334,11 +389,21 @@ export default {
         productInfoSpecifications: [],
         productInfoProperties: []
       }
-      if (this.form.categoryId === '' || this.shopImg.length <= 0) {
-        this.$toast.fail('请填写相应内容')
-        return false
+      if (this.type === 'edit') {
+        if (this.form.categoryId === '') {
+          this.$toast.fail('请选择分类')
+          return false
+        }
+      } else {
+        if (this.form.categoryId === '' || this.shopImg.length <= 0) {
+          this.$toast.fail('请填写相应内容')
+          return false
+        }
       }
       // 处理要提交的数据
+      delete this.form.createTime
+      delete this.form.updateTime
+      delete this.form.record
       this.form.productInventory.productNumber = this.form.inventory
       this.form.inventory = this.form.inventory > 0 ? 1 : 0
       this.form.state = this.form.state ? 1 : 0
@@ -346,7 +411,7 @@ export default {
       this.form.sort = this.form.sort ? this.form.sort : 0
       this.form.deliveryFee = this.form.deliveryFee ? this.form.deliveryFee : 0
       this.form.restriction = this.form.restriction ? this.form.restriction : 0
-      const res = await upData('/product/add', this.form, {
+      const res = await upData(url, this.form, {
         showLoading: true
       })
       console.log(res)
@@ -366,7 +431,11 @@ export default {
     },
     toGoodsInventorySetting() {
       this.handleSaveFormData()
-      this.$router.push('/shoppingMange/addGoods/goodsInventorySetting')
+      this.$router.push(
+        `/shoppingMange/addGoods/goodsInventorySetting?productInventory=${JSON.stringify(
+          this.form.productInventory
+        )}`
+      )
     },
     // 处理页面跳转保存表单数据
     handleSaveFormData() {

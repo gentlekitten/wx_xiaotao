@@ -9,7 +9,11 @@
       <div v-else class="right" @click="clickAdminBtn">完成</div>
     </div>
     <div v-if="cartList.length > 0" class="shop_warp">
-      <div class="shop_list" v-for="(item, index) in cartList" :key="index +item.id">
+      <div
+        class="shop_list"
+        v-for="(item, index) in cartList"
+        :key="index + item.id"
+      >
         <div class="top_text">
           <van-checkbox
             class="checkbox"
@@ -17,22 +21,31 @@
             checked-color="#f2af49"
             @click="clickShopCheckbox(item)"
           />
-          <img :src="'https://jixi.mynatapp.cc/'+item.img" />
-          <div class="text" @click="toShoppingShop">
+          <img :src="'https://jixi.mynatapp.cc/' + item.img" />
+          <div class="text" @click="toShoppingShop(item.id)">
             {{ item.name }}
             <van-icon color="#999" name="arrow" size="1rem" />
           </div>
         </div>
-        <div class="content" v-for="(c, index) in item.shopList" :key="c.id + index">
+        <div
+          class="content"
+          v-for="(c, index) in item.shopList"
+          :key="c.id + index"
+        >
           <van-checkbox
             class="checkbox"
             v-model="c.isCheck"
             checked-color="#f2af49"
-            @click="clickGoodsCheckbox(item,c)"
+            @click="clickGoodsCheckbox(item, c)"
           />
-          <img :src="'https://jixi.mynatapp.cc/'+c.img" @click="toShoppingDetails(item, c)" />
+          <img
+            :src="'https://jixi.mynatapp.cc/' + c.img"
+            @click="toShoppingDetails(item, c)"
+          />
           <div class="right_content">
-            <div class="name" @click="toShoppingDetails(item, c)">{{ c.name }}</div>
+            <div class="name" @click="toShoppingDetails(item, c)">
+              {{ c.name }}
+            </div>
             <div class="type" @click="clickSelectAttribute(item, c)">
               {{ c.shopType }}
               <van-icon class="icon" name="arrow-down" size="0.8rem" />
@@ -48,7 +61,11 @@
     <van-empty v-else description="你的购物车是空的哦~" />
     <!-- 底部提交 -->
     <template v-if="!isClickAdmin">
-      <van-submit-bar :price="getChatTotalNum" button-text="结算" @submit="cartSubmit">
+      <van-submit-bar
+        :price="getChatTotalNum"
+        button-text="结算"
+        @submit="cartSubmit"
+      >
         <van-checkbox v-model="allChecked" checked-color="#f2af49" />
       </van-submit-bar>
     </template>
@@ -75,7 +92,9 @@
     >
       <template v-slot:sku-actions>
         <div class="warp">
-          <van-button class="confirm_btn" round @click="updateShop">确认</van-button>
+          <van-button class="confirm_btn" round @click="updateShop"
+            >确认</van-button
+          >
         </div>
       </template>
     </van-sku>
@@ -83,6 +102,8 @@
 </template>
 <script>
 import { getData, upData } from '@/api/api.js'
+
+import commonJs from '@/assets/js/common.js'
 
 import cartSku from '@/components/mixins/cartSku.js'
 
@@ -101,27 +122,28 @@ export default {
       shopNum: 0,
       shopItem: {},
       childrenShopItem: {},
-      cartList: []
+      cartList: [],
+      discountPrice: 0,
     }
   },
   watch: {
     allChecked() {
       if (this.allChecked) {
-        this.cartList.forEach(i => {
+        this.cartList.forEach((i) => {
           i.isCheck = true
-          i.shopList.forEach(c => {
+          i.shopList.forEach((c) => {
             c.isCheck = true
           })
         })
         return false
       }
-      this.cartList.forEach(i => {
+      this.cartList.forEach((i) => {
         i.isCheck = false
-        i.shopList.forEach(c => {
+        i.shopList.forEach((c) => {
           c.isCheck = false
         })
       })
-    }
+    },
   },
   computed: {
     // 获取选中商品总价格
@@ -136,24 +158,34 @@ export default {
       let requirePrice = 0
       // 优惠的减免价格
       let discountPrice = 0
-      shopList.forEach(e => {
-        e.shopList = e.shopList.filter(c => {
+      shopList.forEach((e) => {
+        e.shopList = e.shopList.filter((c) => {
           return c.isCheck === true
         })
       })
-      shopList.forEach(e => {
-        e.shopList.forEach(c => {
-          shopPrice += c.num * c.price
+      shopList.forEach((e) => {
+        // 清除上个店铺的价格
+        shopPrice = 0
+        e.shopList.forEach((c) => {
+          // 防止小数相加出问题
+          shopPrice = commonJs.commonJs.accAdd(shopPrice, c.num * c.price)
         })
         // // 判断店铺是否优惠，
         if (e.shopList[0] && e.shopList[0].shopDiscount.requirePrice) {
           requirePrice = e.shopList[0].shopDiscount.requirePrice
           discountPrice = e.shopList[0].shopDiscount.discountPrice
           // 满足优惠最低价格减去优惠价格
-          shopPrice =
-            shopPrice >= requirePrice ? shopPrice - discountPrice : shopPrice
+          if (shopPrice >= requirePrice) {
+            shopPrice = commonJs.commonJs.accSub(shopPrice, discountPrice)
+            this.discountPrice = ommonJs.commonJs.accAdd(
+              discountPrice,
+              this.discountPrice
+            )
+          }
         }
-        total += shopPrice
+        if (e.shopList.length > 0) {
+          total = commonJs.commonJs.accAdd(shopPrice, total)
+        }
       })
       this.totalPrice = total
       return total * 100
@@ -162,14 +194,14 @@ export default {
     getCartNum() {
       let shopList = []
       let num = 0
-      this.cartList.forEach(i => {
-        i.shopList.forEach(c => {
+      this.cartList.forEach((i) => {
+        i.shopList.forEach((c) => {
           shopList.push(c)
         })
       })
       num = shopList.length
       return num
-    }
+    },
   },
   created() {
     this.getCartList()
@@ -183,25 +215,25 @@ export default {
       // 勾选的id列表
       let idList = []
       const data = {
-        orderCarts: []
+        orderCarts: [],
       }
-      const isAllCheck = this.cartList.every(e => {
+      const isAllCheck = this.cartList.every((e) => {
         return e.isCheck === true
       })
 
-      this.cartList.forEach(e => {
-        idList = e.shopList.filter(c => {
+      this.cartList.forEach((e) => {
+        idList = e.shopList.filter((c) => {
           return c.isCheck === true
         })
       })
-      idList.forEach(e => {
+      idList.forEach((e) => {
         data.orderCarts.push({ id: e.id })
       })
       if (data.orderCarts.length <= 0) {
-        this.$toast.fail('请选择删除的商品！')
+        return this.$toast.fail('请选择删除的商品！')
       }
       const res = await upData('/order/cart/delete', data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -225,15 +257,15 @@ export default {
       const res = await getData('/order/cart/list', {}, { showLoading: true })
       console.log(res)
       if (res.code === '0') {
-        res.data.forEach(e => {
+        res.data.forEach((e) => {
           const arr = {
             id: e.shopInfo.id,
             isCheck: false,
             img: e.shopInfo.shopPic,
             name: e.shopInfo.shopName,
-            shopList: []
+            shopList: [],
           }
-          const isShop = this.cartList.some(c => {
+          const isShop = this.cartList.some((c) => {
             return c.id === e.shopInfo.id
           })
           if (!isShop) {
@@ -242,19 +274,29 @@ export default {
         })
         let shopType = ''
         let price = 0
-        res.data.forEach(e => {
-          const index = this.cartList.findIndex(c => {
+        res.data.forEach((e) => {
+          const index = this.cartList.findIndex((c) => {
             return c.id === e.shopInfo.id
           })
-          e.productInfo.productInfoProperties.forEach(c => {
-            shopType += c.productPropertyValues[0].propertyValue + ';'
-          })
-          shopType +=
-            e.productInfo.productInfoSpecifications[0].specificationName
+          // 是否有属性
+          if (
+            e.productInfo.productInfoProperties &&
+            e.productInfo.productInfoProperties.length > 0
+          ) {
+            e.productInfo.productInfoProperties.forEach((c) => {
+              shopType += c.productPropertyValues[0].propertyValue + ';'
+            })
+          }
           price = e.productInfo.sellPrice
-
-          e.productInfo.productInfoSpecifications[0] &&
-            (price += e.productInfo.productInfoSpecifications[0].price)
+          // 是否有规格
+          if (
+            e.productInfo.productInfoSpecifications &&
+            e.productInfo.productInfoSpecifications.length > 0
+          ) {
+            shopType +=
+              e.productInfo.productInfoSpecifications[0].specificationName
+            price += e.productInfo.productInfoSpecifications[0].price
+          }
           const arr = {
             id: e.id,
             productId: e.productId,
@@ -269,107 +311,43 @@ export default {
             inventory: e.productInfo.inventory,
             productInventory: e.productInfo.productInventory,
             num: e.productAmount,
-            shopOrders: e.shopInfo.shopOrders ? e.shopInfo.shopOrders : '',
+            shopOrders: e.shopInfo.shopOrder ? e.shopInfo.shopOrder : '',
             productInfoProperties: e.productInfo.productInfoProperties,
             productInfoSpecifications: e.productInfo.productInfoSpecifications,
-            shopDiscount: e.productInfo.shopDiscount
-              ? e.productInfo.shopDiscount
-              : ''
+            shopDiscount: e.shopInfo.shopDiscount
+              ? e.shopInfo.shopDiscount
+              : '',
           }
           this.cartList[index].shopList.push(arr)
         })
         return false
       }
       this.$handleCode.handleCode(res)
-
-      const arr = [
-        {
-          id: 1,
-          isCheck: false,
-          img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name: '小哈哈店',
-          shopList: [
-            {
-              id: 1.1,
-              isCheck: false,
-              img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-              name: '日系卫衣',
-              shopType: ' 红色薄款;L',
-              price: 100,
-              num: 1
-            },
-            {
-              id: 1.2,
-              isCheck: false,
-              img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-              name: '日系卫衣',
-              shopType: ' 红色薄款;L',
-              price: 100,
-              num: 1
-            }
-          ]
-        },
-        {
-          id: 2,
-          isCheck: false,
-          img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name: '小哈哈店',
-          shopList: [
-            {
-              id: 2.1,
-              isCheck: false,
-              img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-              name: '日系卫衣',
-              shopType: ' 红色薄款;L',
-              price: 100,
-              num: 1
-            }
-          ]
-        },
-        {
-          id: 3,
-          isCheck: false,
-          img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name: '小哈哈店',
-          shopList: [
-            {
-              id: 3.1,
-              isCheck: false,
-              img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-              name: '日系卫衣',
-              shopType: ' 红色薄款;L',
-              price: 100,
-              num: 1
-            }
-          ]
-        }
-      ]
-      // this.cartList = arr
     },
     // 点击店铺复选框
     clickShopCheckbox(item) {
-      const index = this.cartList.findIndex(i => {
+      const index = this.cartList.findIndex((i) => {
         return i.id === item.id
       })
       if (item.isCheck) {
-        this.cartList[index].shopList.forEach(i => {
+        this.cartList[index].shopList.forEach((i) => {
           i.isCheck = true
         })
       } else {
-        this.cartList[index].shopList.forEach(i => {
+        this.cartList[index].shopList.forEach((i) => {
           i.isCheck = false
         })
       }
     },
     // 点击商品复选框
     clickGoodsCheckbox(item, child) {
-      const index = this.cartList.findIndex(i => {
+      const index = this.cartList.findIndex((i) => {
         return i.id === item.id
       })
-      const childIndex = this.cartList[index].shopList.findIndex(i => {
+      const childIndex = this.cartList[index].shopList.findIndex((i) => {
         return i.id === child.id
       })
-      const isAllCheckbox = this.cartList[index].shopList.every(i => {
+      const isAllCheckbox = this.cartList[index].shopList.every((i) => {
         return i.isCheck === true
       })
       if (isAllCheckbox) {
@@ -381,8 +359,8 @@ export default {
     // 结算
     cartSubmit() {
       const cartSubmitList = []
-      this.cartList.forEach(e => {
-        const isCheck = e.shopList.some(c => {
+      this.cartList.forEach((e) => {
+        const isCheck = e.shopList.some((c) => {
           return c.isCheck === true
         })
         if (isCheck) {
@@ -393,6 +371,7 @@ export default {
         return this.$toast.fail('请选择商品！')
       }
       cartSubmitList[0].totalPrice = this.totalPrice
+      cartSubmitList[0].discountPrice = this.discountPrice
       window.sessionStorage.setItem(
         'shopCartList',
         JSON.stringify(cartSubmitList)
@@ -420,14 +399,16 @@ export default {
       // 属性值id列表
       let propertyValueIdList = []
       // 获取选择的specificationId
-      data.selectedSkuComb.s10001 &&
-        (specificationId = data.selectedSkuComb.s10001)
+      // selectedSkuComb是商品属性弹出层中你选中的规格或属性列表（k_s）
+      if (data.selectedSkuComb && data.selectedSkuComb.s10001) {
+        specificationId = data.selectedSkuComb.s10001
+      }
       // 将商品里所有的k_s保存到propertyIdList
-      this.sku.tree.forEach(e => {
+      this.sku.tree.forEach((e) => {
         propertyIdList.push(e.k_s)
       })
       // 根据k_s去获取data.selectedSkuComb里的值,获取到属性值id
-      propertyIdList.forEach(e => {
+      propertyIdList.forEach((e) => {
         if (e === 's10001') {
           return
         }
@@ -435,14 +416,14 @@ export default {
           propertyValueIdList.push(data.selectedSkuComb[e])
       })
       // 根据k_s去获取data.selectedSkuComb里的值,获取到属性id
-      propertyIdList.forEach(e => {
+      propertyIdList.forEach((e) => {
         if (e === 's10001') {
           return
         }
         data.selectedSkuComb[e] && propertyIdListSecound.push(e.substr(1))
       })
       // 将属性id添加到orderCartProductProperties数组中
-      propertyIdListSecound.forEach(e => {
+      propertyIdListSecound.forEach((e) => {
         orderCartProductProperties.push({ productPropertyId: Number(e) })
       })
       // 将属性值id添加到对应orderCartProductProperties数组中
@@ -455,12 +436,12 @@ export default {
         id: this.id,
         productAmount: data.selectedNum,
         orderCartProductProperties,
-        productSpecificationId: specificationId
+        productSpecificationId: specificationId,
       }
       console.log(cartShop)
 
       const res = await upData('/order/cart/update', cartShop, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -480,8 +461,8 @@ export default {
     stepperChange(num) {
       this.shopNum = num
     },
-    toShoppingShop() {
-      this.$router.push('/shoppingShop')
+    toShoppingShop(shopId) {
+      this.$router.push('/shoppingShop?id=' + shopId)
     },
     toShoppingDetails(item, c) {
       this.$router.push(`/shoppingDetails?id=${c.productId}`)
@@ -504,8 +485,8 @@ export default {
         this.$toast.loading({ message: '加载中...', forbidClick: true })
       }
       this.getGoodsproperty(c.productId)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

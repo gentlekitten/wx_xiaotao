@@ -23,7 +23,6 @@
       <!-- 购物车 -->
       <food-cart
         :cart-list="cartList"
-        :shop-info-obj="shopInfoObj"
         :is-cart-list="isCartList"
         :get-food-total-price="getFoodTotalPrice"
         :handle-food-num="handleFoodNum"
@@ -56,13 +55,6 @@ export default {
       default: false
     },
     cartList: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    // 店铺信息
-    shopInfoObj: {
       type: Object,
       default: () => {
         return {}

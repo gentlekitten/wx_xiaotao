@@ -9,7 +9,7 @@
         placeholder="请输入商品名称"
         required
         clearable
-        :rules="[{ required: true}]"
+        :rules="[{ required: true }]"
       />
       <van-field
         v-model.number="form.usageTime"
@@ -18,9 +18,14 @@
         placeholder="请输入商品使用时间(天)"
         required
         clearable
-        :rules="[{ required: true}]"
+        :rules="[{ required: true }]"
       />
-      <van-field class="uploaderImg" label="封面图片" required>
+      <van-field
+        v-if="type !== 'update'"
+        class="uploaderImg"
+        label="封面图片"
+        required
+      >
         <template #input>
           <van-uploader
             v-model="uploaderImg"
@@ -33,13 +38,22 @@
         </template>
       </van-field>
       <van-field
+        v-model.number="form.originalPrice"
+        label="原价"
+        type="number"
+        required
+        placeholder="商品原来购买时的价格"
+        clearable
+        :rules="[{ required: true }]"
+      />
+      <van-field
         v-model.number="form.sellPrice"
         label="售价"
         type="number"
         required
         placeholder="商品售卖价格"
         clearable
-        :rules="[{ required: true}]"
+        :rules="[{ required: true }]"
       />
       <van-field
         v-model.number="form.postage"
@@ -48,7 +62,12 @@
         placeholder="运送邮费,不填为0"
         clearable
       />
-      <van-field class="swiperImg" type="textarea" label="轮播图片(最多10张，不传则使用封面图片)">
+      <van-field
+        v-if="type !== 'update'"
+        class="swiperImg"
+        type="textarea"
+        label="轮播图片(最多10张，不传则使用封面图片)"
+      >
         <template #input>
           <van-uploader
             v-model="swiperImg"
@@ -68,9 +87,17 @@
         autosize
         type="textarea"
         clearable
+        required
         placeholder="商品的简单描述，特色、推荐语等，建议20字以内"
       />
-      <van-cell class="goods_info" title="商品详情" is-link value="编辑详情" @click="toGoodsInfoEditor" />
+      <van-cell
+        v-if="type !== 'update'"
+        class="goods_info"
+        title="商品详情"
+        is-link
+        value="编辑详情"
+        @click="toGoodsInfoEditor"
+      />
       <van-cell>
         <template #title>
           <div class="title">
@@ -88,40 +115,50 @@
         <span>《二手商品协议》</span>
       </div>
       <div class="btn_warp">
-        <van-button v-if="type === 'update'" class="btn" round native-type="onFormSubmit">确认修改</van-button>
-        <van-button v-else class="btn" round native-type="onFormSubmit">发布商品</van-button>
+        <van-button
+          v-if="type === 'update'"
+          class="btn"
+          round
+          native-type="onFormSubmit"
+          >确认修改</van-button
+        >
+        <van-button v-else class="btn" round native-type="onFormSubmit"
+          >发布商品</van-button
+        >
       </div>
     </van-form>
   </div>
 </template>
 <script>
-import { upData, upLogo } from '@/api/api.js'
+import { upData, upLogo, getData } from '@/api/api.js'
 
 import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
       type: '',
+      productId: '',
       navBarTitle: '新增二手商品',
       goodsStatusChecked: true,
       // 封面地址图片
       uploaderImg: [],
       swiperImg: [],
       form: {
-        productName: '商品名称',
-        usageTime: 10,
+        productName: '',
+        usageTime: '',
         postage: '',
-        sellPrice: 100,
-        productDesc: '商品描述',
+        sellPrice: '',
+        originalPrice: '',
+        productDesc: '',
         logoAddress: '',
         productDetailAddress: '',
         state: 0,
-        secondhandProductPics: []
-      }
+        secondhandProductPics: [],
+      },
     }
   },
   computed: {
@@ -137,7 +174,7 @@ export default {
     },
     getSwiperImg() {
       return this.$store.getters.swiperImg
-    }
+    },
   },
   created() {
     this.handlePageRefresh()
@@ -146,7 +183,8 @@ export default {
   methods: {
     // 初始化界面数据
     initView() {
-      this.type = this.$route.query.type
+      this.type = this.$route.query.type ? this.$route.query.type : ''
+      this.productId = this.$route.query.id ? this.$route.query.id : ''
       this.uploaderImg = this.getLogoImg
       this.swiperImg = this.getSwiperImg
       if (this.type === 'update') {
@@ -156,6 +194,7 @@ export default {
         this.form = this.getFormData
       }
       this.form.productDetailAddress = this.getProductDetailAddress
+      this.getGoodsInfo()
       // console.log(this.uploaderImg)
     },
     // 处理上传图片过大
@@ -183,6 +222,29 @@ export default {
           )
         )
       }
+    },
+    // 获取商品信息
+    async getGoodsInfo() {
+      if (this.type !== 'update') {
+        return false
+      }
+      const res = await getData(
+        '/secondhand/product/id/find',
+        { id: this.productId },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.form = res.data
+        this.form.state = this.form.state === 1 ? true : false
+        this.form.postage = this.form.postage ? this.form.postage : 0
+        delete this.form.id
+        delete this.form.customerId
+        delete this.form.createTime
+        delete this.form.updateTime
+        return false
+      }
+      this.$handleCode.handleCode(res)
     },
     // 商品logo图片
     async uploadingLogo(file) {
@@ -228,23 +290,32 @@ export default {
       this.uploaderImg = []
       this.form.logoAddress = ''
     },
-    // 发布商品
+    // 发布或更改商品
     async onFormSubmit() {
-      console.log(this.form)
+      let url = ''
+      let successText = ''
+      if (this.type === 'update') {
+        url = '/secondhand/product/update'
+        this.form.id = this.productId
+        successText = '更改成功！'
+      } else {
+        url = '/secondhand/product/add'
+        successText = '发布成功！'
+      }
       const data = {
         productDetailAddress: '',
         logoImg: [],
         swiperImg: [],
-        addGoodsForm: {}
+        addGoodsForm: {},
       }
       this.form.postage = this.form.postage ? this.form.postage : 0
       this.form.state = this.goodsStatusChecked ? 1 : 0
-      const res = await upData('/secondhand/product/add', this.form, {
-        showLoading: true
+      const res = await upData(url, this.form, {
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
-        this.$toast.success('发布成功！')
+        this.$toast.success(successText)
         // 删除session
         sessionStorage.removeItem('secondaryMarketAddGoods')
         // 重置vuex里的数据
@@ -258,11 +329,11 @@ export default {
       this.$store.state.secondaryMarket.swiperImg = this.swiperImg
       this.$store.state.secondaryMarket.addGoodsForm = this.form
       this.$router.push('/shoppingMange/addGoods/goodsInfoEditor?id=1')
-    }
+    },
   },
   destroyed() {
-    window.removeEventListener('beforeunload', e => this.beforeunloadFn(e))
-  }
+    window.removeEventListener('beforeunload', (e) => this.beforeunloadFn(e))
+  },
 }
 </script>
 <style lang="less" scoped>

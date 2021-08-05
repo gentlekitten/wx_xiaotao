@@ -23,11 +23,24 @@
       <van-field
         v-model="form.siteName"
         label="申请的站点"
-        placeholder="请输入您想申请的站点"
+        placeholder="点击选择想申请的站点"
         required
-        clearable
+        readonly
         :rules="[{ required: true, message: '请填写站点' }]"
+        @click="showSiteList = true"
       />
+      <van-action-sheet class="action_sheet" v-model="showSiteList" title="选择站点">
+        <van-cell-group class="action_sheet_input">
+          <van-field v-model="searchValue" autofocus clearable placeholder="请输入站点名称搜索" />
+          <van-button class="btn" type="primary" @click="searchSite">搜索</van-button>
+        </van-cell-group>
+        <van-cell
+          v-for="item in siteList"
+          :key="item.schoolId"
+          :title="item.universities"
+          @click="selectSite(item.schoolId)"
+        />
+      </van-action-sheet>
       <van-field
         v-model="getSiteScopeValue"
         label-width="5.5rem"
@@ -44,7 +57,7 @@
   </div>
 </template>
 <script>
-import { upData } from '@/api/api.js'
+import { upData, getData } from '@/api/api.js'
 
 import NavBar from '@/components/common/NavBar.vue'
 
@@ -61,7 +74,10 @@ export default {
         latitude: '',
         longitude: '',
         radius: ''
-      }
+      },
+      showSiteList: false,
+      searchValue: '',
+      siteList: []
     }
   },
   computed: {
@@ -98,6 +114,32 @@ export default {
     validator(val) {
       return /^1[3456789]\d{9}$/.test(val)
     },
+    async searchSite() {
+      if (!this.searchValue) {
+        return this.$toast.fail('请输入搜索内容！')
+      }
+      const res = await getData(
+        '/school/universities/find',
+        {
+          siteName: this.searchValue
+        },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.siteList = res.data
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 选择站点
+    selectSite(id) {
+      const index = this.siteList.findIndex(e => {
+        return e.schoolId === id
+      })
+      this.form.siteName = this.siteListp[index].universities
+      this.showSiteList = false
+    },
     toSettingScope() {
       this.$store.state.scopeSetting.form = this.form
       this.$router.push('/mySiteManage/user/mySiteManage/scopeSetting')
@@ -128,6 +170,19 @@ export default {
     height: 2.8rem;
     background-color: #ffe788;
     border: 1px solid #ffe788;
+  }
+}
+.action_sheet {
+  height: 70%;
+}
+.action_sheet_input {
+  padding: 2rem;
+  display: flex;
+  .btn {
+    width: 5rem;
+    height: 2rem;
+    font-size: 1rem;
+    margin-top: 1rem;
   }
 }
 </style>

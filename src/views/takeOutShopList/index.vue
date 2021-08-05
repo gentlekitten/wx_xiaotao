@@ -3,11 +3,18 @@
     <nav-bar :isArrow="true" :isBackUp="true" />
     <!-- 外卖区域列表 -->
     <div class="take_out">
-      <tabs :tab-list="tabList" :sticky="true" tabsIndexName="tabActiveTakeOutList">
+      <tabs
+        :tab-list="tabList"
+        :sticky="true"
+        tabsIndexName="tabActiveTakeOutList"
+        @clickTab="clickTab"
+      >
         <van-list
           v-model="loading"
           :finished="finished"
           finished-text="我是有底线的~"
+          :immediate-check="false"
+          :offset="0"
           @load="onLoadRefresh"
         >
           <!-- 商品列表 -->
@@ -18,6 +25,8 @@
   </div>
 </template>
 <script>
+import { getData } from '@/api/api.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 import Tabs from '@/components/common/Tabs.vue'
@@ -31,10 +40,13 @@ export default {
   },
   data() {
     return {
+      tabIndex: 0,
       // 是否显示加载
       loading: false,
       // 是否加载完成
       finished: false,
+      // 请求数据页数
+      pageIndex: 0,
       tabList: [
         {
           title: '综合排序'
@@ -49,154 +61,61 @@ export default {
           title: '优惠活动'
         }
       ],
-      shopList: [
-        {
-          id: 0,
-          status: 200,
-          title: '书香苑',
-          imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-          isDiscounts: true,
-          score: 4.5,
-          onSale: 133,
-          firstPrice: 10,
-          distributionPrice: 5,
-          shopType: '川菜',
-          shopAddress: '昆明冶金高等专科学校'
-        },
-        {
-          id: 1,
-          status: 500,
-          title: '书香苑',
-          imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-          isDiscounts: true,
-          score: 4.5,
-          onSale: 133,
-          firstPrice: 10,
-          distributionPrice: 5,
-          shopType: '川菜',
-          shopAddress: '昆明冶金高等专科学校'
-        },
-        {
-          id: 2,
-          status: 400,
-          title: '书香苑',
-          imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-          isDiscounts: true,
-          score: 4.5,
-          onSale: 133,
-          firstPrice: 10,
-          distributionPrice: 5,
-          shopType: '川菜',
-          shopAddress: '昆明冶金高等专科学校'
-        },
-        {
-          id: 3,
-          status: 500,
-          title: '书香苑',
-          imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-          isDiscounts: true,
-          score: 4.5,
-          onSale: 133,
-          firstPrice: 10,
-          distributionPrice: 5,
-          shopType: '川菜',
-          shopAddress: '昆明冶金高等专科学校'
-        },
-        {
-          id: 4,
-          status: 200,
-          title: '书香苑',
-          imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-          isDiscounts: true,
-          score: 4.5,
-          onSale: 133,
-          firstPrice: 10,
-          distributionPrice: 5,
-          shopType: '川菜',
-          shopAddress: '昆明冶金高等专科学校'
-        },
-        {
-          id: 5,
-          status: 500,
-          title: '书香苑',
-          imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-          isDiscounts: true,
-          score: 4.5,
-          onSale: 133,
-          firstPrice: 10,
-          distributionPrice: 5,
-          shopType: '川菜',
-          shopAddress: '昆明冶金高等专科学校'
-        },
-        {
-          id: 6,
-          status: 400,
-          title: '书香苑',
-          imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-          isDiscounts: true,
-          score: 4.5,
-          onSale: 133,
-          firstPrice: 10,
-          distributionPrice: 5,
-          shopType: '川菜',
-          shopAddress: '昆明冶金高等专科学校'
-        },
-        {
-          id: 7,
-          status: 500,
-          title: '书香苑',
-          imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-          isDiscounts: true,
-          score: 4.5,
-          onSale: 133,
-          firstPrice: 10,
-          distributionPrice: 5,
-          shopType: '川菜',
-          shopAddress: '昆明冶金高等专科学校'
-        },
-        {
-          id: 8,
-          status: 400,
-          title: '书香苑',
-          imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-          isDiscounts: true,
-          score: 4.5,
-          onSale: 133,
-          firstPrice: 10,
-          distributionPrice: 5,
-          shopType: '川菜',
-          shopAddress: '昆明冶金高等专科学校'
-        }
-      ]
+      shopList: [],
+      shopListTwo: []
     }
   },
+  created() {
+    this.getShopList()
+  },
   methods: {
-    onLoadRefresh() {
-      setTimeout(() => {
-        const moreShopList = {
-          id: 9,
-          status: 200,
-          title: '哈哈',
-          imgUrl: 'https://img.yzcdn.cn/vant/ipad.jpeg',
-          isDiscounts: false,
-          score: 4.5,
-          onSale: 133,
-          firstPrice: 10,
-          distributionPrice: 5,
-          shopType: '川菜',
-          shopAddress: '昆明冶金高等专科学校'
-        }
-
-        this.shopList.push(moreShopList)
-
-        // 加载状态结束
-        this.loading = false
-
-        // 数据全部加载完成
-        if (this.shopList.length >= 40) {
+    // 获取店铺列表
+    async getShopList(siteId) {
+      // (可选值 营业排序{shopState}，单量排序{sale} 优惠排序{discount}，不排序{""或者不提交})
+      const rule =
+        this.tabIndex === 0
+          ? ''
+          : this.tabIndex === 1
+          ? 'shopState'
+          : this.tabIndex === 2
+          ? 'sale'
+          : 'discount'
+      // shopCategoryId 1零食 2 美妆 3 数码 4 外卖 5 食堂
+      const data = {
+        rule,
+        pageIndex: this.pageIndex,
+        shopCategoryId: 4,
+        pageLimit: 1
+      }
+      const res = await getData('/shop/info/basic/find', data, {
+        showLoading: false
+      })
+      console.log(res)
+      this.loading = false
+      if (res.code === '0') {
+        this.shopList.push(...res.data.pageIndexShopInfoVo)
+        this.shopListTwo.push(...res.data.pageIndexShopInfoVo)
+        this.pageIndex += 1
+        if (this.pageIndex * 1 >= res.data.number) {
           this.finished = true
         }
-      }, 1000)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 点击tab栏
+    clickTab(index) {
+      this.tabIndex = index
+      this.pageIndex = 0
+      this.shopList = []
+      this.finished = false
+      this.getShopList()
+    },
+    // 上拉加载
+    onLoadRefresh() {
+      if (this.shopList.length > 0) {
+        this.getShopList()
+      }
     }
   }
 }

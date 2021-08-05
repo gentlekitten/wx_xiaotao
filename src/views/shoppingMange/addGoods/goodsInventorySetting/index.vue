@@ -27,8 +27,22 @@ export default {
   },
   data() {
     return {
+      productInventory: {},
       goodsInventoryChecked: false,
       goodsNum: 1
+    }
+  },
+  created() {
+    this.productInventory = JSON.parse(this.$route.query.productInventory)
+      ? JSON.parse(this.$route.query.productInventory)
+      : {}
+    console.log(this.productInventory)
+    if (
+      Object.keys(this.productInventory).length > 0 &&
+      this.productInventory.productNumber > 0
+    ) {
+      this.goodsInventoryChecked = true
+      this.goodsNum = this.productInventory.productNumber
     }
   },
   methods: {

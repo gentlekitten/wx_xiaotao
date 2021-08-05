@@ -20,7 +20,10 @@
         </div>
       </div>
     </div>
-    <div class="goods_attribute">
+    <div
+      v-if="type === 'add' && (shopManageId !== 1 && shopManageId !== 2)"
+      class="goods_attribute"
+    >
       <div class="top_input">
         <van-field class="input" v-model="form.goodsAttribute" clearable placeholder="属性类名，如颜色" />
         <div class="right_btn">
@@ -59,7 +62,10 @@
         </div>
       </div>
     </div>
-    <van-collapse v-model="upImgActice">
+    <van-collapse
+      v-if="type === 'add' && (shopManageId !== 1 && shopManageId !== 2)"
+      v-model="upImgActice"
+    >
       <van-collapse-item title="图片上传须知" name="1">
         <div class="up_img_tip_warp">
           <div
@@ -69,7 +75,7 @@
         </div>
       </van-collapse-item>
     </van-collapse>
-    <div class="up_img_warp" v-if="type === 'add'">
+    <div v-if="type === 'add' && (shopManageId !== 1 && shopManageId !== 2)" class="up_img_warp">
       <div class="title">图片上传</div>
       <van-uploader
         class="uploader"
@@ -85,7 +91,7 @@
   </div>
 </template>
 <script>
-import { upLogo } from '@/api/api.js'
+import { upLogo, getData, upData } from '@/api/api.js'
 
 import NavBar from '@/components/common/NavBar.vue'
 
@@ -95,6 +101,10 @@ export default {
   },
   data() {
     return {
+      productId: '',
+      shopManageId: Number(window.sessionStorage.getItem('shopManageId'))
+        ? Number(window.sessionStorage.getItem('shopManageId'))
+        : 1,
       type: '',
       upImgActice: [],
       form: {
@@ -110,8 +120,29 @@ export default {
   },
   created() {
     this.type = this.$route.query.type ? this.$route.query.type : 'add'
+    this.productId = this.$route.query.id ? this.$route.query.id : ''
+    this.getGoodsSpecification()
   },
   methods: {
+    // 获取规格
+    async getGoodsSpecification() {
+      if (this.type === 'add') {
+        return false
+      }
+      const res = await getData(
+        '/product/property/find',
+        { productId: this.productId },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.goodsSpecificationList = res.data.productInfoSpecifications
+          ? res.data.productInfoSpecifications
+          : []
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
     // 处理上传图片过大
     handleImgLarge() {
       this.$toast.fail('上传的图片不能超过5M')
@@ -145,7 +176,7 @@ export default {
       this.$handleCode.handleCode(res)
     },
     // 添加规格
-    addSpecificationBtn() {
+    async addSpecificationBtn() {
       if (
         !this.form.goodsSpecification.trim() ||
         !this.form.goodsPrice.toString().trim()
@@ -161,6 +192,23 @@ export default {
         id,
         specificationName: this.form.goodsSpecification,
         price: this.form.goodsPrice
+      }
+      if (this.type === 'edit') {
+        delete goodsSpecification.id
+        goodsSpecification.productId = this.productId
+        const res = await upData('/product/spec/add', goodsSpecification, {
+          showLoading: true
+        })
+        console.log(res)
+        if (res.code === '0') {
+          this.$toast.success('添加成功')
+          this.goodsSpecificationList.push(res.data)
+          this.form.goodsSpecification = ''
+          this.form.goodsPrice = ''
+          return false
+        }
+        this.$handleCode.handleCode(res)
+        return false
       }
       this.goodsSpecificationList.push(goodsSpecification)
       this.form.goodsSpecification = ''
@@ -178,6 +226,9 @@ export default {
       } else if (this.goodsAttributeList.length >= 3) {
         return this.$toast.fail('最多只能填写三大类！')
       }
+      // if (type === 'edit') {
+      // } else {
+      // }
       const id =
         this.goodsAttributeList.length > 0
           ? this.goodsAttributeList[this.goodsAttributeList.length - 1].id + 1
@@ -198,6 +249,9 @@ export default {
       ) {
         return this.$toast.fail('请填写属性值！')
       }
+      // if (type === 'edit') {
+      // } else {
+      // }
       const id =
         item.productPropertyValues.length > 0
           ? item.productPropertyValues[item.productPropertyValues.length - 1]
@@ -211,7 +265,26 @@ export default {
       this.form.goodsAttributeValue[item.id] = ''
     },
     //   删除商品规格
-    deleteGoodsSpecification(item) {
+    async deleteGoodsSpecification(item) {
+      // 编辑的时候添加和删除做单独处理
+      if (this.type === 'edit') {
+        item.productId = this.productId
+        const res = await upData('/product/spec/delete', item, {
+          showLoading: true
+        })
+        console.log(res)
+        if (res.code === '0') {
+          this.$toast.success('删除成功')
+          this.goodsSpecificationList = this.goodsSpecificationList.filter(
+            e => {
+              return item.id !== e.id
+            }
+          )
+          return false
+        }
+        this.$handleCode.handleCode(res)
+        return false
+      }
       this.goodsSpecificationList = this.goodsSpecificationList.filter(e => {
         return item.id !== e.id
       })

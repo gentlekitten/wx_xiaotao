@@ -179,7 +179,18 @@ export default {
         return e.id === id
       })
     },
-    searchConfirm() {},
+    searchConfirm() {
+      if (!this.searchValue) {
+        return this.$toast.fail('请输入搜索内容！')
+      }
+      this.goodsList = this._.cloneDeep(this.goodsListCopy)
+      this.goodsList.forEach(e => {
+        e.productInfos = e.productInfos.filter(c => {
+          return c.productName.indexOf(this.searchValue) !== -1
+        })
+      })
+      this.searchValue = ''
+    },
     clickEditBtn() {
       this.isEdit = !this.isEdit
     },
@@ -269,8 +280,8 @@ export default {
     addGoods() {
       this.$router.push(`/shoppingMange/addGoods?type=add`)
     },
-    toEditGoods() {
-      this.$router.push(`/shoppingMange/addGoods?type=edit`)
+    toEditGoods(id) {
+      this.$router.push(`/shoppingMange/addGoods?type=edit&id=${id}`)
     }
   }
 }

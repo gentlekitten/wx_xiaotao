@@ -151,7 +151,7 @@ export default {
       if (res.code === '0') {
         this.tabIndex === 0
           ? this.shopList.push(...res.data.customerShopRecordVos)
-          : this.shoppingList.push(...res.data.customerShopRecordVos)
+          : this.shoppingList.push(...res.data.customerShopRecordSeVos)
         this.pageIndex += 1
         if (this.pageIndex * 10 >= res.data.number) {
           this.finished = true

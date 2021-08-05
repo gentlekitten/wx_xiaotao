@@ -9,7 +9,9 @@
         shape="round"
         placeholder="请输入搜索关键词"
       />
-      <van-button class="search_btn" round @click="searchConfirm">搜索</van-button>
+      <van-button class="search_btn" round @click="searchConfirm"
+        >搜索</van-button
+      >
     </div>
     <tabs
       :tab-list="tabsList"
@@ -42,7 +44,7 @@ import TastList from '@/components/orderPeople/TastList.vue'
 export default {
   components: {
     Tabs,
-    TastList
+    TastList,
   },
   data() {
     return {
@@ -60,16 +62,16 @@ export default {
         : 0,
       tabsList: [
         {
-          title: '全部单'
+          title: '全部单',
         },
         {
-          title: '已接单'
+          title: '已接单',
         },
         {
-          title: '已完成'
-        }
+          title: '已完成',
+        },
       ],
-      myTaskList: []
+      myTaskList: [],
     }
   },
   created() {
@@ -79,9 +81,8 @@ export default {
     // 获取任务列表
     async getTaskList() {
       let data = {
-        siteId: this.siteId,
         pageIndex: this.pageIndex,
-        pageLimit: 10
+        pageLimit: 10,
       }
       let url = null
       if (this.tabindex === 1 || this.tabindex === 2) {
@@ -89,14 +90,13 @@ export default {
         url = '/site/delivery/order/state/detail'
       } else {
         data = {
-          siteId: this.siteId,
           pageIndex: this.pageIndex,
-          pageLimit: 10
+          pageLimit: 10,
         }
         url = '/site/delivery/order/receive/detail'
       }
       const res = await getData(url, data, {
-        showLoading: true
+        showLoading: true,
       })
       this.loading = false
       console.log(res)
@@ -120,12 +120,11 @@ export default {
     async onloadSearchList() {
       const data = {
         title: this.searchValue,
-        siteId: this.siteId,
         pageIndex: this.searchPageIndex,
-        pageLimit: 10
+        pageLimit: 10,
       }
       const res = await getData('/site/delivery/order/title/search', data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -146,16 +145,15 @@ export default {
       const data = {
         title: this.searchValue,
         pageIndex: 0,
-        siteId: this.siteId,
-        pageLimit: 10
+        pageLimit: 10,
       }
       const res = await getData('/site/delivery/order/title/search', data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
         if (this.tabindex === 1 || this.tabindex === 2) {
-          this.myTaskList = res.data.deliveryOrder.filter(e => {
+          this.myTaskList = res.data.deliveryOrder.filter((e) => {
             return e.state === this.tabindex + 1
           })
           return false
@@ -177,8 +175,8 @@ export default {
     },
     sendTaskInfo(id) {
       this.$router.push(`/orderPeople/sendTaskInfoView?id=${id}`)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

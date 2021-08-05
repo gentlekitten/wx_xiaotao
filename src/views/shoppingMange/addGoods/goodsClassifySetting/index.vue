@@ -19,8 +19,14 @@
       <div class="title">新增分类</div>
       <div class="item_warp">
         <van-cell-group>
-          <van-field v-model="form.classifyName" label="分类名称" placeholder="类别名称" />
-          <van-field v-model.number="form.num" label="排序数值" placeholder="越大越靠前" />
+          <van-field v-model="form.classifyName" label="分类名称" placeholder="类别名称" clearable />
+          <van-field
+            type="number"
+            v-model.number="form.num"
+            label="排序数值"
+            placeholder="越大越靠前"
+            clearable
+          />
         </van-cell-group>
       </div>
     </div>
@@ -91,6 +97,12 @@ export default {
       this.$router.go(-1)
     },
     async saveClassify() {
+      if (this.form.classifyName.length > 4) {
+        return this.$toast.fail('分类名不能超过4个字！')
+      }
+      if (this.form.num > 100000) {
+        return this.$toast.fail('排序数不能大于100000！')
+      }
       const data = {
         categoryName: this.form.classifyName,
         sort: this.form.num,

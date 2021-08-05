@@ -8,12 +8,16 @@
     class="grid"
   >
     <van-grid-item
-      v-for="(item, index) in girdList"
-      :key="index + item.img"
+      v-for="item in girdList"
+      :key="item.id"
       :to="item.url"
       @click="clickSnackDormitory(item)"
     >
-      <van-image :class="{'manage_img': isManage}" fit="contain" :src="item.img" />
+      <van-image
+        :class="{ manage_img: isManage }"
+        fit="contain"
+        :src="item.img"
+      />
       <span class="gird_text">{{ item.text }}</span>
     </van-grid-item>
   </van-grid>
@@ -23,40 +27,40 @@ export default {
   props: {
     isBorder: {
       type: Boolean,
-      default: false
+      default: false,
     },
     columnNum: {
       type: Number,
-      default: 0
+      default: 0,
     },
     girdList: {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
     gutter: {
       type: Number,
-      default: 0
+      default: 0,
     },
     center: {
       type: Boolean,
-      default: true
+      default: true,
     },
     square: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isManage: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   methods: {
     clickSnackDormitory(item) {
       this.$emit('clickSnackDormitory', item)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

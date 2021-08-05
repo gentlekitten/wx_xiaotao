@@ -1,6 +1,10 @@
 <template>
   <van-swipe :autoplay="3000" lazy-render>
-    <van-swipe-item v-for="item in images" :key="item.id" @click="clickSwiperImg">
+    <van-swipe-item
+      v-for="(item, index) in images"
+      :key="index+item.picAddress"
+      @click="clickSwiperImg"
+    >
       <img v-lazy="'https://jixi.mynatapp.cc/' + item.picAddress" class="img" />
     </van-swipe-item>
   </van-swipe>
@@ -19,6 +23,7 @@ export default {
       default: '200px'
     }
   },
+  created() {},
   methods: {
     // 点击轮播图片跳转
     clickSwiperImg(item) {

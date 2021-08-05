@@ -110,7 +110,6 @@ export default {
     // 获取商品和店铺列表
     async getShopList() {
       const data = {
-        siteId: this.siteId,
         shopCategoryId: 3,
         pageIndex: this.pageIndex,
         pageLimit: 10
@@ -130,8 +129,8 @@ export default {
       this.loading = false
       if (res.code === '0') {
         this.tabIndex === 3
-          ? this.shoppingList.push(...res.data.shopInfo)
-          : this.shopList.push(...res.data.productInfo)
+          ? this.shoppingList.push(...res.data.shopAvatarVos)
+          : this.shopList.push(...res.data.productInfoVos)
         this.pageIndex += 1
         if (this.pageIndex * 10 >= res.data.number) {
           this.finished = true
@@ -146,42 +145,53 @@ export default {
     async searchConfirm(value) {
       this.searchValue = value
       this.isSearch = true
+      const url =
+        this.tabIndex === 3 ? '/shop/goods/shop/search' : '/shop/goods/search'
       if (this.searchValue) {
         const data = {
+          shopCategoryId: 3,
           productName: this.searchValue,
           pageIndex: 0,
           pageLimit: 10
         }
-        const res = await getData('/shop/goods/search', data, {
+        const res = await getData(url, data, {
           showLoading: true
         })
         console.log(res)
         if (res.code === '0') {
           this.tabIndex === 3
-            ? (this.shoppingList = [...res.data.shopInfo])
-            : (this.shopList = [...res.data.productInfo])
+            ? (this.shoppingList = res.data.shopAvatarVos)
+            : (this.shopList = res.data.productInfoVos)
           return false
         }
-        this.$handleCode.handleCode(res)
+        // this.$handleCode.handleCode(res)
+        return this.$toast.fail(res.msg)
+      } else {
+        this.$toast.fail('请输入搜索内容')
       }
-      this.$toast.fail('请输入搜索内容')
     },
     // 加载搜索上拉数据
     async onloadSearchList() {
+      const url =
+        this.tabIndex === 3 ? '/shop/goods/shop/search' : '/shop/goods/search'
       const data = {
+        shopCategoryId: 3,
         productName: this.searchValue,
-        pageIndex: this.pageIndex,
+        pageIndex: this.searchPageIndex,
         pageLimit: 10
       }
-      const res = await getData('/secondhand/product/search', data, {
+      const res = await getData(url, data, {
         showLoading: true
       })
       console.log(res)
       this.loading = false
       if (res.code === '0') {
         this.tabIndex === 3
-          ? (this.shoppingList = [...this.shoppingList, ...res.data.shopInfo])
-          : (this.shopList = [...this.shopList, ...res.data.productInfo])
+          ? (this.shoppingList = [
+              ...this.shoppingList,
+              ...res.data.shopAvatarVos
+            ])
+          : (this.shopList = [...this.shopList, ...res.data.productInfoVos])
         this.searchPageIndex += 1
 
         if (this.searchPageIndex * 10 >= res.data.number) {
@@ -215,7 +225,7 @@ export default {
       this.$router.push('/shoppingDetails?id=' + id)
     },
     toShopping(item) {
-      this.$router.push(`/shoppingShop?id=` + item.id)
+      this.$router.push(`/shoppingShop?id=` + item.shopId)
     }
   }
 }

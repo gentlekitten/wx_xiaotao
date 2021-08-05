@@ -14,38 +14,58 @@
       </div>
       <!-- 地址 -->
       <div class="address">
-        <div class="send_type">{{ shopInfoObj.sendtype }}</div>
+        <div class="send_type">
+          {{ shopInfoObj.deliverySn === 0 ? '商家配送' : '快递配送' }}
+        </div>
         <div class="select_address">
           <div class="address_text">
             <div class="user_info">
-              <span>{{ shopInfoObj.username }}</span>
-              {{ shopInfoObj.phone }}
+              <span>{{ shopInfoObj.customerRealname }}</span>
+              {{ shopInfoObj.customerPhone }}
             </div>
-            <div class="text">{{ shopInfoObj.address }}</div>
+            <div class="text">{{ shopInfoObj.addressDetail }}</div>
           </div>
         </div>
       </div>
       <div class="shop_info_warp">
-        <div class="type">快递邮寄</div>
+        <div class="type">
+          {{ shopInfoObj.deliverySn === 0 ? '商家配送' : '快递配送' }}
+        </div>
         <div class="shop_info">
-          <div class="warp">
-            <img :src="shopInfoObj.shopImg" />
+          <div
+            v-for="item in shopInfoObj.orderDetails"
+            :key="item.id"
+            class="warp"
+          >
+            <img :src="'https://jixi.mynatapp.cc/' + item.productLogoAddress" />
             <div class="shop_details">
-              <div class="title">{{ shopInfoObj.shopTitle }}</div>
-              <div class="specification">({{ shopInfoObj.shopSpecification }})</div>
+              <div class="title">{{ item.shopTitle }}</div>
+              <div class="specification">({{ item.productName }})</div>
               <div class="num_price">
                 <div class="num">×{{ shopInfoObj.shopNum }}</div>
-                <div class="price">￥{{ shopInfoObj.totalPrice }}</div>
+                <div class="price">
+                  ￥{{
+                    Math.round(
+                      shopInfoObj.productPrice * shopInfoObj.shopNum * 1000
+                    ) / 1000
+                  }}
+                </div>
               </div>
             </div>
           </div>
           <div class="price_item">
+            <div class="text">
+              {{ shopInfoObj.deliverySn === 0 ? '配送费' : '邮费' }}
+            </div>
+            <div class="price">￥{{ shopInfoObj.deliveryFee }}</div>
+          </div>
+          <div class="price_item">
             <div class="text">小计</div>
-            <div class="price">￥{{ shopInfoObj.totalPrice }}</div>
+            <div class="price">￥{{ shopInfoObj.orderMoney }}</div>
           </div>
           <div class="total_price">
             应付总计：
-            <span>￥{{ shopInfoObj.totalPrice }}</span>
+            <span>￥{{ shopInfoObj.orderMoney }}</span>
           </div>
           <div class="shop_user" @click="toPhone">
             <van-icon name="service-o" size="1.3rem" />
@@ -57,24 +77,28 @@
         <div class="order_info">
           <div class="title">订单信息</div>
           <div class="info">
+            <span>备注</span>
+            {{ shopInfoObj.otherMsg }}
+          </div>
+          <div class="info">
             <span>支付方式</span>
             微信
           </div>
           <div class="info">
             <span>下单时间</span>
-            2021-1-14&nbsp;13:12:12
+            {{ shopInfoObj.createTime }}
           </div>
           <div class="info">
             <span>支付时间</span>
-            2021-1-14&nbsp;13:12:12
+            {{ shopInfoObj.payTime }}
           </div>
           <div class="info">
             <span>订单编号</span>
-            12723442278379
+            {{ shopInfoObj.cOrderSn }}
           </div>
         </div>
       </div>
-      <div class="btn_warp">
+      <div v-if="shopInfoObj.payState === 2" class="btn_warp">
         <van-button class="btn" round>去支付</van-button>
       </div>
     </div>
@@ -88,13 +112,13 @@ import AddressSelectCell from '@/components/express/AddressSelectCell.vue'
 export default {
   components: {
     NavBar,
-    AddressSelectCell
+    AddressSelectCell,
   },
   data() {
     return {
       remarkValue: '',
       shopInfoObj: {},
-      orderActive: 1
+      orderActive: 1,
     }
   },
   created() {
@@ -103,27 +127,32 @@ export default {
   methods: {
     // 获取商品信息
     getShopInfo() {
-      const obj = {
-        sendtype: '快递邮寄',
-        username: '哈哈',
-        phone: '1231468374',
-        address:
-          '昆明冶金高等专科学校昆明冶金高等专科学校昆明冶金昆明冶金高等专科学校高等专科学校',
-        shopImg: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-        shopName: '暮春官方店',
-        shopTitle: '暮春官方店纸张',
-        shopSpecification: '40码 黑色',
-        shopNum: 2,
-        shopPrice: 9.9,
-        packPrice: '0',
-        deliveryPrice: '1',
-        postPrice: ''
-      }
-      obj.totalPrice =
-        obj.shopNum * obj.shopPrice +
-        Number(obj.packPrice) +
-        Number(obj.deliveryPrice)
-      this.shopInfoObj = obj
+      this.shopInfoObj = JSON.parse(
+        window.sessionStorage.getItem('orderDetail')
+      )
+        ? JSON.parse(window.sessionStorage.getItem('orderDetail'))
+        : {}
+      // const obj = {
+      //   sendtype: '快递邮寄',
+      //   username: '哈哈',
+      //   phone: '1231468374',
+      //   address:
+      //     '昆明冶金高等专科学校昆明冶金高等专科学校昆明冶金昆明冶金高等专科学校高等专科学校',
+      //   shopImg: 'https://img01.yzcdn.cn/vant/cat.jpeg',
+      //   shopName: '暮春官方店',
+      //   shopTitle: '暮春官方店纸张',
+      //   shopSpecification: '40码 黑色',
+      //   shopNum: 2,
+      //   shopPrice: 9.9,
+      //   packPrice: '0',
+      //   deliveryPrice: '1',
+      //   postPrice: '',
+      // }
+      // obj.totalPrice =
+      //   obj.shopNum * obj.shopPrice +
+      //   Number(obj.packPrice) +
+      //   Number(obj.deliveryPrice)
+      // this.shopInfoObj = obj
     },
     toShoppingShop() {
       this.$router.push('/shoppingShop')
@@ -135,8 +164,11 @@ export default {
     toPhone() {
       const phoneNum = 14708701960
       window.location.href = 'tel:' + phoneNum
-    }
-  }
+    },
+  },
+  beforeDestroy() {
+    window.sessionStorage.removeItem('orderDetail')
+  },
 }
 </script>
 <style lang="less" scoped>

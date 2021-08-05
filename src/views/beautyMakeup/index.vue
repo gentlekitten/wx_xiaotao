@@ -31,7 +31,7 @@
           <template v-if="shoppingList.length > 0">
             <store-item
               v-for="item in shoppingList"
-              :key="item.id"
+              :key="item.shopId"
               :item="item"
               @toShopping="toShopping"
             />
@@ -108,7 +108,6 @@ export default {
     // 获取商品和店铺列表
     async getShopList() {
       const data = {
-        siteId: this.siteId,
         shopCategoryId: 2,
         pageIndex: this.pageIndex,
         pageLimit: 10
@@ -128,8 +127,8 @@ export default {
       this.loading = false
       if (res.code === '0') {
         this.tabIndex === 3
-          ? this.shoppingList.push(...res.data.shopInfo)
-          : this.shopList.push(...res.data.productInfo)
+          ? this.shoppingList.push(...res.data.shopAvatarVos)
+          : this.shopList.push(...res.data.productInfoVos)
         this.pageIndex += 1
         if (this.pageIndex * 10 >= res.data.number) {
           this.finished = true
@@ -148,42 +147,59 @@ export default {
     async searchConfirm(value) {
       this.searchValue = value
       this.isSearch = true
+      const url =
+        this.tabIndex === 3 ? '/shop/goods/shop/search' : '/shop/goods/search'
       if (this.searchValue) {
         const data = {
-          productName: this.searchValue,
+          shopCategoryId: 2,
           pageIndex: 0,
           pageLimit: 10
         }
-        const res = await getData('/shop/goods/search', data, {
+        this.tabIndex === 3
+          ? (data.shopName = this.searchValue)
+          : (data.productName = this.searchValue)
+        const res = await getData(url, data, {
           showLoading: true
         })
         console.log(res)
         if (res.code === '0') {
           this.tabIndex === 3
-            ? (this.shoppingList = [...res.data.shopInfo])
-            : (this.shopList = [...res.data.productInfo])
+            ? (this.shoppingList = [...res.data.shopAvatarVos])
+            : (this.shopList = [...res.data.productInfoVos])
           return false
         }
+        // if (res.code === '4x10003') {
+        //   return this.$toast.fail('没有该商品哦~')
+        // }
         return this.$toast.fail(res.msg)
+      } else {
+        this.$toast.fail('请输入搜索内容')
       }
-      this.$handleCode.handleCode(res)
     },
     // 加载搜索上拉数据
     async onloadSearchList() {
+      const url =
+        this.tabIndex === 3 ? '/shop/goods/shop/search' : '/shop/goods/search'
       const data = {
-        productName: this.searchValue,
+        shopCategoryId: 2,
         pageIndex: this.pageIndex,
         pageLimit: 10
       }
-      const res = await getData('/secondhand/product/search', data, {
+      this.tabIndex === 3
+        ? (data.shopName = this.searchValue)
+        : (data.productName = this.searchValue)
+      const res = await getData(url, data, {
         showLoading: true
       })
       console.log(res)
       this.loading = false
       if (res.code === '0') {
         this.tabIndex === 3
-          ? (this.shoppingList = [...this.shoppingList, ...res.data.shopInfo])
-          : (this.shopList = [...this.shopList, ...res.data.productInfo])
+          ? (this.shoppingList = [
+              ...this.shoppingList,
+              ...res.data.shopAvatarVos
+            ])
+          : (this.shopList = [...this.shopList, ...res.data.productInfoVos])
         this.searchPageIndex += 1
 
         if (this.searchPageIndex * 10 >= res.data.number) {
@@ -217,7 +233,7 @@ export default {
       this.$router.push('/shoppingDetails?id=' + id)
     },
     toShopping(item) {
-      this.$router.push(`/shoppingShop?id=` + item.id)
+      this.$router.push(`/shoppingShop?id=` + item.shopId)
     }
   }
 }

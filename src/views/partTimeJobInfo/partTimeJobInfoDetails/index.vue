@@ -16,7 +16,7 @@
       </div>
       <div class="tip">联系时请说明在小淘校园上看到的。</div>
       <div class="time">{{ infoDetailsObj.updateTime }}</div>
-      <div v-if="infoDetailsObj.state === 1" class="status">已结束</div>
+      <div v-if="infoDetailsObj.state === 2" class="status">已结束</div>
       <div class="user_info">
         <div class="images">
           <img :src="infoDetailsObj.customerInfo.headimgurl" />
@@ -29,7 +29,7 @@
           <div class="name">{{ infoDetailsObj.customerInfo.nickname }}</div>
           <div class="lable">
             总发布
-            <span>1</span>条信息，可信度评估
+            <span>{{ infoDetailsObj.customerInfo.infoNumber }}</span>条信息，可信度评估
             <span>*</span>
           </div>
           <div class="phone" @click="toPhone">

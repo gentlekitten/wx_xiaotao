@@ -89,20 +89,21 @@ export default {
         return e.id === item.id
       })
       // (1零食2美妆3数码4外卖5食堂)
+      // 后台判断是 1零食2外卖3美妆4数码
       const id = item.id === 1 ? 1 : item.id === 2 ? 3 : item.id === 3 ? 4 : 2
       if (this.shopCategoryIdList.indexOf(item.id) > -1) {
         const shopId = this.shopIdList.filter(e => {
-          return (item.id = e.shopCategoryId)
+          return item.id === e.shopCategoryId
         })[0].id
         this.$router.push(`/shoppingMange/user?id=${id}&shopId=${shopId}`)
       } else if (this.shopCategoryIdList.indexOf(5) > -1) {
         const shopId = this.shopIdList.filter(e => {
-          return (item.id = e.shopCategoryId)
+          return item.id === e.shopCategoryId
         })[0].id
         this.$router.push(`/shoppingMange/user?id=2&shopId=${shopId}`)
       } else {
         this.$router.push(
-          `/shoppingMange/user/shopManage?isShop=${false}&id=${id}`
+          `/shoppingMange/user/shopManage?isShop=false&id=${id}`
         )
       }
     }

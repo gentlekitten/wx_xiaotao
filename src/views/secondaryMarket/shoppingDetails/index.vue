@@ -5,13 +5,13 @@
     <!-- 轮播图 -->
     <swipe class="swiper" :images="swipeImagesList" />
     <!-- 商品信息 -->
-    <shop-info :type="3" :item="shopInfiObj" @collectShop="collectShop" />
+    <shop-info :type="3" :item="shopInfoObj" @collectShop="collectShop" />
     <div class="shop_select_cell">
       <!-- 选择商品规格 -->
       <van-cell title="配送" value="快递邮寄" />
     </div>
     <!-- 商品详细 -->
-    <shop-details :product-detail-address="shopInfiObj.productDetailAddress" />
+    <shop-details :product-detail-address="shopInfoObj.productDetailAddress" />
     <!-- 商品规格弹出层 -->
     <!-- 分享遮蔽层 -->
     <van-overlay :show="overlayIsShow" @click="overlayIsShow = false">
@@ -19,9 +19,18 @@
     </van-overlay>
     <!-- 底部商品导航 -->
     <van-goods-action>
-      <van-goods-action-icon icon="chat-o" text="客服" badge="5" to="/chatView" />
-      <van-goods-action-icon icon="cart-o" text="购物车" badge="5" to="/cart" />
-      <van-goods-action-button type="danger" text="立即购买" @click="onBuyClicked" />
+      <van-goods-action-icon
+        icon="chat-o"
+        text="客服"
+        badge="0"
+        to="/chatView"
+      />
+      <van-goods-action-icon icon="cart-o" text="购物车" badge="0" to="/cart" />
+      <van-goods-action-button
+        type="danger"
+        text="立即购买"
+        @click="onBuyClicked"
+      />
     </van-goods-action>
     <!-- 回到顶部 -->
     <back-top :showDistance="800" />
@@ -47,15 +56,15 @@ export default {
     OverlayItem,
     NavBar,
     ShopInfo,
-    ShopDetails
+    ShopDetails,
   },
   data() {
     return {
       id: 0,
       overlayIsShow: false,
       shopSelectAttributeShow: false,
-      shopInfiObj: {},
-      swipeImagesList: []
+      shopInfoObj: {},
+      swipeImagesList: [],
     }
   },
   created() {
@@ -63,6 +72,7 @@ export default {
     this.getShoppingDatails()
   },
   methods: {
+    // 获取商品详情
     async getShoppingDatails() {
       const res = await getData(
         '/secondhand/product/id/find',
@@ -71,18 +81,19 @@ export default {
       )
       console.log(res)
       if (res.code === '0') {
-        this.shopInfiObj = res.data
+        this.shopInfoObj = res.data
         if (res.data.secondhandProductPics.length > 0) {
-          res.data.secondhandProductPics.forEach(e => {
-            this.swipeImagesList.push(
-              'https://jixi.mynatapp.cc/' + e.picAddress
-            )
+          res.data.secondhandProductPics.forEach((e) => {
+            this.swipeImagesList.push({
+              picAddress: e.picAddress,
+            })
           })
         } else {
-          this.swipeImagesList.push(
-            'https://jixi.mynatapp.cc/' + res.data.logoAddress
-          )
+          this.swipeImagesList.push({
+            picAddress: res.data.logoAddress,
+          })
         }
+        console.log(this.swipeImagesList)
         return false
       }
       this.$handleCode.handleCode(res)
@@ -99,11 +110,20 @@ export default {
       }
       this.$toast.success('取消成功！')
     },
-    onBuyClicked(data) {
-      console.log(data)
-      this.$router.push('/shoppingOrderView')
-    }
-  }
+    // 点击立即购买
+    onBuyClicked() {
+      const shopInfo = {
+        productId: this.shopInfoObj.id,
+        img: this.shopInfoObj.logoAddress,
+        name: this.shopInfoObj.productName,
+        price: this.shopInfoObj.sellPrice,
+        deliveryFee: this.shopInfoObj.postage ? this.shopInfoObj.postage : 0,
+        num: 1,
+      }
+      window.sessionStorage.setItem('shopCartList', JSON.stringify(shopInfo))
+      this.$router.push('/shoppingOrderView?form=2')
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

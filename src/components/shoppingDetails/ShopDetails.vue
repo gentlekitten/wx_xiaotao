@@ -3,7 +3,7 @@
     <div class="title">
       <span>|</span>商品详情
     </div>
-    <template v-if="isProductDetailAddress">
+    <template v-if="productDetailAddress">
       <iframe
         ref="ifram"
         class="goods_details"
@@ -33,13 +33,15 @@ export default {
     return {}
   },
   created() {
-    console.log(this.isProductDetailAddress)
   },
   mounted() {
     this.setIframeHeight()
   },
   methods: {
     setIframeHeight() {
+      if (!this.productDetailAddress) {
+        return false
+      }
       const iframe = document.getElementsByClassName('goods_details')
       try {
         const dHeight =

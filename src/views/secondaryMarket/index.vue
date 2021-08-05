@@ -111,8 +111,8 @@ export default {
       console.log(res)
       if (res.code === '0') {
         index === 0
-          ? this.shopList.push(...res.data.secondhandProductInfo)
-          : this.myShopList.push(...res.data.secondhandProductInfo)
+          ? this.shopList.push(...res.data.secondhandProductInfoVos)
+          : this.myShopList.push(...res.data.secondhandProductInfoVos)
         this.pageIndex += 1
         if (this.pageIndex * 10 >= res.data.number) {
           this.finished = true
@@ -143,9 +143,9 @@ export default {
         console.log(res)
         if (res.code === '0') {
           if (this.tabIndex === 0) {
-            this.shopList = [...res.data.secondhandProductInfo]
+            this.shopList = [...res.data.secondhandProductInfoVos]
           } else {
-            this.myShopList = [...res.data.secondhandProductInfo]
+            this.myShopList = [...res.data.secondhandProductInfoVos]
           }
           return false
         }
@@ -182,11 +182,14 @@ export default {
       this.loading = false
       if (res.code === '0') {
         if (this.tabIndex === 0) {
-          this.shopList = [...this.shopList, ...res.data.secondhandProductInfo]
+          this.shopList = [
+            ...this.shopList,
+            ...res.data.secondhandProductInfoVos
+          ]
         } else {
           this.myShopList = [
             ...this.shopList,
-            ...res.data.secondhandProductInfo
+            ...res.data.secondhandProductInfoVos
           ]
         }
         this.searchPageIndex += 1
@@ -211,7 +214,7 @@ export default {
     async toDeleteShop(item) {
       const res = await getData(
         '/secondhand/product/id/delete',
-        { id: item.id },
+        { id: item.productId },
         { showLoading: true }
       )
       console.log(res)

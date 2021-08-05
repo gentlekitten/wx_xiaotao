@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 顶部返回 -->
-    <nav-bar title="昆明冶专安宁校区任务大厅" is-arrow backTo="/index">
+    <nav-bar :title="siteInfo.siteName" is-arrow backTo="/index">
       <template v-slot:right_icon>
         <van-icon name="search" size="1.5rem" @click="searchIsShow = true" />
       </template>
@@ -11,7 +11,9 @@
         成为“校园领跑者”
         <br />任务接单校内兼职赚钱》
       </div>
-      <div class="right" @click="toOrderPeopleView">{{ orderPeopleNum }}领跑者接单中》</div>
+      <div class="right" @click="toOrderPeopleView">
+        {{ orderPeopleNum }}领跑者接单中》
+      </div>
     </div>
     <!-- tabs -->
     <tabs
@@ -61,19 +63,37 @@
       </template>
     </tabs>
     <!-- 搜索弹出层 -->
-    <van-popup class="popup" v-model="searchIsShow" closeable round position="top">
+    <van-popup
+      class="popup"
+      v-model="searchIsShow"
+      closeable
+      round
+      position="top"
+    >
       <search-popup @clickShopSearch="clickShopSearch" />
     </van-popup>
     <!-- 发布按钮 -->
     <div class="send_btn" @click="toSendTast">发布</div>
     <div class="popup_warp">
       <!-- 注册零跑者弹出层 -->
-      <van-popup class="popup" v-model="popupIsShow" :close-on-click-overlay="false" round>
+      <van-popup
+        class="popup"
+        v-model="popupIsShow"
+        :close-on-click-overlay="false"
+        round
+      >
         <div class="popup_item">
           <van-icon class="icon" name="fail" size="3rem" />你还不是领跑者哦~
         </div>
         <div class="btn_warp">
-          <van-button class="btn" round block type="warning" @click="registerOrderPeopleBtn">申请</van-button>
+          <van-button
+            class="btn"
+            round
+            block
+            type="warning"
+            @click="registerOrderPeopleBtn"
+            >申请</van-button
+          >
         </div>
       </van-popup>
     </div>
@@ -94,13 +114,14 @@ export default {
     NavBar,
     Tabs,
     SearchPopup,
-    TastList
+    TastList,
   },
   data() {
     return {
-      siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
-        ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
-        : 0,
+      // 站点信息
+      siteInfo: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        : {},
       tabIndex: Number(sessionStorage.getItem('orderPeopleTabsIndex'))
         ? Number(sessionStorage.getItem('orderPeopleTabsIndex'))
         : 0,
@@ -111,11 +132,11 @@ export default {
       pageIndex: 0,
       tabList: [
         {
-          title: '任务大厅'
+          title: '任务大厅',
         },
         {
-          title: '我的发布'
-        }
+          title: '我的发布',
+        },
       ],
       taskList: [],
       myTaskList: [],
@@ -128,7 +149,9 @@ export default {
       myTaskListUpLoading: false,
       myTaskListFinished: false,
       //   下拉
-      myTaskListDownLoading: false
+      myTaskListDownLoading: false,
+      // 是否是领跑者
+      isOrderPeopPeolple: false,
     }
   },
   created() {
@@ -145,14 +168,12 @@ export default {
       let orderPeopleList = []
       const res = await getData(
         '/site/delivery/person/state/find',
-        {
-          siteId: this.siteId
-        },
+        {},
         { showLoading: false }
       )
       console.log(res)
       if (res.code === '0') {
-        orderPeopleList = res.data.filter(e => {
+        orderPeopleList = res.data.filter((e) => {
           return e.state === 1
         })
         this.orderPeopleNum = orderPeopleList.length
@@ -164,12 +185,11 @@ export default {
     // 获取任务列表
     async getTaskList(showLoading) {
       const data = {
-        siteId: this.siteId,
         pageIndex: this.pageIndex,
-        pageLimit: 10
+        pageLimit: 10,
       }
       const res = await getData('/site/delivery/order/all/find', data, {
-        showLoading
+        showLoading,
       })
       this.taskListUpLoading = false
       console.log(res)
@@ -186,14 +206,13 @@ export default {
     // 获取我的任务列表
     async getMyTaskList(showLoading) {
       const data = {
-        siteId: this.siteId,
         pageIndex: this.pageIndex,
-        pageLimit: 10
+        pageLimit: 10,
       }
       console.log(this.pageIndex)
 
       const res = await getData('/site/delivery/order/all/my/find', data, {
-        showLoading
+        showLoading,
       })
       this.myTaskListUpLoading = false
       console.log(res)
@@ -203,6 +222,21 @@ export default {
         this.pageIndex += 1
         if (this.pageIndex * 10 >= res.data.number) {
           this.myTaskListFinished = true
+        }
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 获取判断是否是领跑者
+    async handleIsOrderPeople() {
+      const res = await getData('/page/userInfo', {}, { showLoading: false })
+      console.log(res)
+      if (res.code === '0') {
+        if (
+          res.data.deliveryPersonId ||
+          res.data.userInfo.deliveryPersonId === 0
+        ) {
+          this.isOrderPeopPeolple = true
         }
         return false
       }
@@ -249,15 +283,25 @@ export default {
     },
     // 去注册界面
     registerOrderPeople() {
+      // 判断是否是领跑者
+      if (this.isOrderPeopPeolple) {
+        this.$toast.fail('你已经是领跑者了！')
+        return false
+      }
       this.popupIsShow = true
     },
     // popup的申请按钮
     registerOrderPeopleBtn() {
       this.$router.push('/orderPeople/registerOrderPeople')
     },
+    // 点击任务大厅任务
     clickTast() {
-      // this.popupIsShow = true
-      this.$router.push(`/orderPeople/sendTaskInfoView?id=${id}`)
+      if (this.isOrderPeopPeolple) {
+        this.$router.push(`/orderPeople/sendTaskInfoView?id=${id}`)
+        return false
+      }
+      // 不是领跑者弹出零跑者申请弹框
+      this.popupIsShow = true
     },
     // 跳转我的发布详细界面
     sendTaskInfo(id) {
@@ -265,8 +309,8 @@ export default {
     },
     toOrderPeopleView() {
       this.$router.push('/orderPeople/orderPeopleList')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

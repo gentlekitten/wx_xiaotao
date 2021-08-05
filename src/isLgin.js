@@ -13,17 +13,27 @@ NProgress.configure({
   minimum: 0.3 // 初始化时的最小百分比
 })
 
+// 外卖删除sessionStorage名单
+const takeOutList = ['ShopInfoView', 'SnackShop', 'TakeOutShop']
+// 用户没在站点路由无法点击名单
+const noSiteRouterList = ['/snackShopList', '/expressage', '/takeOutShopList', '/secondaryMarket', '/partTimeJobInfo', '/orderPeople']
+
 router.beforeEach(async (to, from, next) => {
   // let backlen = history.length - 1
   // history.go(-backlen)
   // start progress bar
   NProgress.start()
-  if (window.sessionStorage.getItem('cartList')) {
-    if (to.name === 'ShopInfoView' || to.name === 'SnackShop') {
+  if (window.sessionStorage.getItem('cartList') || window.sessionStorage.getItem('shopInfoObj')) {
+    if (takeOutList.indexOf(to.name) > -1) {
       next()
       return false
     }
-    window.sessionStorage.removeItem('cartList')
+    if (window.sessionStorage.getItem('cartList')) {
+      window.sessionStorage.removeItem('cartList')
+    }
+    if (window.sessionStorage.getItem('shopInfoObj')) {
+      window.sessionStorage.removeItem('shopInfoObj')
+    }
     next()
   }
   // next()
@@ -40,7 +50,7 @@ router.beforeEach(async (to, from, next) => {
         if (siteId) {
           next()
         } else {
-          if (to.path === '/snackShopList' || to.path === '/expressage' || to.path === '/takeOutShopList' || to.path === '/secondaryMarket' || to.path === '/partTimeJobInfo' || to.path === '/orderPeople') {
+          if (noSiteRouterList.indexOf(to.path) > -1) {
             next('/index')
             Toast.fail('您所在的地区还无站点，不能操作，请谅解！')
             return false

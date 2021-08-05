@@ -16,7 +16,7 @@
         clearable
         placeholder="请填写姓名"
         required
-        :rules="[{ required: true}]"
+        :rules="[{ required: true }]"
       />
       <!-- 单选框 -->
       <van-field name="radio" label="性别：" required>
@@ -104,7 +104,7 @@
         clearable
         required
         placeholder="请填写学号"
-        :rules="[{ required: true}]"
+        :rules="[{ required: true }]"
       />
       <!-- 手机 -->
       <van-field
@@ -115,7 +115,7 @@
         clearable
         required
         placeholder="请填写手机号"
-        :rules="[{ pattern, message: '手机号格式错误'}]"
+        :rules="[{ pattern, message: '手机号格式错误' }]"
       />
       <!-- 证照  -->
       <van-field class="uploader" name="uploader" label="证照：" required>
@@ -143,18 +143,32 @@
           native-type="formSubmit"
           :loading="btnIsLoading"
           loading-text="保存中..."
-        >提交</van-button>
+          >提交</van-button
+        >
       </div>
     </van-form>
     <div class="bom_tip">由本校站长审核，请保持电话通畅</div>
     <!-- 弹出层 -->
-    <van-popup class="popup" v-model="popupIsShow" :close-on-click-overlay="false" round>
+    <van-popup
+      class="popup"
+      v-model="popupIsShow"
+      :close-on-click-overlay="false"
+      round
+    >
       <div class="popup_item">
-        <van-icon class="icon" name="success" size="3rem" />申请成功！等待站长审核
+        <van-icon
+          class="icon"
+          name="success"
+          size="3rem"
+        />申请成功！等待站长审核
       </div>
       <div class="btn_warp">
-        <van-button class="btn" round block type="warning" @click="reportOver">任务大厅</van-button>
-        <van-button class="btn" round block type="info" @click="toPhone">联系站长</van-button>
+        <van-button class="btn" round block type="warning" @click="reportOver"
+          >任务大厅</van-button
+        >
+        <van-button class="btn" round block type="info" @click="toPhone"
+          >联系站长</van-button
+        >
       </div>
     </van-popup>
   </div>
@@ -166,7 +180,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -191,15 +205,12 @@ export default {
         qualification: '大专',
         grade: '一年级',
         deliveryPersonPics: [],
-        siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
-          ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
-          : 0
       },
       dormitory: ['3栋', '4栋', '5栋', '6栋', '7栋'],
       educationBackgroundList: ['大专', '本科'],
       gradeList: ['一年级', '二年级', '三年级'],
       //   手机号验证
-      pattern: /^1[3|4|5|7|8][0-9]{9}$/
+      pattern: /^1[3|4|5|7|8][0-9]{9}$/,
     }
   },
   watch: {
@@ -211,8 +222,8 @@ export default {
           this.gradeList = ['一年级', '二年级', '三年级']
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     // 验证身份证号
@@ -257,7 +268,7 @@ export default {
       const res = await upLogo('/site/delivery/person/img', formData)
       console.log(res)
       this.registerForm.deliveryPersonPics.push({
-        picAddress: res.data.filename
+        picAddress: res.data.filename,
       })
       if (res.code === '0') {
         file.status = 'done'
@@ -275,7 +286,7 @@ export default {
       }
       this.btnIsLoading = true
       const res = await upData('/site/delivery/person/add', this.registerForm, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -292,8 +303,8 @@ export default {
     toPhone() {
       const phoneNum = this.siteInfo.phone
       window.location.href = 'tel:' + phoneNum
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

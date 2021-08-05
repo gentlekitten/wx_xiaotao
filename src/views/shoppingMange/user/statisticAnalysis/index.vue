@@ -14,7 +14,13 @@
         </div>
       </div>
       <div class="grid_warp">
-        <grid class="grid" :gutter="10" isManage :gird-list="girdList" :column-num="2" />
+        <grid
+          class="grid"
+          :gutter="10"
+          isManage
+          :gird-list="girdList"
+          :column-num="2"
+        />
       </div>
     </div>
   </div>
@@ -31,7 +37,7 @@ import statisticAnalysis from '@/components/mixins/statisticAnalysis.js'
 export default {
   components: {
     NavBar,
-    Grid
+    Grid,
   },
   // mixins: [statisticAnalysis],
   data() {
@@ -41,14 +47,13 @@ export default {
         {
           img: require('../../../../assets/img/mange/price.png'),
           text: '营收统计',
-          url:
-            '/shoppingMange/user/shopManage/statisticAnalysis/incomeStatistic'
+          url: '/shoppingMange/user/shopManage/statisticAnalysis/incomeStatistic',
         },
         {
           img: require('../../../../assets/img/mange/order.png'),
           text: '订单统计',
-          url: '/shoppingMange/user/shopManage/statisticAnalysis/orderStatistic'
-        }
+          url: '/shoppingMange/user/shopManage/statisticAnalysis/orderStatistic',
+        },
       ],
       // 今日入账列表
       todayMoneyList: [],
@@ -57,7 +62,7 @@ export default {
       // 今日入账总
       todayMoney: 0,
       // 昨日入账总
-      yesterdayMoney: 0
+      yesterdayMoney: 0,
     }
   },
   created() {
@@ -71,10 +76,11 @@ export default {
       const data = {
         shopId: this.shopId,
         startTime,
-        endTime
+        endTime,
       }
-      const res = await getData('/shop/bill/money/count', data, {
-        showLoading: true
+      console.log(data)
+      const res = await upData('/shop/bill/money/count', data, {
+        showLoading: true,
       })
       console.log(res)
 
@@ -84,8 +90,8 @@ export default {
         return false
       }
       this.$handleCode.handleCode(res)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

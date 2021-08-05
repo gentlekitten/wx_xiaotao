@@ -32,17 +32,17 @@
       </div>
       <div class="item3 item">
         <van-cell title="学校" :value="userInfo.school" @click="schoolSelectShow = true" />
-        <van-action-sheet v-model="schoolSelectShow" title="填写学校">
+        <van-action-sheet class="action_sheet" v-model="schoolSelectShow" title="选择学校">
           <van-cell-group class="action_sheet_input">
-            <van-field
-              v-model="userInfoForm.schoolValue"
-              autofocus
-              clearable
-              label="学校："
-              placeholder="请填学校名称"
-            />
-            <van-button class="btn" type="primary" @click="saveSchool">确认</van-button>
+            <van-field v-model="searchValue" autofocus clearable placeholder="请输入学校名称搜索" />
+            <van-button class="btn" type="primary" @click="searchSchool">搜索</van-button>
           </van-cell-group>
+          <van-cell
+            v-for="item in schoolList"
+            :key="item.schoolId"
+            :title="item.universities"
+            @click="selectSchool(item.schoolId)"
+          />
         </van-action-sheet>
 
         <van-cell title="院系" :value="userInfo.department" @click="departmentSelectShow = true" />
@@ -170,6 +170,7 @@ export default {
             phone: '',
             email: ''
           },
+      searchValue: '',
       schoolSelectShow: false,
       sexSelectShow: false,
       departmentSelectShow: false,
@@ -191,11 +192,28 @@ export default {
         selectBirthdayDate: new Date()
       },
       minBirthdayDate: new Date(1990, 0, 1),
-      maxBirthdayDate: new Date(2020, 11, 31)
+      maxBirthdayDate: new Date(2020, 11, 31),
+      // 学校列表
+      schoolList: []
     }
   },
   created() {},
   methods: {
+    async searchSchool() {
+      if (!this.searchValue) {
+        return this.$toast.fail('请填写搜索内容！')
+      }
+      const res = await getData(
+        '/school/universities/find',
+        { universities: this.searchValue },
+        { showLoading: true }
+      )
+      if (res.code === '0') {
+        this.schoolList = res.data
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
     sexConfirm(item) {
       this.userInfo.sex = item.name === '男' ? 1 : 0
     },
@@ -221,13 +239,20 @@ export default {
     toAddressList() {
       this.$router.push('/user/userInfo/addressList')
     },
-    saveSchool() {
-      console.log(this.userInfoForm.schoolValue)
-      if (!this.handleInputValueIsNull(this.userInfoForm.schoolValue)) {
-        return false
-      }
-      this.userInfo.school = this.userInfoForm.schoolValue
+    // 选择学校
+    selectSchool(schoolId) {
+      this.userInfoForm.schoolValue = schoolId
+      const index = this.schoolList.findIndex(e => {
+        return e.schoolId === schoolId
+      })
+      this.userInfo.school = this.schoolList[index].universities
       this.schoolSelectShow = false
+      // console.log(this.userInfoForm.schoolValue)
+      // if (!this.handleInputValueIsNull(this.userInfoForm.schoolValue)) {
+      //   return false
+      // }
+      // this.userInfo.school = this.userInfoForm.schoolValue
+      // this.schoolSelectShow = false
     },
     saveDepartment() {
       if (!this.handleInputValueIsNull(this.userInfoForm.departmentValue)) {
@@ -320,6 +345,9 @@ export default {
     width: 80%;
     height: 3rem;
   }
+}
+.action_sheet {
+  height: 70%;
 }
 .action_sheet_input {
   padding: 2rem;

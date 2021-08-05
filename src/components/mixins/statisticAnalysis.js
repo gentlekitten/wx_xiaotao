@@ -83,7 +83,7 @@ const statisticAnalysis = {
                 startTime: time,
                 endTime: time
             }
-            const res = await getData('/shop/order/count', data, {
+            const res = await upData('/shop/order/count', data, {
                 showLoading: true
             })
             console.log(res)
@@ -103,13 +103,13 @@ const statisticAnalysis = {
                 pageIndex: this.pageIndex,
                 pageLimit: 10
             }
-            const res = await getData('/shop/order/detail/count', data, {
+            const res = await upData('/shop/order/detail/count', data, {
                 showLoading: true
             })
             this.orderLoading = false
             console.log(res)
             if (res.code === '0') {
-                this.orderList.push(...res.data.orderDetail)
+                this.orderList.push(...res.data.shopOrderDetailVo)
                 this.pageIndex += 1
                 if (this.pageIndex * 10 >= res.data.number) {
                     this.orderFinished = true
@@ -122,7 +122,7 @@ const statisticAnalysis = {
             if (!this.form.startTime || !this.form.endTime) {
                 return this.$toast.fail('请选择完时间！')
             }
-            if (!timeForamt.gettime.formatOnlyTime(this.form.startTime, this.form.endTime)) {
+            if (timeForamt.gettime.compareDate(this.form.startTime, this.form.endTime)) {
                 return this.$toast.fail('开始时间不能大于结束时间！')
             }
             this.isSearch = true
@@ -137,7 +137,7 @@ const statisticAnalysis = {
                 startTime: this.form.startTime,
                 endTime: this.form.endTime
             }
-            const res1 = await getData('/shop/order/count', data, {
+            const res1 = await upData('/shop/order/count', data, {
                 showLoading: false
             })
             console.log(res1)
@@ -151,15 +151,15 @@ const statisticAnalysis = {
         async getSearchOrderList(data) {
             data.pageIndex = this.pageIndex
             data.pageLimit = 10
-            const res2 = await getData('/shop/order/detail/count', data, {
+            const res2 = await upData('/shop/order/detail/count', data, {
                 showLoading: true
             })
             this.orderLoading = false
             console.log(res2)
             if (res2.code === '0') {
-                this.orderList.push(...res2.data.orderDetail)
+                this.orderList.push(...res2.data.shopOrderDetailVo)
                 this.pageIndex += 1
-                if (this.pageIndex * 10 >= res.data.number) {
+                if (this.pageIndex * 10 >= res2.data.number) {
                     this.orderFinished = true
                 }
                 return false

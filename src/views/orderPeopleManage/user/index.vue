@@ -4,7 +4,10 @@
     <div class="user_warp">
       <div class="user_info">
         <div class="user_top">
-          <img v-if="userInfoObj.customerInfo" :src="userInfoObj.customerInfo.headimgurl" />
+          <img
+            v-if="userInfoObj.customerInfo"
+            :src="userInfoObj.customerInfo.headimgurl"
+          />
           <div class="content">
             <div class="name">{{ userInfoObj.customerName }}</div>
             <div class="phone">{{ userInfoObj.phone }}</div>
@@ -52,9 +55,9 @@ export default {
       // 菜单选项
       userStatusList: [
         { text: '接单中', id: 1 },
-        { text: '休息中', id: 3 }
+        { text: '休息中', id: 3 },
       ],
-      userInfoObj: {}
+      userInfoObj: {},
     }
   },
   created() {
@@ -65,9 +68,7 @@ export default {
     async getOrderPersonInfo() {
       const res = await getData(
         '/site/delivery/person/my/find',
-        {
-          siteId: this.siteId
-        },
+        {},
         { showLoading: false }
       )
       console.log(res)
@@ -90,8 +91,8 @@ export default {
         return this.$toast.success('修改成功！')
       }
       this.$handleCode.handleCode(res)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

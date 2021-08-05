@@ -11,14 +11,14 @@
           <div class="shop_title">{{ item.shopName }}</div>
         </template>
         <template v-slot:thumb>
-          <van-image :src="'https://jixi.mynatapp.cc/'+item.shopPic" />
+          <van-image :src="'https://jixi.mynatapp.cc/' + item.shopPic" />
         </template>
         <template v-slot:tags>
-          <van-tag
-            plain
-            type="danger"
-            v-if="item.shopDiscount"
-          >满{{item.shopDiscount.requirePrice}}减￥{{item.shopDiscount.discountPrice}}</van-tag>
+          <van-tag plain type="danger" v-if="item.hasDiscount === 1"
+            >满{{ item.shopDiscount.requirePrice }}减￥{{
+              item.shopDiscount.discountPrice
+            }}</van-tag
+          >
         </template>
         <template v-slot:desc>
           <div class="desc">
@@ -34,9 +34,9 @@
               起价:
               <span class="price_item">￥{{ item.lowPrice }}</span>
               配送:
-              <span
-                class="price_item"
-              >￥{{ item.deliveryFee ? item.deliveryFee: 0 }}</span>
+              <span class="price_item"
+                >￥{{ item.deliveryFee ? item.deliveryFee : 0 }}</span
+              >
             </div>
             <div class="type">
               <van-icon name="shop-o" />
@@ -64,21 +64,21 @@ import ShopCard from '@/components/common/ShopCard.vue'
 export default {
   components: {
     DropdownMenu,
-    ShopCard
+    ShopCard,
   },
   props: {
     shopList: {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
     dropdownList: {
       type: Array,
       default: () => {
         return []
-      }
-    }
+      },
+    },
   },
   data() {
     return {}
@@ -86,12 +86,12 @@ export default {
   methods: {
     toSnackShopInfo(item) {
       if (item.shopCategoryId === 4 || item.shopCategoryId === 5) {
-        this.$router.push(`/takeOutShop?id=` + item.id)
+        this.$router.push(`/takeOutShop?id=` + item.shopId)
         return false
       }
       this.$router.push(`/snackShop?id=` + item.shopId)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

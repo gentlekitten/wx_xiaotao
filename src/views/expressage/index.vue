@@ -1,20 +1,34 @@
 <template>
   <div>
     <!-- 顶部返回 -->
-    <nav-bar title="昆明冶专安宁校区-快递服务" is-arrow backTo="/index" />
+    <nav-bar
+      :title="siteInfo.siteName + '-快递服务'"
+      is-arrow
+      backTo="/index"
+    />
     <!-- 遮蔽层 -->
     <van-overlay :show="overlayIsShow" @click="overlayIsShow = false">
       <div class="tip">
         <h2 class="title">
           ☆☆
           <span>快递服务公告</span>☆☆
-        </h2>感谢冶金同学们的支持，我们或用心做好服务，谢谢，有什么问题联系客服
+        </h2>
+        感谢同学们的支持，我们或用心做好服务，谢谢，有什么问题联系客服
       </div>
     </van-overlay>
     <!-- tabs -->
-    <tabs :tab-list="tabList" :sticky="true" tabsIndexName="expressageTabActive">
+    <tabs
+      :tab-list="tabList"
+      :sticky="true"
+      tabsIndexName="expressageTabActive"
+      @clickTab="clickTab"
+    >
       <template v-slot:tab0>
-        <address-select-cell :addressObj="addressObj" :addressSelectList="tab0AddressSelectList" />
+        <address-select-cell
+          :start-address-obj="startAddressObj"
+          :end-address-obj="endAddressObj"
+          :address-select-list="tab0AddressSelectList"
+        />
         <div class="cell">
           <van-cell>
             <template #title>
@@ -53,7 +67,7 @@
             placeholder="请输入取件信息"
             clearable
             required
-            :rules="[{ required: true}]"
+            :rules="[{ required: true }]"
           />
           <!-- 备注 -->
           <van-field
@@ -63,7 +77,12 @@
             placeholder="时间、无接触配送、代付、指定快递员等"
           />
           <!-- 文件上传 -->
-          <van-field class="uploaderImg" name="uploaderImg" label="可选附图（至多6张）：" autosize>
+          <van-field
+            class="uploaderImg"
+            name="uploaderImg"
+            label="可选附图（至多6张）："
+            autosize
+          >
             <template #input>
               <van-uploader
                 v-model="uploaderImg"
@@ -75,34 +94,52 @@
             </template>
           </van-field>
           <!-- 单选 -->
-          <van-field class="radio_wap" name="radio" required label="规格必选：">
+          <van-field
+            v-if="formPecificationList.length > 0"
+            class="radio_wap"
+            name="radio"
+            required
+            label="规格必选："
+          >
             <template #input>
-              <van-radio-group v-model.number="pickUpInfo.specificationId" direction="horizontal">
+              <van-radio-group
+                v-model.number="pickUpInfo.specificationId"
+                direction="horizontal"
+              >
                 <van-radio
                   class="radio"
-                  v-for="item in formRadioList"
-                  :key="item.name"
-                  :name="item.name"
+                  v-for="item in formPecificationList"
+                  :key="item.id"
+                  :name="item.id"
                 >
-                  {{ item.title }}
-                  <span>￥{{ item.price }}</span>
+                  {{ item.serviceName }}
+                  <span>￥{{ item.servicePrice }}</span>
                 </van-radio>
               </van-radio-group>
             </template>
           </van-field>
           <!-- 复选框 -->
-          <van-field class="checkboxGroup" name="checkboxGroup" label="可选服务：">
+          <van-field
+            v-if="formServerList.length > 0 && tabIndex === 0"
+            class="checkboxGroup"
+            name="checkboxGroup"
+            label="可选服务："
+          >
             <template #input>
-              <van-checkbox-group v-model="expressOrderServiceIds" direction="horizontal">
+              <van-checkbox-group
+                v-if="tabIndex === 0"
+                v-model="expressOrderServiceIds"
+                direction="horizontal"
+              >
                 <van-checkbox
                   class="checkbox"
-                  v-for="item in formCheckboxGroupList"
-                  :key="item.name"
-                  :name="item.name"
+                  v-for="item in formServerList"
+                  :key="item.id"
+                  :name="item.id"
                   shape="square"
                 >
-                  {{ item.title }}
-                  <span>+￥{{ item.price }}</span>
+                  {{ item.serviceName }}
+                  <span>+￥{{ item.servicePrice }}</span>
                 </van-checkbox>
               </van-checkbox-group>
             </template>
@@ -128,13 +165,21 @@
           </div>
           <div class="total_price">总计：{{ handleGetTotalPrice }}元</div>
           <div class="button">
-            <van-button round block type="primary" native-type="onFormSubmit">提交订单</van-button>
+            <van-button round block type="primary" native-type="onFormSubmit"
+              >提交订单</van-button
+            >
           </div>
-          <div class="bot_tip total_price">信息仅接单的快递小哥可见，安全放心。</div>
+          <div class="bot_tip total_price">
+            信息仅接单的快递小哥可见，安全放心。
+          </div>
         </van-form>
       </template>
       <template v-slot:tab1>
-        <address-select-cell :addressObj="addressObj" :addressSelectList="tab1AddressSelectList" />
+        <address-select-cell
+          :start-address-obj="startAddressObj"
+          :end-address-obj="endAddressObj"
+          :address-select-list="tab1AddressSelectList"
+        />
         <div class="address_require">
           <van-cell>
             <template #title>
@@ -157,7 +202,7 @@
             placeholder="收件人姓名"
             clearable
             required
-            :rules="[{ required: true}]"
+            :rules="[{ required: true }]"
           />
           <!-- 寄往电话： -->
           <van-field
@@ -167,7 +212,7 @@
             placeholder="收件人电话"
             clearable
             required
-            :rules="[{ required: true}]"
+            :rules="[{ required: true }]"
           />
           <!-- 寄往地址： -->
           <van-field
@@ -177,9 +222,14 @@
             placeholder="收件人地址"
             clearable
             required
-            :rules="[{ required: true}]"
+            :rules="[{ required: true }]"
           />
-          <van-field class="uploaderImg" name="uploaderImg" label="可选附图（至多6张）：" autosize>
+          <van-field
+            class="uploaderImg"
+            name="uploaderImg"
+            label="可选附图（至多6张）："
+            autosize
+          >
             <template #input>
               <van-uploader
                 v-model="sendOffuploaderImg"
@@ -202,10 +252,16 @@
           <!-- 上门小费： -->
           <div class="price_warp">
             上门小费：
-            <div class="price">￥4</div>
+            <div class="price">￥{{ expressMoney }}</div>
           </div>
           <div class="button">
-            <van-button round block type="primary" native-type="sendOffFormSubmit">提交订单</van-button>
+            <van-button
+              round
+              block
+              type="primary"
+              native-type="sendOffFormSubmit"
+              >提交订单</van-button
+            >
           </div>
           <div class="tip">上门收件后称重计量，按标准收费</div>
         </van-form>
@@ -213,11 +269,17 @@
     </tabs>
     <!-- tab0 遮蔽层 -->
     <van-overlay :show="tab0OverlayIsShow" @click="tab0OverlayIsShow = false">
-      <overlay-item :radio-list="pickUpExpressName" @radioChange="tab0RadioChange" />
+      <overlay-item
+        :radio-list="pickUpExpressName"
+        @radioChange="tab0RadioChange"
+      />
     </van-overlay>
     <!-- tab1 遮蔽层 -->
     <van-overlay :show="tab1OverlayIsShow" @click="tab1OverlayIsShow = false">
-      <overlay-item :radio-list="sendOffExpressName" @radioChange="tab1RadioChange" />
+      <overlay-item
+        :radio-list="sendOffExpressName"
+        @radioChange="tab1RadioChange"
+      />
     </van-overlay>
   </div>
 </template>
@@ -230,15 +292,25 @@ import Tabs from '@/components/common/TabIsDifferent.vue'
 import OverlayItem from '@/components/express/OverlayItem.vue'
 import AddressSelectCell from '@/components/express/AddressSelectCell.vue'
 
+import onBridgeReady from '@/components/mixins/onBridgeReady.js'
+
 export default {
   components: {
     NavBar,
     Tabs,
     OverlayItem,
-    AddressSelectCell
+    AddressSelectCell,
   },
+  mixins: [onBridgeReady],
   data() {
     return {
+      tabIndex: Number(window.sessionStorage.getItem(this.tabsIndexName))
+        ? Number(window.sessionStorage.getItem(this.tabsIndexName))
+        : 0,
+      // 站点信息
+      siteInfo: JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        ? JSON.parse(window.sessionStorage.getItem('siteInfo'))
+        : {},
       siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
         ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
         : 0,
@@ -253,27 +325,27 @@ export default {
       // expressAddressIsNull: false,
       // 取件信息图片
       uploaderImg: [],
-      // 取件信息表单对象
       expressOrderServiceIds: [],
+      // 取件信息表单对象
       pickUpInfo: {
-        customerAddressId: 1,
-        expressId: 1,
+        customerAddressId: '',
+        expressId: '',
         receiveMessage: '',
         otherMessage: '',
-        specificationId: 0,
+        specificationId: '',
         expressOrderServiceIds: [],
         productNumber: 1,
         smallChange: 0,
         siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
           ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
           : 0,
-        expressOrderPics: []
+        expressOrderPics: [],
       },
       sendOffuploaderImg: [],
       // 寄出快递表单对象
       sendOffInfo: {
-        customerAddressId: 1,
-        expressId: 1,
+        customerAddressId: '',
+        expressId: '',
         toName: '',
         toPhone: '',
         toAddress: '',
@@ -281,139 +353,153 @@ export default {
         siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
           ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
           : 0,
-        expressOrderPics: []
+        expressOrderPics: [],
       },
       // 取件地址对象
       expressAddressObj: {
         id: 0,
-        expressName: '选择取件点'
+        expressName: '选择取件点',
       },
       // 揽件地址对象
       collectAddressObj: {
         id: 0,
-        expressName: '不限快递商'
+        expressName: '选择快递商',
       },
-      // 表单单选列表
-      formRadioList: [
-        {
-          name: 0,
-          title: '小件',
-          price: 2
-        },
-        {
-          name: 1,
-          title: '中件',
-          price: 3
-        },
-        {
-          name: 2,
-          title: '大件',
-          price: 4
-        },
-        {
-          name: 3,
-          title: '特大件',
-          price: 5
-        }
-      ],
-      formCheckboxGroupList: [
-        {
-          name: '0',
-          title: '加急30分钟内',
-          price: 2
-        },
-        {
-          name: '1',
-          title: '雨天',
-          price: 1
-        }
-      ],
+      // 表单规格列表
+      formPecificationList: [],
+      // 表单可选服务列表
+      formServerList: [],
       // tab0 radio列表
       pickUpExpressName: [
         {
           id: 0,
-          expressName: '选择取件点'
-        }
+          expressName: '选择取件点',
+        },
       ],
       // tab1 radio列表
       sendOffExpressName: [
         {
           id: 0,
-          expressName: '不限快递商'
-        }
+          expressName: '选择快递商',
+        },
       ],
       // tab列表
       tabList: [
         {
-          title: '代取快递'
+          title: '代取快递',
         },
         {
-          title: '寄出快递'
-        }
+          title: '寄出快递',
+        },
       ],
       // tab0 地址单元格信息
       tab0AddressSelectList: [
         {
           type: '送',
-          title: '请新增或选择地址'
-        }
+          title: '请新增或选择地址',
+          name: 'startAddressObj',
+        },
       ],
       // tab1 地址单元格信息
       tab1AddressSelectList: [
         {
           type: '揽',
-          title: '请新增或选择地址'
-        }
+          title: '请新增或选择地址',
+          name: 'startAddressObj',
+        },
       ],
       // 地址对象
-      addressObj: {}
+      startAddressObj: {},
+      endAddressObj: {},
+      // 上门小费
+      expressMoney: 0,
     }
   },
   computed: {
     handleGetTotalPrice() {
-      const formRadioIndex = this.pickUpInfo.specificationId
-      const radioPrice = this.formRadioList[formRadioIndex].price
+      let radioPrice = 0
+      if (this.formPecificationList.length > 0) {
+        radioPrice = this.formPecificationList.filter((e) => {
+          return this.pickUpInfo.specificationId === e.id
+        })[0].servicePrice
+      }
       let checkPrice = 0
-      if (this.expressOrderServiceIds.length > 0) {
-        this.expressOrderServiceIds.forEach(e => {
-          checkPrice += this.formCheckboxGroupList[e].price
+      if (
+        this.expressOrderServiceIds.length > 0 &&
+        this.formServerList.length > 0
+      ) {
+        this.expressOrderServiceIds.forEach((e) => {
+          checkPrice += this.formServerList.filter((c) => {
+            return e === c.id
+          })[0].servicePrice
         })
       }
       const totalPrice =
         (radioPrice + checkPrice) * this.pickUpInfo.productNumber +
         Number(this.pickUpInfo.smallChange)
       return totalPrice
-    }
+    },
   },
   created() {
     this.getSiteExpressName()
+    this.getAddress()
+    this.getPecificationAndServerList()
+    this.getExpressMoney()
   },
   methods: {
+    // 获取规格和可选服务
+    async getPecificationAndServerList() {
+      const res = await getData(
+        '/site/express/service/config/find',
+        {},
+        {
+          showLoading: true,
+        }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.formPecificationList = res.data.serviceConfig
+        this.formServerList = res.data.expressOther
+        this.pickUpInfo.specificationId = this.formPecificationList[0].id
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
     // 处理上传图片过大
     handleImgLarge() {
       this.$toast.fail('上传的图片不能超过5M')
     },
     async getAddress() {
       // 获取地址对象
-      JSON.parse(window.sessionStorage.getItem('addressObj')) &&
-        (this.addressObj = JSON.parse(
-          window.sessionStorage.getItem('addressObj')
+      JSON.parse(window.sessionStorage.getItem('startAddressObj')) &&
+        (this.startAddressObj = JSON.parse(
+          window.sessionStorage.getItem('startAddressObj')
         ))
-      if (Object.keys(this.addressObj).length > 0) {
+      JSON.parse(window.sessionStorage.getItem('endAddressObj')) &&
+        (this.endAddressObj = JSON.parse(
+          window.sessionStorage.getItem('endAddressObj')
+        ))
+      if (
+        Object.keys(this.startAddressObj).length > 0 &&
+        Object.keys(this.endAddressObj).length > 0
+      ) {
         return false
       }
       const res = await getData(
         '/customer/address/my/find',
         {
-          siteId: this.siteId
+          siteId: this.siteId,
         },
         { showLoading: true }
       )
       console.log(res)
       if (res.code === '0') {
-        const addressObj = res.data.filter(e => {
+        const addressObj = res.data.filter((e) => {
           return e.addressDefault === 1
         })[0]
+        if (Object.keys(addressObj).length <= 0) {
+          return false
+        }
         addressObj.name = addressObj.realname
         addressObj.phone = addressObj.phone
         addressObj.address =
@@ -421,23 +507,44 @@ export default {
           addressObj.city +
           addressObj.district +
           addressObj.addressDetail
-        this.addressObj = addressObj
+        if (Object.keys(this.startAddressObj).length <= 0) {
+          this.startAddressObj = addressObj
+        }
+        if (Object.keys(this.endAddressObj).length <= 0) {
+          this.endAddressObj = addressObj
+        }
         return false
       }
       this.$handelCode.handleCode(res)
     },
+    // 获取站点的快递
     async getSiteExpressName() {
       const data = {
-        siteId: this.siteId
+        siteId: this.siteId,
       }
       const res = await getData('/site/express/info', data, {
-        showLoading: false
+        showLoading: false,
       })
       console.log(res)
-
       if (res.code === '0') {
         this.pickUpExpressName.push(...res.data)
         this.sendOffExpressName.push(...res.data)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 获取上门小费
+    async getExpressMoney() {
+      const res = await getData(
+        '/site/express/fee/find',
+        {
+          siteId: this.siteId,
+        },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.expressMoney = res.data.expressMoney
         return false
       }
       this.$handleCode.handleCode(res)
@@ -468,7 +575,7 @@ export default {
       const res = await upLogo('/site/express/img', formData)
       console.log(res)
       this.sendOffInfo.expressOrderPics.push({
-        picAddress: res.data.filename
+        picAddress: res.data.filename,
       })
       if (res.code === '0') {
         file.status = 'done'
@@ -478,14 +585,17 @@ export default {
       file.message = '上传失败'
       this.$handleCode.handleCode(res)
     },
-    // radio改变
+    // 选择取件点radio改变
     tab0RadioChange(radioIndex) {
-      console.log(this.pickUpExpressName[radioIndex])
-
-      this.expressAddressObj = this.pickUpExpressName[radioIndex]
+      this.expressAddressObj = this.pickUpExpressName.filter((e) => {
+        return e.id === radioIndex
+      })[0]
     },
+    // 快递要求radio改变
     tab1RadioChange(radioIndex) {
-      this.collectAddressObj = this.sendOffExpressName[radioIndex]
+      this.collectAddressObj = this.sendOffExpressName.filter((e) => {
+        return e.id === radioIndex
+      })[0]
     },
     // 地址输入框失去焦点
     // expressAddressLoseBlur() {
@@ -495,33 +605,62 @@ export default {
     // },
     // 代取快递表单提交
     async onFormSubmit() {
-      this.expressOrderServiceIds.forEach(e => {
+      if (this.expressAddressObj.expressName === '选择取件点') {
+        return this.$toast.fail('请选择取件点！')
+      }
+      if (Object.keys(this.startAddressObj).length < 0) {
+        return this.$toast.fail('请选择地址！')
+      }
+      // 获取选择的服务id
+      this.expressOrderServiceIds.forEach((e) => {
         this.pickUpInfo.expressOrderServiceIds.push({ serviceId: e })
       })
+      // 地址id
+      this.pickUpInfo.customerAddressId = this.startAddressObj.id
+      // 快递id
+      this.pickUpInfo.expressId = this.expressAddressObj.id
       const res = await upData('/site/express/receive/add', this.pickUpInfo, {
-        showLoading: true
+        showLoading: true,
       })
+      console.log(res)
       if (res.code === '0') {
-        return this.$toast.success('提交成功！')
+        // 混入
+        this.onBridgeReady(res.data)
+        return false
       }
       this.$handleCode.handleCode(res)
     },
     // 寄出快递表单提交
     async sendOffFormSubmit() {
+      if (this.collectAddressObj.expressName === '选择快递商') {
+        return this.$toast.fail('请选择快递商！')
+      }
+      if (Object.keys(this.endAddressObj).length < 0) {
+        return this.$toast.fail('请选择地址！')
+      }
       const formInfo = this.sendOffInfo
       const telValidator = /^1[3|4|5|7|8][0-9]{9}$/
       if (!telValidator.test(formInfo.toPhone)) {
-        this.$toast.fail('手机号码格式错误！')
-        return false
+        return this.$toast.fail('手机号码格式错误！')
       }
+      // 地址id
+      formInfo.customerAddressId = this.endAddressObj.id
+      // 快递id
+      formInfo.expressId = this.collectAddressObj.id
       const res = await upData('/site/express/send/add', formInfo, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
+        // 混入
+        this.onBridgeReady(res.data)
         return false
       }
       this.$handleCode.handleCode(res)
+    },
+    // 点击tab
+    clickTab(index) {
+      this.tabIndex = index
     },
     // 小费输入框失去焦点
     tipInputBlur() {
@@ -536,8 +675,8 @@ export default {
         this.$toast.fail('单量不能小于1哦~！')
         this.pickUpInfo.num = 1
       }
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

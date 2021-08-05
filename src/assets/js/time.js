@@ -83,8 +83,8 @@ const gettime = {
     compareDate(date1, date2) {
         var oDate1 = new Date(date1);
         var oDate2 = new Date(date2);
-        // false 第一个大 true; //第二个大
-        return oDate1.getTime() >= oDate2.getTime()
+        //  第一个大 true; //第二个大false
+        return oDate1.getTime() > oDate2.getTime()
     },
     // 比较时间大小（与当前时间）
     compareDateForToday(date1) {
@@ -98,9 +98,9 @@ const gettime = {
         let d = new Date(times)
         let theMonth = d.getMonth() + 1
         let theDate = d.getDate()
-        // let theHours = d.getHours()
-        // let theMinutes = d.getMinutes()
-        // let theSeconds = d.getSeconds()
+        let theHours = d.getHours()
+        let theMinutes = d.getMinutes()
+        let theSeconds = d.getSeconds()
         if (theMonth < 10) {
             theMonth = '0' + theMonth
         }

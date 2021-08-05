@@ -84,7 +84,8 @@ const cartSku = {
                     //     stock_num: 100
                     // }
                 ],
-                // stock_num: 100, // 商品总库存
+                price: '0.00',
+                stock_num: 0, // 商品总库存
                 collection_id: 2261, // 无规格商品 skuId 取 collection_id，否则取所选 sku 组合对应的 id
                 none_sku: false, // 是否无规格商品
                 hide_stock: false // 是否隐藏剩余库存
@@ -107,6 +108,8 @@ const cartSku = {
             )
             console.log(res)
             if (res.code === '0') {
+                this.productInfoProperties = res.data.productInfoProperties
+                this.productInfoSpecifications = res.data.productInfoSpecifications
                 this.initSkuData(res.data)
                 return false
             }
@@ -155,13 +158,15 @@ const cartSku = {
                 this.sku.tree.push(specifications)
             }
             // 将数据映射到vant sku list 上，进行绑定
-            const skuTree = this.sku.tree
             this.handleSkuList()
         },
         // 处理vant sku组件需要将商品属性进行一对一绑定
         handleSkuList() {
             const skuTree = this.sku.tree
             const index = skuTree.length
+            if (index === 0) {
+                return false
+            }
             // 分类讨论，根据有多少个属性类来将数据绑定到sku的list中，由于后台限制了商家最多只能添加三大类所以就三种情况
             if (index === 1) {
                 const initialSku = {

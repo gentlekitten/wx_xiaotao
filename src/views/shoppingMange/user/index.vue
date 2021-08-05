@@ -5,7 +5,10 @@
       <div class="user_warp">
         <div class="user_info">
           <div class="user_top">
-            <img v-if="userInfoObj.shopPic" :src="'https://jixi.mynatapp.cc/'+userInfoObj.shopPic" />
+            <img
+              v-if="userInfoObj.shopPic"
+              :src="'https://jixi.mynatapp.cc/' + userInfoObj.shopPic"
+            />
             <div class="content">
               <div class="name">{{ userInfoObj.shopName }}</div>
               <div class="phone">{{ userInfoObj.shopPhone }}</div>
@@ -19,7 +22,13 @@
             >
               <template #reference>
                 <div class="status">
-                  {{ userInfoObj.shopState === 0 ? '打烊中' : userInfoObj.shopState === 1 ? '营业中' : '停业中' }}
+                  {{
+                    userInfoObj.shopState === 0
+                      ? '打烊中'
+                      : userInfoObj.shopState === 1
+                      ? '营业中'
+                      : '停业中'
+                  }}
                   <van-icon name="arrow-down" color="cadetblue" />
                 </div>
               </template>
@@ -53,7 +62,7 @@ import Grid from '@/components/common/Grid.vue'
 
 export default {
   components: {
-    Grid
+    Grid,
   },
   created() {
     this.initView()
@@ -70,7 +79,7 @@ export default {
       userStatusList: [
         { text: '打烊中' },
         { text: '营业中' },
-        { text: '停业中' }
+        { text: '停业中' },
       ],
       userInfoObj: {},
       todayOrder: 0,
@@ -79,24 +88,24 @@ export default {
         {
           img: require('../../../assets/img/mange/shop-mang.png'),
           text: '店铺管理',
-          url: ''
+          url: '',
         },
         {
           img: require('../../../assets/img/mange/order-mange.png'),
           text: '订单配置',
-          url: '/shoppingMange/user/shopManage/orderSetting'
+          url: '/shoppingMange/user/shopManage/orderSetting',
         },
         {
           img: require('../../../assets/img/mange/fenxi.png'),
           text: '业绩分析',
-          url: '/shoppingMange/user/shopManage/statisticAnalysis'
+          url: '/shoppingMange/user/shopManage/statisticAnalysis',
         },
         {
           img: require('../../../assets/img/mange/waimai.png'),
           text: '外卖配置',
-          url: '/shoppingMange/user/shopManage/takeOutSetting'
-        }
-      ]
+          url: '/shoppingMange/user/shopManage/takeOutSetting',
+        },
+      ],
     }
   },
   methods: {
@@ -127,10 +136,11 @@ export default {
       const data = {
         shopId: this.shopId,
         startTime: time,
-        endTime: time
+        endTime: time,
       }
-      const res = await getData('/shop/order/money', data, {
-        showLoading: true
+      console.log(data)
+      const res = await upData('/shop/order/money', data, {
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -146,7 +156,7 @@ export default {
         '/shop/info/my/find',
         { id: this.shopId },
         {
-          showLoading: true
+          showLoading: true,
         }
       )
       console.log(res)
@@ -161,17 +171,17 @@ export default {
       // state 0打烊 1营业 2停业
       const data = {
         state: index,
-        shopId: this.shopId
+        shopId: this.shopId,
       }
       const res = await upData('/shop/state/update', data, {
-        showLoading: true
+        showLoading: true,
       })
       if (res.code !== '0') {
         return this.$handleCode.handleCode(res)
       }
       this.userInfoObj.shopState = index
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

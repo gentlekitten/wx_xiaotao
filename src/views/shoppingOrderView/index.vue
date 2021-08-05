@@ -6,10 +6,13 @@
       <template v-if="form === 1">
         <!-- 请新增或选择收货地址 -->
         <div class="address">
-          <div
-            v-if="orderList[0].shopList[0].shopOrders.length > 0"
-            class="send_type"
-          >{{ orderList[0].shopList[0].shopOrders[0].deliverySn === 1 ? '快递配送' : '商家配送' }}</div>
+          <div v-if="orderList[0].shopList[0].shopOrders" class="send_type">
+            {{
+              orderList[0].shopList[0].shopOrders.deliverySn === 1
+                ? '快递配送'
+                : '商家配送'
+            }}
+          </div>
           <div class="select_address" @click="toSelectAddress">
             <div v-if="!addressObj.name">请新增或选择收货地址</div>
             <div v-else class="address_text">
@@ -24,14 +27,17 @@
         </div>
         <div class="shipping_method">
           <div class="left">送达方式</div>
-          <div
-            v-if="orderList[0].shopList[0].shopOrders.length > 0 "
-            class="right"
-          >{{ orderList[0].shopList[0].shopOrders[0].deliverySn === 1 ? '快递配送' : '商家配送' }}</div>
+          <div v-if="orderList[0].shopList[0].shopOrders" class="right">
+            {{
+              orderList[0].shopList[0].shopOrders.deliverySn === 1
+                ? '快递配送'
+                : '商家配送'
+            }}
+          </div>
         </div>
         <div class="shop_info_warp" v-for="item in orderList" :key="item.id">
-          <div class="shop" @click="toShoppingShop">
-            <img :src="'https://jixi.mynatapp.cc/'+item.img" />
+          <div class="shop" @click="toTakeOutShop(item.id)">
+            <img :src="'https://jixi.mynatapp.cc/' + item.img" />
             <div class="shop_name">
               {{ item.name }}
               <van-icon class="icon" name="arrow" size="1.5rem" />
@@ -39,7 +45,7 @@
           </div>
           <div class="shop_info" v-for="c in item.shopList" :key="c.id">
             <div class="warp">
-              <img :src="'https://jixi.mynatapp.cc/'+c.img" />
+              <img :src="'https://jixi.mynatapp.cc/' + c.img" />
               <div class="shop_details">
                 <div class="title">{{ c.name }}</div>
                 <div class="specification">({{ c.shopType }})</div>
@@ -55,9 +61,15 @@
             </div>
             <div class="price_item">
               <div class="text">邮费</div>
-              <div
-                class="price_text"
-              >{{ item.shopList[0].shopOrders.length > 0 ? item.shopList[0].shopOrders[0].deliveryFee : c.deliveryFee ? c.deliveryFee : 0 }}</div>
+              <div class="price_text">
+                {{
+                  item.shopList[0].shopOrders > 0
+                    ? item.shopList[0].shopOrders.deliveryFee
+                    : c.deliveryFee
+                    ? c.deliveryFee
+                    : 0
+                }}
+              </div>
             </div>
           </div>
         </div>
@@ -65,10 +77,11 @@
       <template v-if="form === 0">
         <!-- 请新增或选择收货地址 -->
         <div class="address">
-          <div
-            v-if="orderList.shopOrders"
-            class="send_type"
-          >{{ orderList.shopOrders.deliverySn === 1 ? '快递配送' : '商家配送' }}</div>
+          <div v-if="orderList.shopOrders" class="send_type">
+            {{
+              orderList.shopOrders.deliverySn === 1 ? '快递配送' : '商家配送'
+            }}
+          </div>
           <div class="select_address" @click="toSelectAddress">
             <div v-if="!addressObj.name">请新增或选择收货地址</div>
             <div v-else class="address_text">
@@ -83,14 +96,15 @@
         </div>
         <div class="shipping_method">
           <div class="left">送达方式</div>
-          <div
-            v-if="orderList.shopOrders"
-            class="right"
-          >{{ orderList.shopOrders.deliverySn === 1 ? '快递配送' : '商家配送' }}</div>
+          <div v-if="orderList.shopOrders" class="right">
+            {{
+              orderList.shopOrders.deliverySn === 1 ? '快递配送' : '商家配送'
+            }}
+          </div>
         </div>
         <div class="shop_info_warp">
           <div class="shop" @click="toShoppingShop">
-            <img :src="'https://jixi.mynatapp.cc/'+orderList.shopPic" />
+            <img :src="'https://jixi.mynatapp.cc/' + orderList.shopPic" />
             <div class="shop_name">
               {{ orderList.shopName }}
               <van-icon class="icon" name="arrow" size="1.5rem" />
@@ -98,24 +112,41 @@
           </div>
           <div class="shop_info" v-for="c in orderList.shopList" :key="c.id">
             <div class="warp">
-              <img :src="'https://jixi.mynatapp.cc/'+c.logoAddress" />
+              <img :src="'https://jixi.mynatapp.cc/' + c.logoAddress" />
               <div class="shop_details">
-                <div
-                  class="title"
-                >{{ c.productName+(c.productInfoSpecifications.length > 0 ? c.productInfoSpecifications[0].specificationName : '' )}}</div>
+                <div class="title">
+                  {{
+                    c.productName +
+                    (c.productInfoSpecifications.length > 0
+                      ? c.productInfoSpecifications[0].specificationName
+                      : '')
+                  }}
+                </div>
                 <div class="num_price">
                   <div class="num">×{{ c.num }}</div>
-                  <div
-                    class="price"
-                  >￥{{ (c.sellPrice + (c.productInfoSpecifications.length > 0 ? c.productInfoSpecifications[0].price : 0)) * c.num }}</div>
+                  <div class="price">
+                    ￥{{
+                      (c.sellPrice +
+                        (c.productInfoSpecifications.length > 0
+                          ? c.productInfoSpecifications[0].price
+                          : 0)) *
+                      c.num
+                    }}
+                  </div>
                 </div>
               </div>
             </div>
             <div class="price_item">
               <div class="text">小计</div>
-              <div
-                class="price"
-              >￥{{ (c.sellPrice + (c.productInfoSpecifications.length > 0 ? c.productInfoSpecifications[0].price : 0)) * c.num }}</div>
+              <div class="price">
+                ￥{{
+                  (c.sellPrice +
+                    (c.productInfoSpecifications.length > 0
+                      ? c.productInfoSpecifications[0].price
+                      : 0)) *
+                  c.num
+                }}
+              </div>
             </div>
             <div v-if="c.packPrice" class="price_item">
               <div class="text">
@@ -125,17 +156,86 @@
               <div class="price">￥{{ c.packPrice }}</div>
             </div>
           </div>
+
           <div class="price_item">
             <div class="text">配送费：</div>
-            <div
-              class="price"
-            >￥{{ orderList.shopOrders.deliveryFee ? orderList.shopOrders.deliveryFee : 0 }}</div>
+            <div class="price">
+              ￥{{
+                orderList.shopOrders.deliveryFee
+                  ? orderList.shopOrders.deliveryFee
+                  : 0
+              }}
+            </div>
+          </div>
+          <div class="price_item">
+            <div class="text">优惠：</div>
+            <div class="price">￥{{ orderList.discountPrice }}</div>
+          </div>
+          <div class="price_item">
+            <div class="text">总计：</div>
+            <div class="price">￥{{ totalPrice }}</div>
+          </div>
+        </div>
+      </template>
+      <template v-if="form === 2">
+        <!-- 请新增或选择收货地址 -->
+        <div class="address">
+          <div class="send_type">快递配送</div>
+          <div class="select_address" @click="toSelectAddress">
+            <div v-if="!addressObj.name">请新增或选择收货地址</div>
+            <div v-else class="address_text">
+              <div class="user_info">
+                <span>{{ addressObj.name }}</span>
+                {{ addressObj.phone }}
+              </div>
+              <div class="text">{{ addressObj.address }}</div>
+            </div>
+            <van-icon class="icon" name="arrow" size="1.5rem" />
+          </div>
+        </div>
+        <div class="shipping_method">
+          <div class="left">送达方式</div>
+          <div class="right">快递配送</div>
+        </div>
+        <div class="shop_info_warp">
+          <div class="shop_info">
+            <div class="warp">
+              <img :src="'https://jixi.mynatapp.cc/' + orderList.img" />
+              <div class="shop_details">
+                <div class="title">
+                  {{ orderList.name }}
+                </div>
+                <div class="num_price">
+                  <div class="num">×{{ orderList.num }}</div>
+                  <div class="price">￥{{ orderList.price }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="price_item">
+              <div class="text">小计</div>
+              <div class="price">￥{{ orderList.price }}</div>
+            </div>
+          </div>
+          <div class="price_item">
+            <div class="text">邮费：</div>
+            <div class="price">￥{{ orderList.deliveryFee }}</div>
+          </div>
+          <div class="price_item">
+            <div class="text">总计：</div>
+            <div class="price">
+              ￥{{ orderList.price + orderList.deliveryFee }}
+            </div>
           </div>
         </div>
       </template>
       <!-- 备注输入框 -->
       <van-cell-group class="remark_input">
-        <van-field v-model="remarkValue" clearable label="留言：" placeholder="可对商家留言" />
+        <van-field
+          v-model="remarkValue"
+          clearable
+          label="留言："
+          placeholder="可对商家留言"
+        />
       </van-cell-group>
       <!-- 支付方式 -->
       <div class="pay_mode">
@@ -154,10 +254,23 @@
       <div class="submit_bar">
         <div class="text">
           应付金额：
-          <span v-if="form === 1">￥{{ orderList[0].totalPrice + this.postPrice }}</span>
+          <span v-if="form === 1"
+            >￥{{
+              orderList[0].totalPrice +
+              this.postPrice +
+              '(优惠：' +
+              orderList[0].discountPrice +
+              ')'
+            }}</span
+          >
           <span v-if="form === 0">￥{{ totalPrice }}</span>
+          <span v-if="form === 2"
+            >￥{{ orderList.price + orderList.deliveryFee }}</span
+          >
         </div>
-        <van-button class="btn" type="primary" round @click="clickOrderBtn">提交订单</van-button>
+        <van-button class="btn" type="primary" round @click="clickOrderBtn"
+          >提交订单</van-button
+        >
       </div>
     </div>
   </div>
@@ -171,24 +284,31 @@ import NavBar from '@/components/common/NavBar.vue'
 
 import AddressSelectCell from '@/components/express/AddressSelectCell.vue'
 
+import onBridgeReady from '@/components/mixins/onBridgeReady.js'
+
 export default {
   components: {
     NavBar,
-    AddressSelectCell
+    AddressSelectCell,
   },
+  mixins: [onBridgeReady],
   data() {
     return {
       siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
         ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
         : 0,
-      // 0外卖 1商城
+      // 0外卖 1商城 2二手商品
       form: 0,
       remarkValue: '',
       orderList: [],
       postPrice: 0,
       // 外卖总价格
       totalPrice: 0,
-      addressObj: {}
+      addressObj: {},
+      // 获取购物车列表
+      shopCartList: JSON.parse(window.sessionStorage.getItem('shopCartList'))
+        ? JSON.parse(window.sessionStorage.getItem('shopCartList'))
+        : [],
     }
   },
   created() {
@@ -208,14 +328,14 @@ export default {
       const res = await getData(
         '/customer/address/my/find',
         {
-          siteId: this.siteId
+          siteId: this.siteId,
         },
         { showLoading: true }
       )
       console.log(res)
       if (res.code === '0') {
         if (res.data.length > 0) {
-          const addressObj = res.data.filter(e => {
+          const addressObj = res.data.filter((e) => {
             return e.addressDefault === 1
           })[0]
           addressObj.name = addressObj.realname
@@ -233,23 +353,31 @@ export default {
     },
     // 获取商品信息
     getShopInfo() {
-      let cartList = JSON.parse(window.sessionStorage.getItem('shopCartList'))
+      let cartList = this.shopCartList
       if (this.form === 1) {
         // 遍历出isCheck为true的商品
-        cartList.forEach(e => {
-          e.shopList = e.shopList.filter(c => {
+        cartList.forEach((e) => {
+          e.shopList = e.shopList.filter((c) => {
             return c.isCheck === true
           })
-          e.shopList.forEach(c => {
+          e.shopList.forEach((c) => {
             // 计算邮费(统一邮费)
-            if (c.shopOrders.length > 0) {
-              this.postPrice += c.shopOrders[0].deliveryFee
-                ? c.shopOrders[0].deliveryFee
+            if (c.shopOrders > 0) {
+              let deliveryFee = c.shopOrders.deliveryFee
+                ? c.shopOrders.deliveryFee
                 : 0
+              // 防止小数相加出现问题
+              this.postPrice = commonJs.commonJs.accAdd(
+                this.postPrice,
+                deliveryFee
+              )
             } else {
               // 统一邮费不存在 计算商品的单个邮费
               if (c.deliveryFee) {
-                this.postPrice += c.deliveryFee
+                this.postPrice = commonJs.commonJs.accAdd(
+                  this.postPrice,
+                  c.deliveryFee
+                )
               }
             }
           })
@@ -257,57 +385,40 @@ export default {
       }
       console.log(cartList)
       this.orderList = cartList
-      const totalPrice = this.orderList.totalPrice
-      const deliveryFee = this.orderList.shopOrders.deliveryFee
-        ? this.orderList.shopOrders.deliveryFee
-        : 0
-      const priceList = [totalPrice, deliveryFee]
-      // 解决js小数相加出现多位小数
-      this.totalPrice = commonJs.commonJs.addNum(priceList)
+      if (this.form === 0) {
+        const totalPrice = this.orderList.totalPrice
+        const deliveryFee = this.orderList.shopOrders.deliveryFee
+          ? this.orderList.shopOrders.deliveryFee
+          : 0
+        const priceList = [totalPrice, deliveryFee]
+        // 解决js小数相加出现多位小数
+        this.totalPrice = commonJs.commonJs.addNum(priceList)
+      }
     },
     toSelectAddress() {
       this.$router.push('/user/userInfo/addressList')
     },
-    toShoppingShop() {
-      this.$router.push('/shoppingShop')
+    toShoppingShop(shopId) {
+      this.$router.push('/shoppingShop?id=' + shopId)
     },
+    toTakeOutShop() {},
     // 提交订单
     async clickOrderBtn() {
       if (!this.addressObj.name) {
         return this.$toast.fail('请选择收货地址！')
       }
-      const data = {
-        customerRealname: this.addressObj.name,
-        customerPhone: this.addressObj.phone,
-        addressDetail: this.addressObj.address,
-        orderDetails: []
-      }
-      // 处理外卖提交订单数据
-      if (this.form === 0) {
-        this.orderList.shopList.forEach(c => {
-          let orderProductSpecification = {}
-          let orderProductProertyValues = []
-          if (c.productInfoSpecifications.length > 0) {
-            orderProductSpecification.productInfoSpecificationId =
-              c.productInfoSpecifications[0].id
-          }
-          if (c.productInfoProperties.length > 0) {
-            orderProductProertyValues.push({
-              propertyValueId:
-                c.productInfoProperties[0].productPropertyValues[0].id
-            })
-          }
-          data.orderDetails.push({
-            productId: c.id,
-            productCnt: c.num,
-            otherMsg: this.remarkValue,
-            orderProductSpecification,
-            orderProductProertyValues
-          })
-        })
-      } else {
-        this.orderList.forEach(e => {
-          e.shopList.forEach(c => {
+      let res = null
+      if (this.form === 0 || this.form === 1) {
+        const data = {
+          customerRealname: this.addressObj.name,
+          customerPhone: this.addressObj.phone,
+          addressDetail: this.addressObj.address,
+          otherMsg: this.remarkValue,
+          orderDetails: [],
+        }
+        // 处理外卖提交订单数据 0外卖 1商城
+        if (this.form === 0) {
+          this.orderList.shopList.forEach((c) => {
             let orderProductSpecification = {}
             let orderProductProertyValues = []
             if (c.productInfoSpecifications.length > 0) {
@@ -317,65 +428,62 @@ export default {
             if (c.productInfoProperties.length > 0) {
               orderProductProertyValues.push({
                 propertyValueId:
-                  c.productInfoProperties[0].productPropertyValues[0].id
+                  c.productInfoProperties[0].productPropertyValues[0].id,
               })
             }
             data.orderDetails.push({
               productId: c.id,
               productCnt: c.num,
-              otherMsg: this.remarkValue,
               orderProductSpecification,
-              orderProductProertyValues
+              orderProductProertyValues,
             })
           })
+        } else {
+          this.orderList.forEach((e) => {
+            e.shopList.forEach((c) => {
+              let orderProductSpecification = {}
+              let orderProductProertyValues = []
+              if (c.productInfoSpecifications.length > 0) {
+                orderProductSpecification.productInfoSpecificationId =
+                  c.productInfoSpecifications[0].id
+              }
+              if (c.productInfoProperties.length > 0) {
+                orderProductProertyValues.push({
+                  propertyValueId:
+                    c.productInfoProperties[0].productPropertyValues[0].id,
+                })
+              }
+              data.orderDetails.push({
+                productId: c.productId,
+                productCnt: c.num,
+                orderProductSpecification,
+                orderProductProertyValues,
+              })
+            })
+          })
+        }
+        res = await upData('/order/pay/shop', data, { showLoading: true })
+      } else {
+        const data = {
+          customerRealname: this.addressObj.name,
+          customerPhone: this.addressObj.phone,
+          addressDetail: this.addressObj.address,
+          otherMsg: this.remarkValue,
+          secondhandProductId: this.orderList.productId
+        }
+        res = await upData('/secondhand/product/order/pay', data, {
+          showLoading: true,
         })
       }
-      const res = await upData('/order/pay/shop', data, { showLoading: true })
       console.log(res)
       if (res.code === '0') {
+        // onBridgeReady混入
         this.onBridgeReady(res.data)
         return false
       }
       this.$handleCode.handleCode(res)
     },
-    // 微信支付
-    onBridgeReady(res) {
-      const _that = this
-      WeixinJSBridge.invoke(
-        'getBrandWCPayRequest',
-        {
-          appId: res.appId, //公众号ID，由商户传入
-          timeStamp: res.timeStamp, //时间戳，自1970年以来的秒数
-          nonceStr: res.nonceStr, //随机串
-          package: res.packageValue,
-          signType: res.signType, //微信签名方式：
-          paySign: res.paySign //微信签名
-        },
-        function(res) {
-          if (res.err_msg == 'get_brand_wcpay_request:ok') {
-            window.sessionStorage.removeItem('cartList')
-            _that.$router.push('/payView?request=ok')
-            // 使用以上方式判断前端返回,微信团队郑重提示：
-            //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
-          } else if (res.err_msg == 'get_brand_wcpay_request:cancel') {
-            _that.$router.push('/payView?request=cancel')
-          } else {
-            _that.$router.push('/payView?request=fail')
-          }
-        }
-      )
-      // if (typeof WeixinJSBridge == 'undefined') {
-      //   if (document.addEventListener) {
-      //     document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false)
-      //   } else if (document.attachEvent) {
-      //     document.attachEvent('WeixinJSBridgeReady', onBridgeReady)
-      //     document.attachEvent('onWeixinJSBridgeReady', onBridgeReady)
-      //   }
-      // } else {
-      //   onBridgeReady()
-      // }
-    }
-  }
+  },
 }
 </script>
 <style lang="less" scoped>
@@ -437,6 +545,7 @@ export default {
     }
   }
   .shop_info_warp {
+    margin-bottom: 1rem;
     padding: 1rem;
     background-color: #fff;
     border-radius: 0.5rem;

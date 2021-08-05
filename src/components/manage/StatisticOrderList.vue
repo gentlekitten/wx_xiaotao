@@ -1,13 +1,17 @@
 <template>
   <div>
-    <div class="item" v-for="item in orderList" :key="item.orderMasterId">
-      <img :src="'https://jixi.mynatapp.cc/'+item.productLogoAddress" alt="该商品已删除" />
+    <div class="item" v-for="item in orderList" :key="item.productId">
+      <img
+        :src="'https://jixi.mynatapp.cc/' + item.productLogoAddress"
+        alt="该商品已删除"
+      />
       <div class="content">
         <div class="name">{{ item.productName }}</div>
         <div class="price">
           实际付款
           <span>￥{{ item.payMoney }}</span>
         </div>
+        <div class="num">x{{ item.productCnt }}</div>
       </div>
       <div v-if="item.payState === 1" class="status">入账</div>
       <div v-else-if="item.payState === 2" class="status red">未入账</div>
@@ -23,13 +27,13 @@ export default {
       type: Array,
       default: () => {
         return []
-      }
-    }
+      },
+    },
   },
   data() {
     return {}
   },
-  methods: {}
+  methods: {},
 }
 </script>
 <style lang="less" scoped>
@@ -61,6 +65,10 @@ export default {
       color: @priceColor;
       font-weight: 900;
     }
+  }
+  .num {
+    font-size: 0.8rem;
+    color: #999;
   }
   .status {
     position: absolute;

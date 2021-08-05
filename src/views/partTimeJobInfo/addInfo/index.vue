@@ -136,9 +136,7 @@ export default {
   methods: {
     //   验证手机号
     validator(val) {
-      return /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/.test(
-        val
-      )
+      return /^1[3456789]\d{9}$/.test(val)
     },
     // 初始化表单数据
     initFormData() {

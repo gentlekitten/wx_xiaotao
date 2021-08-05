@@ -77,6 +77,8 @@ export default {
   data() {
     return {
       code: '',
+      // rule (可选值 营业排序{shopState}，单量排序{sale} 优惠排序{discount}，不排序{""或者不提交})
+      rule: '',
       // 站点信息
       siteInfo: JSON.parse(window.sessionStorage.getItem('siteInfo'))
         ? JSON.parse(window.sessionStorage.getItem('siteInfo'))
@@ -104,12 +106,12 @@ export default {
       girdList: [
         {
           img: require('../../assets/img/index/snackShop.png'),
-          text: '零食',
+          text: '便利店',
           url: 'snackShopList'
         },
         {
           img: require('../../assets/img/index/expressage.png'),
-          text: '快递服务',
+          text: '(取)寄快递',
           url: 'expressage'
         },
         {
@@ -119,12 +121,12 @@ export default {
         },
         {
           img: require('../../assets/img/index/beautyMakeup.png'),
-          text: '美妆',
+          text: '惠美妆',
           url: 'beautyMakeup'
         },
         {
           img: require('../../assets/img/index/electronic.png'),
-          text: '数码',
+          text: '淘数码',
           url: 'electronicProducts'
         },
         {
@@ -134,7 +136,7 @@ export default {
         },
         {
           img: require('../../assets/img/index/takeOut.png'),
-          text: '外卖',
+          text: '校园外卖',
           url: 'takeOutShopList'
         },
         // {
@@ -144,7 +146,7 @@ export default {
         // },
         {
           img: require('../../assets/img/index/partTime.png'),
-          text: '兼职信息',
+          text: '周边兼职',
           url: 'partTimeJobInfo'
         }
       ],
@@ -163,7 +165,7 @@ export default {
         }
       ],
       shopList: [],
-      shopListTwo: []
+      dropdownIndex: 0
     }
   },
   created() {
@@ -244,7 +246,7 @@ export default {
         : ''
       if (siteId !== '') {
         this.getSwiper(siteId)
-        this.getShopList(siteId)
+        this.getShopList()
         return false
       }
       const res = await getData('/page/index', {}, { showLoading: false })
@@ -267,7 +269,7 @@ export default {
         }
         window.sessionStorage.setItem('siteInfo', JSON.stringify(res.data))
         this.getSwiper(res.data.id)
-        this.getShopList(res.data.id)
+        this.getShopList()
         return false
       }
       // if (res.code === '5x10001') {
@@ -386,7 +388,7 @@ export default {
         this.siteInfo = res.data
         window.sessionStorage.setItem('siteInfo', JSON.stringify(res.data))
         this.getSwiper(res.data.id)
-        this.getShopList(res.data.id)
+        this.getShopList()
         return false
       }
       // 未知站点
@@ -428,21 +430,23 @@ export default {
     },
     // 下拉选择框改变
     dropdownChange(index) {
-      if (index === 1) {
-        this.shopList.sort(this.getSortFun('asc', 'shopState'))
-      } else if (index === 2) {
-        this.shopList.sort(this.getSortFun('desc', 'sale'))
-      } else if (index === 3) {
-        this.shopList = this.shopList.filter(e => {
-          return e.shopDiscount.discountPrice
-        })
-      } else {
-        this.shopList = this.shopListTwo
-      }
-      this.dropdownObj = this.dropdownList[index]
+      this.pageIndex = 0
+      this.shopList = []
+      this.finished = false
+      this.rule =
+        index === 1
+          ? 'shopState'
+          : index === 2
+          ? 'sale'
+          : index === 3
+          ? 'discount'
+          : ''
+      this.dropdownIndex = index
+      this.getShopList()
     },
     // 获取店铺列表
-    async getShopList(siteId) {
+    // rule (可选值 营业排序{shopState}，单量排序{sale} 优惠排序{discount}，不排序{""或者不提交})
+    async getShopList() {
       // 1零食 2 美妆 3 数码 4 外卖 5 食堂
       const shopCategoryId =
         this.tabIndex === 0
@@ -453,10 +457,10 @@ export default {
           ? 5
           : 0
       const data = {
-        // siteId,
         pageIndex: this.pageIndex,
         shopCategoryId,
-        pageLimit: 1
+        pageLimit: 10,
+        rule: this.rule
       }
       const res = await getData('/shop/info/basic/find', data, {
         showLoading: false
@@ -465,9 +469,10 @@ export default {
       this.loading = false
       if (res.code === '0') {
         this.shopList.push(...res.data.pageIndexShopInfoVo)
-        this.shopListTwo.push(...res.data.pageIndexShopInfoVo)
+        // 改变下拉框文字
+        this.dropdownObj = this.dropdownList[this.dropdownIndex]
         this.pageIndex += 1
-        if (this.pageIndex * 1 >= res.data.number) {
+        if (this.pageIndex * 10 >= res.data.number) {
           this.finished = true
         }
         return false
@@ -485,13 +490,15 @@ export default {
     clickTab(name) {
       this.tabIndex = name
       this.pageIndex = 0
+      this.dropdownIndex = 0
+      this.rule = ''
       this.shopList = []
       this.finished = false
-      this.getShopList(this.siteInfo.id)
+      this.getShopList()
     },
     // 上拉刷新
     async onLoadRefresh() {
-      this.getShopList(this.siteInfo.id)
+      this.getShopList()
     }
   },
   destroyed: function() {

@@ -12,10 +12,13 @@
           <div v-for="(item, index) in orderPeopleList" :key="item.id + index">
             <div v-if="item.state === 1" class="user_warp">
               <div class="user_img">
-                <img :src="item.customerInfo.headimgurl" @click="clickUserImg" />
+                <img
+                  :src="item.customerInfo.headimgurl"
+                  @click="clickUserImg"
+                />
                 <i
                   class="iconfont icon"
-                  :class="[ item.sex === 0 ? 'icon-nan nan' : 'icon-nv nv' ]"
+                  :class="[item.sex === 0 ? 'icon-nan nan' : 'icon-nv nv']"
                 />
               </div>
               <div class="username">{{ item.customerName }}</div>
@@ -31,7 +34,7 @@
                 <img :src="item.customerInfo.headimgurl" />
                 <i
                   class="iconfont icon"
-                  :class="[ item.sex === 0 ? 'icon-nan nan' : 'icon-nv nv' ]"
+                  :class="[item.sex === 0 ? 'icon-nan nan' : 'icon-nv nv']"
                 />
               </div>
               <div class="username">{{ item.customerName }}</div>
@@ -53,7 +56,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -62,7 +65,7 @@ export default {
         : 0,
       activeNames: '1',
       popupIsShow: false,
-      orderPeopleList: []
+      orderPeopleList: [],
     }
   },
   created() {
@@ -73,9 +76,7 @@ export default {
     async getOrderPelpleList() {
       const res = await getData(
         '/site/delivery/person/state/find',
-        {
-          siteId: this.siteId
-        },
+        {},
         { showLoading: false }
       )
       console.log(res)
@@ -90,8 +91,8 @@ export default {
     },
     clickUserImg() {
       this.$router.push('/chatView')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

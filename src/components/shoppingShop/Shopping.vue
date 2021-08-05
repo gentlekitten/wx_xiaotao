@@ -2,18 +2,18 @@
   <div>
     <div class="shopping">
       <div class="bg_img">
-        <img src="https://img01.yzcdn.cn/vant/cat.jpeg" />
+        <img :src="'https://jixi.mynatapp.cc/'+shopInfo.shopPic" />
       </div>
       <div class="shop_img">
-        <img src="https://img01.yzcdn.cn/vant/cat.jpeg" />
+        <img :src="'https://jixi.mynatapp.cc/'+shopInfo.shopPic" />
       </div>
       <div class="shop_info">
-        <div class="title" @click="toShopDetails">
-          哈哈哈哈哈
+        <div class="title" @click="toShopDetails(shopInfo.shopId)">
+          {{ shopInfo.shopName }}
           <van-icon class="icon" name="arrow" size="1rem" />
         </div>
         <van-rate
-          v-model="rateValue"
+          v-model="rate"
           size="1rem"
           color="#f2af49"
           void-icon="star"
@@ -22,7 +22,7 @@
         />
         <van-notice-bar
           background="rgba(0, 0, 0, 0)"
-          text="在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。"
+          :text="shopInfo.salesPromotion"
           @click="clickNoticeBar"
         />
       </div>
@@ -41,17 +41,24 @@ export default {
       type: Boolean,
       default: false
     },
-    rateValue: {
-      type: Number,
-      default: 0
+    shopInfo: {
+      type: Object,
+      default: () => {
+        return {}
+      }
     }
   },
   data() {
-    return {}
+    return {
+      rate: 0
+    }
+  },
+  created() {
+    this.rate = this.shopInfo.shopScore ? this.shopInfo.shopScore : 0
   },
   methods: {
-    toShopDetails() {
-      this.$router.push('/shoppingShop/shoppingShopDetails')
+    toShopDetails(id) {
+      this.$emit('toShopDetails', id)
     },
     clickCollect() {
       this.$emit('clickCollect')

@@ -5,8 +5,7 @@
     <div class="top">
       <div class="content">
         本校
-        <span class="total">10位</span>领跑者为你服务&nbsp;其中
-        <span class="work">5位</span>当前在线等待接单
+        <span class="total">{{ orderPeopleNum }}位</span>领跑者为你服务。
       </div>
     </div>
     <div class="task_type">
@@ -34,37 +33,64 @@
   </div>
 </template>
 <script>
+import { getData } from '@/api/api.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
+      // 领跑者
+      orderPeopleNum: 0,
       taskTypeList: [
         {
           img: 'https://img.yzcdn.cn/vant/cat.jpeg',
           title: '代取代送',
           lable: '取快递、寄快递、送礼物...',
-          url: 'taskSend?id=0&title='
+          url: 'taskSend?id=0&title=',
         },
         {
           img: 'https://img.yzcdn.cn/vant/cat.jpeg',
           title: '跑腿代办',
           lable: '买饮料、买零食、代排队...',
-          url: 'taskSend?id=1&title='
+          url: 'taskSend?id=1&title=',
         },
         {
           img: 'https://img.yzcdn.cn/vant/cat.jpeg',
           title: '全能服务',
           lable: '陪伴谈心、道早晚安...',
-          url: 'taskSend?id=2&title='
-        }
-      ]
+          url: 'taskSend?id=2&title=',
+        },
+      ],
     }
   },
-  methods: {}
+  created() {
+    this.getOrderPelpleNumber()
+  },
+  methods: {
+    // 获取领跑者数量
+    async getOrderPelpleNumber() {
+      let orderPeopleList = []
+      const res = await getData(
+        '/site/delivery/person/state/find',
+        {},
+        { showLoading: false }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        orderPeopleList = res.data.filter((e) => {
+          return e.state === 1
+        })
+        this.orderPeopleNum = orderPeopleList.length
+
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+  },
 }
 </script>
 <style lang="less" scoped>
@@ -83,11 +109,6 @@ export default {
   .content {
     .total {
       color: cadetblue;
-      margin: 0 0.5rem;
-      font-weight: 900;
-    }
-    .work {
-      color: red;
       margin: 0 0.5rem;
       font-weight: 900;
     }

@@ -1,6 +1,7 @@
 <template>
   <div>
     <nav-bar :title="'选择地址'" is-back-up :is-arrow="true" />
+    <div class="tip">选择后返回即可</div>
     <van-address-list
       v-model="chosenAddressId"
       :list="addressList"
@@ -18,10 +19,11 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
+      name: '',
       siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
         ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
         : 0,
@@ -42,10 +44,12 @@ export default {
         //   tel: '1320000000',
         //   address: '浙江省杭州市滨江区江南大道 15 号'
         // }
-      ]
+      ],
     }
   },
   created() {
+    // sessionStorage名
+    this.name = this.$route.query.name ? this.$route.query.name : ''
     this.getAddressList()
   },
   methods: {
@@ -61,17 +65,17 @@ export default {
       if (res.code === '0') {
         if (res.data.length > 0) {
           this.addressList = res.data
-          this.disabledList = this.addressList.filter(e => {
+          this.disabledList = this.addressList.filter((e) => {
             return e.state === 0
           })
-          this.addressList.forEach(e => {
+          this.addressList.forEach((e) => {
             e.name = e.realname
             e.tel = e.phone
             e.county = e.district
             e.isDefault = e.addressDefault === 0 ? false : true
             e.address = e.city + e.province + e.district + e.addressDetail
           })
-          const addressList = res.data.filter(e => {
+          const addressList = res.data.filter((e) => {
             return e.addressDefault === 1
           })
           if (addressList.length > 0) {
@@ -83,12 +87,19 @@ export default {
               name: addressList[0].name,
               phone: addressList[0].phone,
               siteId: addressList[0].siteId,
-              state: addressList[0].state
+              state: addressList[0].state,
             }
-            window.sessionStorage.setItem(
-              'addressObj',
-              JSON.stringify(addressObj)
-            )
+            if (this.name) {
+              window.sessionStorage.setItem(
+                this.name,
+                JSON.stringify(addressObj)
+              )
+            } else {
+              window.sessionStorage.setItem(
+                'addressObj',
+                JSON.stringify(addressObj)
+              )
+            }
           }
         }
         return false
@@ -101,26 +112,29 @@ export default {
     },
     // 点击编辑地址
     editAddress(item, index) {
-      sessionStorage.setItem('addressObj', JSON.stringify(item))
       this.$router.push(`/user/userInfo/editAddress?type=edit&id=${item.id}`)
     },
     // 更选地址
     selectAddress(item) {
-      const isExist = this.disabledList.some(e => {
+      const isExist = this.disabledList.some((e) => {
         return e.id === item.id
       })
       if (isExist) {
         this.$toast.fail('该地址可能不在配送范围哦！')
       }
       console.log(item)
-      window.sessionStorage.setItem('addressObj', JSON.stringify(item))
+      if (this.name) {
+        window.sessionStorage.setItem(this.name, JSON.stringify(item))
+      } else {
+        window.sessionStorage.setItem('addressObj', JSON.stringify(item))
+      }
       if (!isExist) {
-        setTimeout(e => {
+        setTimeout((e) => {
           this.$router.go(-1)
         }, 1000)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>
@@ -129,5 +143,11 @@ export default {
   .van-cell {
     height: 4.5rem;
   }
+}
+.tip {
+  text-align: center;
+  margin: 0.8rem 0 0.3rem 0;
+  font-size: 0.8rem;
+  color: #999;
 }
 </style>

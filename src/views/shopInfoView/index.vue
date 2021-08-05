@@ -7,7 +7,6 @@
       :cart-item="cartItem"
       :get-food-total-price="getFoodTotalPrice"
       :handle-food-num="handleFoodNum"
-      :shop-info-obj="shopInfoObj"
       @cartSubmit="cartSubmit"
       @showCart="showCart"
       @deleteFood="deleteFood"
@@ -26,18 +25,22 @@ import ShopInfo from '@/components/common/ShopInfo.vue'
 
 export default {
   components: {
-    ShopInfo
+    ShopInfo,
   },
   data() {
     return {
       // 规格id
       d: this.$route.query.d ? Number(this.$route.query.d) : 0,
-      shopInfoObj: {},
       isCartList: false,
       cartList: JSON.parse(window.sessionStorage.getItem('cartList'))
         ? JSON.parse(window.sessionStorage.getItem('cartList'))
         : {},
-      cartItem: JSON.parse(window.sessionStorage.getItem('snackShopInfoItem'))
+      cartItem: JSON.parse(window.sessionStorage.getItem('snackShopInfoItem')),
+      shopInfoObj: JSON.parse(window.sessionStorage.getItem('shopInfoObj'))
+        ? JSON.parse(window.sessionStorage.getItem('shopInfoObj'))
+        : {},
+      // 优惠价格
+      discountPrice: 0,
     }
   },
   computed: {
@@ -75,7 +78,7 @@ export default {
       // $total = commonJs.addItem(priceList)
 
       if (shopList.length > 0) {
-        shopList.forEach(e => {
+        shopList.forEach((e) => {
           if (e.productInfoSpecifications.length > 0) {
             $total += e.productInfoSpecifications[0].price
           }
@@ -84,10 +87,11 @@ export default {
       if (this.shopInfoObj.shopDiscount) {
         if ($total >= this.shopInfoObj.shopDiscount.requirePrice) {
           $total -= this.shopInfoObj.shopDiscount.discountPrice
+          this.discountPrice = this.shopInfoObj.shopDiscount.discountPrice
         }
       }
       return $total
-    }
+    },
   },
   created() {
     const shopId = this.$route.query.shopId ? this.$route.query.shopId : 0
@@ -96,6 +100,9 @@ export default {
   methods: {
     // 获取店铺信息
     async getShopInfo(shopId) {
+      if (Object.keys(this.shopInfoObj).lenght > 0) {
+        return false
+      }
       const res = await getData(
         '/site/snack/shop/info',
         { shopId },
@@ -104,6 +111,10 @@ export default {
       console.log(res)
       if (res.code === '0') {
         this.shopInfoObj = res.data
+        window.sessionStorage.setItem(
+          'shopInfoObj',
+          JSON.stringify(this.shopInfoObj)
+        )
         return false
       }
       this.$handleCode.handleCode(res)
@@ -120,13 +131,13 @@ export default {
           shopOrders: this.shopInfoObj.shopOrder,
           shopPic: this.shopInfoObj.shopPic,
           shopName: this.shopInfoObj.shopName,
-          shopList: []
+          shopList: [],
         }
       }
       if (d) {
-        this.cartList.shopList.forEach(e => {
+        this.cartList.shopList.forEach((e) => {
           if (e.id === addItem.id) {
-            isFood = e.productInfoSpecifications.some(item => {
+            isFood = e.productInfoSpecifications.some((item) => {
               return d === item.id
             })
             if (isFood) {
@@ -135,7 +146,7 @@ export default {
           }
         })
       } else {
-        isFood = this.cartList.shopList.some(item => {
+        isFood = this.cartList.shopList.some((item) => {
           return addItem.id === item.id
         })
       }
@@ -143,11 +154,14 @@ export default {
       if (isFood) {
         let foodIndex = 0
         if (d) {
-          foodIndex = this.cartList.shopList.findIndex(item => {
+          foodIndex = this.cartList.shopList.findIndex((item) => {
+            if (item.productInfoSpecifications.length <= 0) {
+              return false
+            }
             return item.productInfoSpecifications[0].id === d
           })
         } else {
-          foodIndex = this.cartList.shopList.findIndex(item => {
+          foodIndex = this.cartList.shopList.findIndex((item) => {
             return addItem.id === item.id
           })
         }
@@ -158,7 +172,7 @@ export default {
           // 处理规格 d是选中的规格的id
           let productInfoSpecifications = []
           productInfoSpecifications = addObj.productInfoSpecifications.filter(
-            e => {
+            (e) => {
               return e.id === d
             }
           )
@@ -171,6 +185,7 @@ export default {
     // 购物车提交
     cartSubmit(foodTotalPrice) {
       this.cartList.totalPrice = foodTotalPrice
+      this.cartList.discountPrice = this.discountPrice
       window.sessionStorage.setItem(
         'shopCartList',
         JSON.stringify(this.cartList)
@@ -187,14 +202,17 @@ export default {
       let foodIndex = 0
       // 判断有无规格
       if (item.productInfoSpecifications.length > 0) {
-        foodIndex = this.cartList.shopList.findIndex(e => {
+        foodIndex = this.cartList.shopList.findIndex((e) => {
+          if (e.productInfoSpecifications.length <= 0) {
+            return false
+          }
           return (
             e.productInfoSpecifications[0].id ===
             item.productInfoSpecifications[0].id
           )
         })
       } else {
-        foodIndex = this.cartList.shopList.findIndex(i => {
+        foodIndex = this.cartList.shopList.findIndex((i) => {
           return item.id === i.id
         })
       }
@@ -212,8 +230,8 @@ export default {
     // 商品数量该表更新数据
     shopNumChange() {
       window.sessionStorage.setItem('cartList', JSON.stringify(this.cartList))
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

@@ -21,6 +21,7 @@ Vue.use(handleCode)
 
 Vue.prototype.$echarts = echarts
 Vue.prototype._ = _
+// Vue.prototype.$bus = new Vue()
 
 new Vue({
     router,

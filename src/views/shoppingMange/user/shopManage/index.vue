@@ -279,6 +279,7 @@ export default {
       this.$route.query.id && (this.shopManageId = Number(this.$route.query.id))
       // 处理页面刷新
       this.handlePageRefresh()
+      console.log(this.$route.query.isShop)
       if (this.$route.query.isShop) {
         this.isShop = JSON.parse(this.$route.query.isShop)
       }

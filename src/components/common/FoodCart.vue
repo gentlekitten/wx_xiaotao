@@ -8,8 +8,15 @@
         @submit="submit"
       >
         <div class="submit_item" @click="showCart">
-          <van-icon class="icon" name="shopping-cart" color="#fff" size="1.8rem" />
-          <div class="shop_num">{{ cartList.shopList.length }}样{{ handleFoodNum }}份</div>
+          <van-icon
+            class="icon"
+            name="shopping-cart"
+            color="#fff"
+            size="1.8rem"
+          />
+          <div class="shop_num">
+            {{ cartList.shopList.length }}样{{ handleFoodNum }}份
+          </div>
         </div>
       </van-submit-bar>
     </div>
@@ -20,10 +27,19 @@
           <span class="left">所选商品</span>
           <span class="left" @click="clearCart">清空</span>
         </div>
-        <div class="shop_list" v-for="(item, index) in cartList.shopList" :key="item + index">
-          <div
-            class="title"
-          >{{ item.productName + (item.productInfoSpecifications.length > 0 ? item.productInfoSpecifications[0].specificationName : '')}}</div>
+        <div
+          class="shop_list"
+          v-for="(item, index) in cartList.shopList"
+          :key="item + index"
+        >
+          <div class="title">
+            {{
+              item.productName +
+              (item.productInfoSpecifications.length > 0
+                ? item.productInfoSpecifications[0].specificationName
+                : '')
+            }}
+          </div>
           <van-stepper
             class="stepper"
             v-model="item.num"
@@ -33,11 +49,26 @@
             disable-input
             @change="shopNumChange"
           />
-          <div
-            class="price"
-          >￥{{Math.round(((item.sellPrice + (item.productInfoSpecifications.length > 0 ? item.productInfoSpecifications[0].price : 0)) * item.num) * 10) / 10}}</div>
+          <div class="price">
+            ￥{{
+              Math.round(
+                (item.sellPrice +
+                  (item.productInfoSpecifications.length > 0
+                    ? item.productInfoSpecifications[0].price
+                    : 0)) *
+                  item.num *
+                  1000
+              ) / 1000
+            }}
+          </div>
           <div class="drop_bt">
-            <van-button class="btn" type="warning" size="small" @click="deleteFood(item)">删除</van-button>
+            <van-button
+              class="btn"
+              type="warning"
+              size="small"
+              @click="deleteFood(item)"
+              >删除</van-button
+            >
           </div>
         </div>
       </div>
@@ -54,30 +85,23 @@ export default {
       type: Object,
       default: () => {
         return {}
-      }
-    },
-    // 店铺信息
-    shopInfoObj: {
-      type: Object,
-      default: () => {
-        return {}
-      }
+      },
     },
     // 获取商品总价格
     getFoodTotalPrice: {
       type: Number,
-      default: 0
+      default: 0,
     },
     // 获取单个商品数量
     handleFoodNum: {
       type: Number,
-      default: 0
+      default: 0,
     },
     // 是否显示购物车列表
     isCartList: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
@@ -85,7 +109,11 @@ export default {
       // 提交按钮是否可点击
       disabled: false,
       // 是否营业
-      isState: false
+      isState: false,
+      // 店铺信息
+      shopInfoObj: JSON.parse(window.sessionStorage.getItem('shopInfoObj'))
+        ? JSON.parse(window.sessionStorage.getItem('shopInfoObj'))
+        : {},
     }
   },
   watch: {
@@ -95,8 +123,8 @@ export default {
         if (this.isState) {
           this.getLowPrice()
         }
-      }
-    }
+      },
+    },
   },
   created() {
     this.initCart()
@@ -163,8 +191,8 @@ export default {
     },
     shopNumChange() {
       this.$emit('shopNumChange')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

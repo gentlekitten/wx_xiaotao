@@ -9,10 +9,10 @@
     <div class="shopping_warp">
       <div class="shopping">
         <div class="shop_img">
-          <img src="https://img01.yzcdn.cn/vant/cat.jpeg" />
+          <img :src="'https://jixi.mynatapp.cc/'+shopInfoObj.shopPic" />
         </div>
         <div class="shop_info">
-          <div class="title">哈哈哈哈哈</div>
+          <div class="title">{{ shopInfoObj.shopName }}</div>
           <van-rate
             v-model="rateValue"
             size="1rem"
@@ -21,7 +21,7 @@
             void-color="#eee"
             readonly
           />
-          <div class="lable">店铺描述店铺描描述店铺描描述店铺描述店铺描述店铺描述店铺描述店铺描述店铺描述店铺描述店铺描述店铺描述</div>
+          <div class="lable">{{ shopInfoObj.introduce }}</div>
         </div>
       </div>
     </div>
@@ -29,34 +29,41 @@
       <div class="cell_group">
         <div class="cell cell1">
           <div class="title">店铺电话</div>
-          <div class="value" @click="toUserPhone">111213113131</div>
+          <div class="value" @click="toUserPhone">{{ shopInfoObj.shopPhone }}</div>
         </div>
         <div class="cell cell1">
           <div class="title">店铺地址</div>
-          <div class="value">蜀汉路金都花园</div>
+          <div class="value">{{ shopInfoObj.shopAddress }}</div>
         </div>
         <div class="cell cell1">
           <div class="title">主营业务</div>
-          <div class="value main_business">零食</div>
+          <div class="value main_business">{{ shopInfoObj.businessInfo }}</div>
         </div>
         <div class="cell cell2">
           <div class="title">营业时间</div>
-          <div class="value">09:00-18:00</div>
+          <div class="value">{{ shopInfoObj.startTime+'-'+shopInfoObj.endTime }}</div>
         </div>
         <div class="cell cell2">
           <div class="title">举报商家</div>
           <div class="value">
-            <van-icon class="icon_left" name="phone-o" size="1.5rem" @click="toPhone" />
-            <van-icon name="warning-o" size="1.5rem" @click="toReportView" />
+            <van-icon
+              class="icon_left"
+              name="phone-o"
+              size="1.5rem"
+              @click="toPhone(shopInfoObj.sitePhone)"
+            />
+            <van-icon name="warning-o" size="1.5rem" @click="toReportView(shopInfoObj.shopId)" />
           </div>
         </div>
         <div class="cell3">
           <div class="title">店铺资质</div>
           <div class="business_img">
-            <div class="business" v-for="(item, index) in businessList" :key="item.text + index">
-              <div class="text">{{ item.text }}</div>
-              <van-image class="img" :src="item.imgUrl" @click="imagePreview(index)" />
-            </div>
+            <div class="text">营业执照</div>
+            <van-image
+              class="img"
+              :src="'https://jixi.mynatapp.cc/'+shopInfoObj.businessLicense"
+              @click="imagePreview('https://jixi.mynatapp.cc/'+shopInfoObj.businessLicense)"
+            />
           </div>
         </div>
       </div>
@@ -68,7 +75,9 @@
   </div>
 </template>
 <script>
-import { ImagePreview } from 'vant'
+import { getData } from '@/api/api.js'
+
+import { ImagePreview, Form } from 'vant'
 
 import NavBar from '@/components/common/NavBar.vue'
 
@@ -81,40 +90,54 @@ export default {
   },
   data() {
     return {
+      shopId: 0,
       overlayIsShow: false,
-      rateValue: 2.5,
-      businessList: [
-        {
-          text: '营业执照',
-          imgUrl: 'https://img01.yzcdn.cn/vant/cat.jpeg'
-        }
-      ]
+      rateValue: 0,
+      shopInfoObj: {}
     }
   },
+  created() {
+    this.shopId = this.$route.query.id ? this.$route.query.id : 0
+    this.getShopInfo()
+  },
   methods: {
+    // 获取店铺信息
+    async getShopInfo() {
+      const res = await getData(
+        '/site/snack/shop/info',
+        { shopId: this.shopId },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.shopInfoObj = res.data
+        const shopScore = this.shopInfoObj.shopScore
+        if (shopScore.attitude || shopScore.attitude === 0) {
+          this.rateValue =
+            (shopScore.attitude + shopScore.quality + shopScore.sTime) / 6
+        }
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
     // 拨打举报电话
-    toPhone() {
-      const phoneNum = 14708701960
+    toPhone(phoneNum) {
       window.location.href = 'tel:' + phoneNum
     },
     // 拨打商家电话
-    toUserPhone() {
-      const phoneNum = 14708701960
+    toUserPhone(phoneNum) {
       window.location.href = 'tel:' + phoneNum
     },
     // 跳转到举报界面
-    toReportView() {
-      this.$router.push('/report')
+    toReportView(id) {
+      this.$router.push(`/report?id=${id}`)
     },
     //   预览图片
-    imagePreview(index) {
-      const imgList = []
-      this.businessList.forEach(i => {
-        imgList.push(i.imgUrl)
-      })
+    imagePreview(imgUrl) {
+      const imgList = [imgUrl]
       ImagePreview({
         images: imgList,
-        startPosition: index
+        startPosition: 0
       })
     }
   }
@@ -129,6 +152,7 @@ export default {
   align-items: center;
 }
 .shopping {
+  width: 90%;
   display: flex;
   position: relative;
   padding: 1rem;
@@ -234,18 +258,15 @@ export default {
       font-weight: 900;
     }
     .business_img {
-      display: flex;
-      flex-wrap: wrap;
-      .business {
-        margin: 1rem 1rem 2rem 1rem;
-        .text {
-          color: #999;
-          margin: 0 0 1rem 0;
-        }
-        .img {
-          width: 5rem;
-          //   height: 8rem;
-        }
+      margin: 1rem 1rem 2rem 1rem;
+
+      .text {
+        color: #999;
+        margin: 0 0 1rem 0;
+      }
+      .img {
+        width: 5rem;
+        //   height: 8rem;
       }
     }
   }

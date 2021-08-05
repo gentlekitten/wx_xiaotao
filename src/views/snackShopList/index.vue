@@ -3,18 +3,29 @@
     <!-- 顶部返回 -->
     <nav-bar title="零食铺" is-arrow back-to="/index" />
     <!-- 图片 -->
-    <van-image width="100%" height="10rem" fit="contain" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+    <van-image
+      width="100%"
+      height="10rem"
+      fit="contain"
+      src="https://img.yzcdn.cn/vant/cat.jpeg"
+    />
     <!-- grid 宿舍分类 -->
     <div class="common">
       <div class="title">
         <van-icon name="star" />
         <span>我的常用</span>
       </div>
-      <grid :gird-list="commonList" @clickSnackDormitory="clickSnackDormitory" />
+      <grid
+        :gird-list="commonList"
+        @clickSnackDormitory="clickSnackDormitory"
+      />
     </div>
     <div class="other">
       <span class="title">新分类</span>
-      <grid :gird-list="snackShopList" @clickSnackDormitory="clickSnackDormitory" />
+      <grid
+        :gird-list="snackShopList"
+        @clickSnackDormitory="clickSnackDormitory"
+      />
     </div>
   </div>
 </template>
@@ -27,7 +38,7 @@ import Grid from '@/components/common/Grid.vue'
 export default {
   components: {
     NavBar,
-    Grid
+    Grid,
   },
   data() {
     return {
@@ -39,9 +50,9 @@ export default {
           id: 0,
           img: require('../../assets/img/index/snackShop.png'),
           text: '零食铺须知',
-          url: 'snackShop?id=0'
-        }
-      ]
+          url: 'snackShop?id=0',
+        },
+      ],
     }
   },
   created() {
@@ -56,19 +67,20 @@ export default {
         { showLoading: true }
       )
       console.log(res)
-      res.data.forEach(e => {
-        e.url = `snackShop?id=${e.shopId}`
-        e.img = require('../../assets/img/index/snackShop.png')
-        e.text = e.apartmentName
-      })
       if (res.code === '0') {
+        res.data.forEach((e) => {
+          e.id = e.shopId
+          e.url = `snackShop?id=${e.shopId}`
+          e.img = require('../../assets/img/index/snackShop.png')
+          e.text = e.apartmentName
+        })
         return this.snackShopList.push(...res.data)
       }
       this.$handleCode.handleCode(res)
     },
     clickSnackDormitory(item) {
       // 去重
-      this.commonList = this.commonList.filter(i => {
+      this.commonList = this.commonList.filter((i) => {
         return item.id !== i.id
       })
       this.commonList.unshift(item)
@@ -80,8 +92,8 @@ export default {
         'snackCommonShopList',
         JSON.stringify(this.commonList)
       )
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

@@ -24,7 +24,7 @@
             下架停售
             <i class="iconfont icon-ai36" />
           </div>
-          <van-button class="btn" round @click="toEditGoods">编辑</van-button>
+          <van-button class="btn" round @click="toEditGoods(item.id)">编辑</van-button>
         </div>
       </div>
     </div>
@@ -49,8 +49,8 @@ export default {
     return {}
   },
   methods: {
-    toEditGoods() {
-      this.$emit('toEditGoods')
+    toEditGoods(id) {
+      this.$emit('toEditGoods', id)
     },
     deleteGoods(item) {
       this.$emit('deleteGoods', item)

@@ -2,12 +2,12 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-// import moment from 'moment'
 import _ from 'lodash'
 import '@/plugins/vant'
 import './style/index.less'
 import '@/assets/css/iconfont.css'
 import './isLgin'
+// import VueBus from 'vue-bus'
 // 富文本编辑器
 import VueQuillEditor from 'vue-quill-editor'
 import 'quill/dist/quill.core.css'
@@ -23,11 +23,13 @@ import echarts from 'echarts'
 
 Vue.config.productionTip = false
 
+// Vue.use(VueBus)
 Vue.use(VueQuillEditor)
 
 
 Vue.prototype.$echarts = echarts
 Vue.prototype._ = _
+// Vue.prototype.$bus = new Vue()
 
 Vue.use(handleCode)
 

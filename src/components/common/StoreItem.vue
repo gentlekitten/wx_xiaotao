@@ -48,7 +48,7 @@ export default {
     }
   },
   created() {
-    this.rate = this.item.score ? this.item.score : 0
+    this.rate = this.item.shopScore ? this.item.shopScore : 0
   },
   methods: {
     toShopping(item) {

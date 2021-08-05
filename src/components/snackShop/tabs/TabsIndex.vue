@@ -10,7 +10,11 @@
       <template v-slot:tab0>
         <div class="contnet">
           <!-- 左侧侧边栏 -->
-          <sidebar class="left" :sidebar-list="sidebarList" @sidebarChange="sidebarChange" />
+          <sidebar
+            class="left"
+            :sidebar-list="sidebarList"
+            @sidebarChange="sidebarChange"
+          />
           <!-- 右侧商品列表 -->
           <food-list
             class="right"
@@ -35,7 +39,10 @@
           </template>
           <!-- 用户评论 -->
           <template>
-            <user-comment :comment-list="commentList" @clickCommnetImg="clickCommnetImg" />
+            <user-comment
+              :comment-list="commentList"
+              @clickCommnetImg="clickCommnetImg"
+            />
           </template>
         </div>
       </template>
@@ -49,7 +56,6 @@
         :cart-list="cartList"
         :is-cart-list="isCartList"
         :get-food-total-price="getFoodTotalPrice"
-        :shop-info-obj="shopInfoObj"
         :handle-food-num="handleFoodNum"
         @showCart="showCart"
         @clearCart="clearCart"
@@ -87,13 +93,13 @@ export default {
     FoodCart,
     Evaluate,
     UserComment,
-    MerchantShopInfo
+    MerchantShopInfo,
   },
   props: {
     // tab index
     tabIndex: {
       type: Number,
-      default: Number(window.sessionStorage.getItem('tabActiveShop'))
+      default: Number(window.sessionStorage.getItem('tabActiveShop')),
     },
     // 购物车列表
     cartList: {
@@ -102,68 +108,67 @@ export default {
         return JSON.parse(window.sessionStorage.getItem('cartList'))
           ? JSON.parse(window.sessionStorage.getItem('cartList'))
           : {}
-      }
+      },
     },
     // 下拉选择框列表
     dropdownList: {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
     // 下拉选择对象
     dropdownObj: {
       type: Object,
       default: () => {
         return { text: '全部商品', value: 0 }
-      }
+      },
     },
     // tab list
     tabList: {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
     // 侧边栏列表
     sidebarList: {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
     // 商品列表
     shopList: {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
     // 评价分数列表
     evaluateInfoList: {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
-    // 评论列表
     commentList: {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
-    // 店铺信息
+    // 评论列表
     shopInfoObj: {
       type: Object,
       default: () => {
         return {}
-      }
+      },
     },
     shopId: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   computed: {
     // 获取商品总数量
@@ -200,7 +205,7 @@ export default {
         0
       )
       if (shopList.length > 0) {
-        shopList.forEach(e => {
+        shopList.forEach((e) => {
           if (e.productInfoSpecifications.length > 0) {
             $total += e.productInfoSpecifications[0].price * e.num
           }
@@ -210,15 +215,18 @@ export default {
       if (this.shopInfoObj.shopDiscount) {
         if ($total >= this.shopInfoObj.shopDiscount.requirePrice) {
           $total -= this.shopInfoObj.shopDiscount.discountPrice
+          this.discountPrice = this.shopInfoObj.shopDiscount.discountPrice
         }
       }
       return $total
-    }
+    },
   },
   data() {
     return {
       // 是否显示购物车列表
-      isCartList: false
+      isCartList: false,
+      // 优惠价格
+      discountPrice: 0,
     }
   },
   methods: {
@@ -228,7 +236,7 @@ export default {
     },
     // 购物车提交
     cartSubmit(foodTotalPrice) {
-      this.$emit('cartSubmit', foodTotalPrice)
+      this.$emit('cartSubmit', foodTotalPrice, this.discountPrice)
     },
     showCart() {
       this.isCartList = !this.isCartList
@@ -266,8 +274,8 @@ export default {
     },
     sidebarChange(index) {
       this.$emit('sidebarChange', index)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

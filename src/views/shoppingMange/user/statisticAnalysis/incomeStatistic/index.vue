@@ -244,7 +244,7 @@ export default {
         startTime: time,
         endTime: time
       }
-      const res = await getData('/shop/bill/money/count', data, {
+      const res = await upData('/shop/bill/money/count', data, {
         showLoading: true
       })
       console.log(res)
@@ -263,7 +263,7 @@ export default {
         startTime: this.form.startTime,
         endTime: this.form.endTime
       }
-      const res = await getData('/shop/bill/money/count', data, {
+      const res = await upData('/shop/bill/money/count', data, {
         showLoading: false
       })
       console.log(res)
@@ -300,7 +300,7 @@ export default {
         startTime,
         endTime
       }
-      const res = await getData('/shop/bill/money/count', data, {
+      const res = await upData('/shop/bill/money/count', data, {
         showLoading: true
       })
       console.log(res)

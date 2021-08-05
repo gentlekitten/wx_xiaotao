@@ -10,7 +10,9 @@
       <van-cell class="cell1">
         <div class="username">
           发布人：
-          <span v-if="taskDetailsObj.customerInfo">{{ taskDetailsObj.customerInfo.nickname }}</span>
+          <span v-if="taskDetailsObj.customerInfo">{{
+            taskDetailsObj.customerInfo.nickname
+          }}</span>
         </div>
         <div class="status">
           <div v-if="taskDetailsObj.state === 3">完成并确认</div>
@@ -20,7 +22,10 @@
         </div>
       </van-cell>
       <template
-        v-if="taskDetailsObj.deliveryOrderAddresses && taskDetailsObj.deliveryOrderAddresses.length > 0"
+        v-if="
+          taskDetailsObj.deliveryOrderAddresses &&
+          taskDetailsObj.deliveryOrderAddresses.length > 0
+        "
       >
         <van-cell class="cell2" is-link>
           <div class="warp">
@@ -28,13 +33,19 @@
             <div class="info">
               <div class="text_info">
                 <span>小明</span>
-                &nbsp;/&nbsp;{{ taskDetailsObj.deliveryOrderAddresses[0].phone }}
+                &nbsp;/&nbsp;{{
+                  taskDetailsObj.deliveryOrderAddresses[0].phone
+                }}
               </div>
-              <div class="address">{{ taskDetailsObj.deliveryOrderAddresses[0].addressDetail }}</div>
+              <div class="address">
+                {{ taskDetailsObj.deliveryOrderAddresses[0].addressDetail }}
+              </div>
             </div>
           </div>
         </van-cell>
-        <van-cell @click="toPhone(taskDetailsObj.deliveryOrderAddresses[0].phone)">
+        <van-cell
+          @click="toPhone(taskDetailsObj.deliveryOrderAddresses[0].phone)"
+        >
           起点电话：{{ taskDetailsObj.deliveryOrderAddresses[0].phone }}
           <van-icon name="phone-o" size="1rem" />
         </van-cell>
@@ -44,13 +55,19 @@
             <div class="info">
               <div class="text_info">
                 <span>小明</span>
-                &nbsp;/&nbsp;{{ taskDetailsObj.deliveryOrderAddresses[1].phone }}
+                &nbsp;/&nbsp;{{
+                  taskDetailsObj.deliveryOrderAddresses[1].phone
+                }}
               </div>
-              <div class="address">{{ taskDetailsObj.deliveryOrderAddresses[1].addressDetail }}</div>
+              <div class="address">
+                {{ taskDetailsObj.deliveryOrderAddresses[1].addressDetail }}
+              </div>
             </div>
           </div>
         </van-cell>
-        <van-cell @click="toPhone(taskDetailsObj.deliveryOrderAddresses[1].phone)">
+        <van-cell
+          @click="toPhone(taskDetailsObj.deliveryOrderAddresses[1].phone)"
+        >
           送达电话：{{ taskDetailsObj.deliveryOrderAddresses[1].phone }}
           <van-icon name="phone-o" size="1rem" />
         </van-cell>
@@ -58,21 +75,32 @@
       <van-cell>预约时间：{{ taskDetailsObj.beforeTime }}</van-cell>
       <van-cell>备注信息：{{ taskDetailsObj.otherMsg }}</van-cell>
       <div
-        v-if="taskDetailsObj.deliveryOrderPics && taskDetailsObj.deliveryOrderPics.length > 0"
+        v-if="
+          taskDetailsObj.deliveryOrderPics &&
+          taskDetailsObj.deliveryOrderPics.length > 0
+        "
         class="img_warp"
       >
         <div class="title">附图：</div>
         <div class="img">
           <img
-            v-for="(item,index) in taskDetailsObj.deliveryOrderPics"
+            v-for="(item, index) in taskDetailsObj.deliveryOrderPics"
             :key="item.id"
-            :src="'https://jixi.mynatapp.cc/'+item.picAddress"
+            :src="'https://jixi.mynatapp.cc/' + item.picAddress"
             @click="imagePreview(taskDetailsObj.deliveryOrderPics, index)"
           />
         </div>
       </div>
       <van-cell>接单时效：{{ taskDetailsObj.endTime }}</van-cell>
-      <van-cell>性别要求：{{ taskDetailsObj.sex === 0 ? '性别不限' : taskDetailsObj.sex === 1 ? '只限男性' : '只限女性' }}</van-cell>
+      <van-cell
+        >性别要求：{{
+          taskDetailsObj.sex === 0
+            ? '性别不限'
+            : taskDetailsObj.sex === 1
+            ? '只限男性'
+            : '只限女性'
+        }}</van-cell
+      >
       <van-cell>
         <div class="price">
           任务收益：
@@ -86,9 +114,12 @@
           round
           type="primary"
           @click="confirmOrder"
-        >确认接单</van-button>
+          >确认接单</van-button
+        >
       </div>
-      <div v-if="taskDetailsObj.state === 0" class="tip">待支付，请返回我的界面完成支付</div>
+      <div v-if="taskDetailsObj.state === 0" class="tip">
+        待支付，请返回我的界面完成支付
+      </div>
     </div>
   </div>
 </template>
@@ -101,7 +132,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -112,7 +143,7 @@ export default {
       tabIndex: Number(sessionStorage.getItem('orderPeopleTabsIndex'))
         ? Number(sessionStorage.getItem('orderPeopleTabsIndex'))
         : 0,
-      taskDetailsObj: {}
+      taskDetailsObj: {},
     }
   },
   created() {
@@ -136,11 +167,10 @@ export default {
     // 发起确认订单
     async confirmOrder() {
       const data = {
-        siteId: this.siteId,
-        deliveryOrderId: Number(this.id)
+        deliveryOrderId: Number(this.id),
       }
       const res = await upData('/site/delivery/order/receive', data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -155,15 +185,15 @@ export default {
     },
     imagePreview(item, index) {
       const imgUrlList = []
-      item.forEach(e => {
+      item.forEach((e) => {
         imgUrlList.push('https://jixi.mynatapp.cc/' + e.picAddress)
       })
       ImagePreview({
         images: imgUrlList,
-        startPosition: index
+        startPosition: index,
       })
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>
