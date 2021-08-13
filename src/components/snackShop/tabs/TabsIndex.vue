@@ -5,7 +5,7 @@
       :tab-list="tabList"
       :sticky="true"
       tabsIndexName="tabActiveShop"
-      @clickTab="clickTab"
+      @changeTab="changeTab"
     >
       <template v-slot:tab0>
         <div class="contnet">
@@ -34,14 +34,15 @@
           <!-- 顶部评价分数 -->
           <evaluate :evaluate-info-list="evaluateInfoList" />
           <!-- 用户评价 -->
-          <template v-if="false">
-            <van-empty description="该用户暂无评价" />
+          <template v-if="commentList.length <= 0">
+            <van-empty description="该店铺暂无评价" />
           </template>
           <!-- 用户评论 -->
-          <template>
+          <template v-else>
             <user-comment
               :comment-list="commentList"
               @clickCommnetImg="clickCommnetImg"
+              @onLoadData="onLoadData"
             />
           </template>
         </div>
@@ -241,8 +242,8 @@ export default {
     showCart() {
       this.isCartList = !this.isCartList
     },
-    clickTab(index) {
-      this.$emit('clickTab', index)
+    changeTab(index) {
+      this.$emit('changeTab', index)
     },
     // 处理点击评论区图片
     clickCommnetImg(itemImgs, indexs) {

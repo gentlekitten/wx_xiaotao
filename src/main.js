@@ -7,6 +7,7 @@ import '@/plugins/vant'
 import './style/index.less'
 import '@/assets/css/iconfont.css'
 import './isLgin'
+import globalMixins from './components/mixins/globalMixins'
 // import VueBus from 'vue-bus'
 // 富文本编辑器
 import VueQuillEditor from 'vue-quill-editor'
@@ -20,16 +21,15 @@ import handleCode from '@/assets/js/handleDataCode.js' // 自定义全局处理�
 
 import echarts from 'echarts'
 
-
 Vue.config.productionTip = false
 
 // Vue.use(VueBus)
 Vue.use(VueQuillEditor)
+Vue.use(globalMixins)
 
 
 Vue.prototype.$echarts = echarts
 Vue.prototype._ = _
-// Vue.prototype.$bus = new Vue()
 
 Vue.use(handleCode)
 

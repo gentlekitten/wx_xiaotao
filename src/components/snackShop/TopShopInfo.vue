@@ -5,7 +5,7 @@
       class="img"
       width="100%"
       height="14.5rem"
-      :src="'https://jixi.mynatapp.cc/'+shopInfoObj.shopPic"
+      :src="imgBaseUrl + shopInfoObj.shopPic"
     />
     <!-- 顶部商店信息 -->
     <div class="shop">
@@ -16,16 +16,23 @@
           width="4.5rem"
           fit="cover"
           height="4.5rem"
-          :src="'https://jixi.mynatapp.cc/'+shopInfoObj.shopPic"
+          :src="imgBaseUrl + shopInfoObj.shopPic"
         />
         <div class="collect" @click="toCollect">
-          <i class="icon iconfont" :class="[isCollect ? 'icon-shoucang1' : 'icon-shoucang']" />
+          <i
+            class="icon iconfont"
+            :class="[isCollect ? 'icon-shoucang1' : 'icon-shoucang']"
+          />
         </div>
         <div class="title">{{ shopInfoObj.shopName }}</div>
         <div class="trade">
-          <span
-            class="sore"
-          >评分：{{ shopInfoObj.shopScore ? (shopScore.attitude + shopScore.quality + shopScore.sTime) / 6 : '暂无' }}</span>
+          <span class="sore"
+            >评分：{{
+              shopInfoObj.shopScore
+                ? (shopScore.attitude + shopScore.quality + shopScore.sTime) / 6
+                : '暂无'
+            }}</span
+          >
           <span class="sale_num">已售：{{ shopInfoObj.sale }}</span>
         </div>
         <div class="tag">
@@ -41,14 +48,14 @@ export default {
   props: {
     isCollect: {
       type: Boolean,
-      default: false
+      default: false,
     },
     shopInfoObj: {
       type: Object,
       default: () => {
         return {}
-      }
-    }
+      },
+    },
   },
   data() {
     return {}
@@ -56,8 +63,8 @@ export default {
   methods: {
     toCollect() {
       this.$emit('toCollect')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

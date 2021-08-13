@@ -1,13 +1,11 @@
 <template>
   <div class="shop_details">
-    <div class="title">
-      <span>|</span>商品详情
-    </div>
+    <div class="title"><span>|</span>商品详情</div>
     <template v-if="productDetailAddress">
       <iframe
         ref="ifram"
         class="goods_details"
-        :src="'https://jixi.mynatapp.cc/'+productDetailAddress"
+        :src="imgBaseUrl + productDetailAddress"
         scrolling="no"
         frameborder="0"
       ></iframe>
@@ -22,24 +20,23 @@ export default {
     // 商品详情地址
     productDetailAddress: {
       type: String,
-      default: ''
+      default: '',
     },
     // 是否有商品详情地址
     isProductDetailAddress: {
-      type: Boolean
-    }
+      type: Boolean,
+    },
   },
   data() {
     return {}
   },
-  created() {
-  },
+  created() {},
   mounted() {
     this.setIframeHeight()
   },
   methods: {
     setIframeHeight() {
-      if (!this.productDetailAddress) {
+      if (this.productDetailAddress === '') {
         return false
       }
       const iframe = document.getElementsByClassName('goods_details')
@@ -52,8 +49,8 @@ export default {
       } catch (e) {
         console.log(e)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

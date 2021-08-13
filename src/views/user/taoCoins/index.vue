@@ -9,14 +9,21 @@
       <div class="top">
         <img src="../../../assets/img/零钱.png" />
         <span>我的淘币</span>
-        <div class="price">￥100.00</div>
+        <div class="price">￥{{ myTaoCoinsInfo.cMoney }}</div>
       </div>
       <div class="btn_warp">
-        <van-button class="btn" type="primary" round @click="handlePrice('chong')">充值</van-button>
-        <van-button class="btn" round @click="handlePrice('ti')">提现</van-button>
+        <van-button class="btn" round @click="popupShow = !popupShow"
+          >提现</van-button
+        >
       </div>
     </div>
-    <van-popup class="popup" v-model="popupShow" closeable round position="bottom">
+    <van-popup
+      class="popup"
+      v-model="popupShow"
+      closeable
+      round
+      position="bottom"
+    >
       <van-field
         class="input"
         v-model="priceNum"
@@ -24,7 +31,7 @@
         center
         required
         clearable
-        :label="inputLabel+':'"
+        label="提现金额："
         placeholder="请输入金额"
       >
         <template #button>
@@ -34,44 +41,70 @@
             round
             type="primary"
             @click="handleConfirmOperation"
-          >确认</van-button>
+            >确认</van-button
+          >
         </template>
       </van-field>
     </van-popup>
   </div>
 </template>
 <script>
+import { getData, upData } from '@/api/api.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
       popupShow: false,
       priceNum: '',
-      inputLabel: ''
+      myTaoCoinsInfo: {},
+      cMoney: 0,
     }
   },
+  created() {
+    this.getMyMoney()
+  },
   methods: {
+    // 获取我的淘币金额
+    async getMyMoney() {
+      const res = await getData(
+        '/customer/money/use/find',
+        {},
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.myTaoCoinsInfo = res.data
+        // this.myTaoCoinsInfo.cMoney = this.myTaoCoinsInfo.cMoney
+        //   ? this.myTaoCoinsInfo.cMoney
+        //   : 0
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
     // 去我的淘币记录
     toTaoCoinsRecord() {
       this.$router.push('/user/taoCoins/record')
     },
-    handlePrice(type) {
-      this.inputLabel = type === 'chong' ? '充值金额' : '提现金额'
-      this.popupShow = !this.popupShow
-    },
     handleConfirmOperation() {
       if (!this.priceNum) {
-        return this.$toast.fail('请输入' + this.inputLabel)
+        return this.$toast.fail('请输入提现金额或不能为0！')
       }
       if (this.priceNum <= 0) {
-        return this.$toast.fail(this.inputLabel + '不能小于0！')
+        return this.$toast.fail('提现金额不能小于0！')
       }
-    }
-  }
+      if (this.myTaoCoinsInfo.state === 0) {
+        return this.$toast.fail('您现在账户冻结，不能提现请见谅！')
+      }
+      if (this.priceNum > this.myTaoCoinsInfo.cMoney) {
+        return this.$toast.fail('余额不足！')
+      }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

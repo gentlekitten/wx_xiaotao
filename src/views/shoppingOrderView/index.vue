@@ -37,7 +37,7 @@
         </div>
         <div class="shop_info_warp" v-for="item in orderList" :key="item.id">
           <div class="shop" @click="toTakeOutShop(item.id)">
-            <img :src="'https://jixi.mynatapp.cc/' + item.img" />
+            <img :src="imgBaseUrl + item.img" />
             <div class="shop_name">
               {{ item.name }}
               <van-icon class="icon" name="arrow" size="1.5rem" />
@@ -45,7 +45,7 @@
           </div>
           <div class="shop_info" v-for="c in item.shopList" :key="c.id">
             <div class="warp">
-              <img :src="'https://jixi.mynatapp.cc/' + c.img" />
+              <img :src="imgBaseUrl + c.img" />
               <div class="shop_details">
                 <div class="title">{{ c.name }}</div>
                 <div class="specification">({{ c.shopType }})</div>
@@ -63,7 +63,7 @@
               <div class="text">邮费</div>
               <div class="price_text">
                 {{
-                  item.shopList[0].shopOrders > 0
+                  item.shopList[0].shopOrders
                     ? item.shopList[0].shopOrders.deliveryFee
                     : c.deliveryFee
                     ? c.deliveryFee
@@ -104,7 +104,7 @@
         </div>
         <div class="shop_info_warp">
           <div class="shop" @click="toShoppingShop">
-            <img :src="'https://jixi.mynatapp.cc/' + orderList.shopPic" />
+            <img :src="imgBaseUrl + orderList.shopPic" />
             <div class="shop_name">
               {{ orderList.shopName }}
               <van-icon class="icon" name="arrow" size="1.5rem" />
@@ -112,7 +112,7 @@
           </div>
           <div class="shop_info" v-for="c in orderList.shopList" :key="c.id">
             <div class="warp">
-              <img :src="'https://jixi.mynatapp.cc/' + c.logoAddress" />
+              <img :src="imgBaseUrl + c.logoAddress" />
               <div class="shop_details">
                 <div class="title">
                   {{
@@ -200,7 +200,7 @@
         <div class="shop_info_warp">
           <div class="shop_info">
             <div class="warp">
-              <img :src="'https://jixi.mynatapp.cc/' + orderList.img" />
+              <img :src="imgBaseUrl + orderList.img" />
               <div class="shop_details">
                 <div class="title">
                   {{ orderList.name }}
@@ -362,7 +362,7 @@ export default {
           })
           e.shopList.forEach((c) => {
             // 计算邮费(统一邮费)
-            if (c.shopOrders > 0) {
+            if (Object.keys(c.shopOrders).length > 0) {
               let deliveryFee = c.shopOrders.deliveryFee
                 ? c.shopOrders.deliveryFee
                 : 0
@@ -469,7 +469,7 @@ export default {
           customerPhone: this.addressObj.phone,
           addressDetail: this.addressObj.address,
           otherMsg: this.remarkValue,
-          secondhandProductId: this.orderList.productId
+          secondhandProductId: this.orderList.productId,
         }
         res = await upData('/secondhand/product/order/pay', data, {
           showLoading: true,

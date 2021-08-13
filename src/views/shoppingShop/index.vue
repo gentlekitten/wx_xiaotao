@@ -1,7 +1,12 @@
 <template>
   <div>
     <!-- 顶部导航 -->
-    <nav-bar @toShare="toShare" @toSearch="toSearch" @toChat="toChat" @tabClick="tabClick" />
+    <nav-bar
+      @toShare="toShare"
+      @toSearch="toSearch"
+      @toChat="toChat"
+      @tabClick="tabClick"
+    />
     <template v-if="tabIndex === 0">
       <!-- 商店信息 -->
       <shopping
@@ -18,7 +23,7 @@
         offsetTop="2.6rem"
         :sticky="true"
         tabsIndexName="tabActiveShopping"
-        @clickTab="clickTab"
+        @changeTab="changeTab"
       >
         <van-list
           v-model="loading"
@@ -49,27 +54,44 @@
       />
       <div class="evaluate">
         <!-- 顶部评价分数 -->
-        <evaluate class="evaluate_item" :evaluate-info-list="evaluateInfoList" />
+        <evaluate class="evaluate_item" :evaluate-info-list="evaluateInfoObj" />
         <!-- 用户评价 -->
-        <template v-if="false">
+        <template v-if="commentList.length <= 0">
           <van-empty description="该用户暂无评价" />
         </template>
         <!-- 用户评论 -->
-        <template>
-          <user-comment :comment-list="commentList" @clickCommnetImg="imagePreview" />
+        <template v-else>
+          <user-comment
+            :comment-list="commentList"
+            @clickCommnetImg="imagePreview"
+          />
         </template>
       </div>
     </template>
     <!-- 搜索弹出层 -->
-    <van-popup class="popup" v-model="searchIsShow" closeable round position="top">
+    <van-popup
+      class="popup"
+      v-model="searchIsShow"
+      closeable
+      round
+      position="top"
+    >
       <search-popup @clickShopSearch="searchConfirm" />
     </van-popup>
     <!-- 分享遮蔽层 -->
-    <van-overlay style="z-index: 999;" :show="overlayIsShow" @click="overlayIsShow = false">
+    <van-overlay
+      style="z-index: 999"
+      :show="overlayIsShow"
+      @click="overlayIsShow = false"
+    >
       <overlay-item />
     </van-overlay>
     <!-- 点击通知栏遮蔽层 -->
-    <van-overlay class="overlay" :show="noticeOverlayIsShow" @click="noticeOverlayIsShow = false">
+    <van-overlay
+      class="overlay"
+      :show="noticeOverlayIsShow"
+      @click="noticeOverlayIsShow = false"
+    >
       <div class="warp">
         <div class="shop_name">{{ shopInfo.shopName }}</div>
         <div class="title">☆☆&nbsp;促销公告&nbsp;☆☆</div>
@@ -108,7 +130,7 @@ export default {
     BackTop,
     Shopping,
     Evaluate,
-    UserComment
+    UserComment,
   },
   data() {
     return {
@@ -145,8 +167,8 @@ export default {
         {
           title: '全部',
           categoryId: '',
-          sort: 9999
-        }
+          sort: 9999,
+        },
       ],
       // 下拉选择框index
       dropdownIndex: 0,
@@ -157,75 +179,64 @@ export default {
         { text: '综合排序', value: 0 },
         { text: '销量排序', value: 1 },
         { text: '价格优先', value: 2 },
-        { text: '最新上架', value: 3 }
+        { text: '最新上架', value: 3 },
       ],
       // 商品列表
       shopList: [],
       // 店铺信息
       shopInfo: {},
       // 评价信息列表
-      evaluateInfoList: [
-        {
-          num: 0,
-          text: '服务态度'
-        },
-        {
-          num: 0,
-          text: '产品品质'
-        },
-        {
-          num: 0,
-          text: '送达速度'
-        }
-      ],
+      evaluateInfoObj: {},
       // 用户评价列表
-      commentList: [
-        {
-          user_img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-          user_name: '哈哈哈',
-          commentNum: 3,
-          comment_time: '两天前',
-          shop_type: '辣条',
-          comment_text:
-            '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-          comment_img: [
-            'https://img.yzcdn.cn/vant/apple-1.jpg',
-            'https://img.yzcdn.cn/vant/apple-2.jpg',
-            'https://img.yzcdn.cn/vant/apple-1.jpg',
-            'https://img.yzcdn.cn/vant/apple-2.jpg'
-          ],
-          comment_video: ['https://img.yzcdn.cn/vant/apple-1.jpg']
-        },
-        {
-          user_img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-          user_name: '哈哈哈',
-          commentNum: 4,
-          comment_time: '两天前',
-          shop_type: '辣条',
-          comment_text:
-            '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-          comment_img: ['https://img.yzcdn.cn/vant/apple-1.jpg'],
-          comment_video: []
-        },
-        {
-          user_img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-          user_name: '哈哈哈',
-          commentNum: 1,
-          comment_time: '两天前',
-          shop_type: '辣条',
-          comment_text:
-            '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-          comment_img: [],
-          comment_video: []
-        }
-      ]
+      commentList: [],
+      pageIndex: 0,
     }
   },
   created() {
     this.shopId = this.$route.query.id ? this.$route.query.id : 0
     this.getShoppingInfo()
+    this.getCommentList()
   },
   methods: {
+    // 获取评论信息
+    async getCommentList() {
+      const data = {
+        shopId: this.shopId,
+        pageIndex: this.pageIndex,
+        pageLimit: 10,
+      }
+      const res = await getData('/shop/comment/find', data, {
+        showLoading: false,
+      })
+      this.loading = false
+      console.log(res)
+      if (res.code === '0') {
+        res.data.productComment.forEach((e) => {
+          if (e.attitude || e.attitude === 0) {
+            e.commentScore = (e.attitude + e.quality + e.sTime) / 6
+          }
+        })
+        this.commentList.push(...res.data.productComment)
+        if (
+          Object.keys(this.evaluateInfoObj).length <= 0 &&
+          Object.keys(this.commentList.shopScore).length > 0
+        ) {
+          this.evaluateInfoObj = this.commentList.shopScore
+        }
+        this.pageIndex += 1
+        if (this.pageIndex * 10 >= res.data.number) {
+          this.finished = true
+        }
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 上拉加载评论信息
+    async onLoadData() {
+      if (this.tabIndex === 1 && this.commentList.length > 0) {
+        this.getCommentList()
+      }
+    },
     // 获取店铺信息
     async getShoppingInfo() {
       const res = await getData(
@@ -238,11 +249,11 @@ export default {
         this.shopInfo = res.data
         this.isCollect = this.shopInfo.hasRecord === 1 ? true : false
         // 商品分类信息
-        this.shopInfo.productCategoryVos.forEach(e => {
+        this.shopInfo.productCategoryVos.forEach((e) => {
           this.tabList.push({
             title: e.categoryName,
             categoryId: e.categoryId,
-            sort: e.sort
+            sort: e.sort,
           })
         })
         this.getShopList()
@@ -258,10 +269,10 @@ export default {
         categoryId,
         pageIndex: this.pageIndex,
         pageLimit: 10,
-        rule: this.rule
+        rule: this.rule,
       }
       const res = await getData('/shop/goods/category/find', data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       this.loading = false
@@ -286,10 +297,10 @@ export default {
           shopId: this.shopId,
           productName: this.searchValue,
           pageIndex: 0,
-          pageLimit: 10
+          pageLimit: 10,
         }
         const res = await getData('/shop/goods/search', data, {
-          showLoading: true
+          showLoading: true,
         })
         console.log(res)
         this.searchIsShow = false
@@ -311,10 +322,10 @@ export default {
         shopId: this.shopId,
         productName: this.searchValue,
         pageIndex: this.searchPageIndex,
-        pageLimit: 10
+        pageLimit: 10,
       }
       const res = await getData('/shop/goods/search', data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       this.loading = false
@@ -329,7 +340,7 @@ export default {
       this.$handleCode.handleCode(res)
     },
     // 商品点击tab
-    clickTab(index) {
+    changeTab(index) {
       this.goodsTabIndex = index
       this.finished = false
       this.dropdownIndex = 0
@@ -406,12 +417,16 @@ export default {
     },
     //   预览图片
     imagePreview(item, index) {
-      ImagePreview({
-        images: item,
-        startPosition: index
+      let images = []
+      item.forEach((e) => {
+        images.push(e.picAddress)
       })
-    }
-  }
+      ImagePreview({
+        images,
+        startPosition: index,
+      })
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

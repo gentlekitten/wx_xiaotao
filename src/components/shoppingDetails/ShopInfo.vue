@@ -3,7 +3,15 @@
     <div class="top">
       <div class="warp">
         <div class="price">￥{{ item.sellPrice }}</div>
-        <div class="post_price">邮费：{{ item.postage ? item.postage : 0}}</div>
+        <div class="post_price">
+          邮费：{{
+            shopOrders.deliveryFee
+              ? shopOrders.deliveryFee
+              : item.postage
+              ? item.postage
+              : 0
+          }}
+        </div>
       </div>
       <!-- <div v-if="item.oldPrice" class="old_price">价格：￥{{ item.oldPrice }}</div> -->
       <div class="buy_num">已售&nbsp;{{ item.sale }}</div>
@@ -22,10 +30,9 @@
     <div class="title">{{ item.productName }}</div>
     <div class="lable">{{ item.productDesc }}</div>
     <div v-if="type === 3" class="time">使用时间:{{ item.usageTime }}天</div>
-    <div
-      v-if="item.sRefund === 0 || item.sRefund"
-      class="time"
-    >{{ item.sRefund === 0 ? '不支持' : '支持' }}七天内退款</div>
+    <div v-if="item.sRefund === 0 || item.sRefund" class="time">
+      {{ item.sRefund === 0 ? '不支持' : '支持' }}七天内退款
+    </div>
   </div>
 </template>
 <script>
@@ -36,17 +43,23 @@ export default {
       type: Object,
       default: () => {
         return {}
-      }
+      },
+    },
+    shopOrders: {
+      type: Object,
+      default: () => {
+        return {}
+      },
     },
     isCollect: {
       type: Boolean,
-      default: false
+      default: false,
     },
     // 类别0是商城，1是数码，2是美妆，3是二手市场
     type: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   data() {
     return {}
@@ -54,8 +67,8 @@ export default {
   methods: {
     collectShop() {
       this.$emit('collectShop')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

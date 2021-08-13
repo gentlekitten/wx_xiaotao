@@ -12,7 +12,7 @@
         :key="index + item.id"
         @click="imagePreview(infoDetailsObj.siteJobPics, index)"
       >
-        <img :src="'https://jixi.mynatapp.cc/'+item.picAddress" />
+        <img :src="imgBaseUrl + item.picAddress" />
       </div>
       <div class="tip">联系时请说明在小淘校园上看到的。</div>
       <div class="time">{{ infoDetailsObj.updateTime }}</div>
@@ -22,14 +22,19 @@
           <img :src="infoDetailsObj.customerInfo.headimgurl" />
           <i
             class="iconfont icon"
-            :class="[infoDetailsObj.customerInfo.sex === 0 ? 'icon-nan nan' : 'icon-nv nv']"
+            :class="[
+              infoDetailsObj.customerInfo.sex === 0
+                ? 'icon-nan nan'
+                : 'icon-nv nv',
+            ]"
           />
         </div>
         <div class="info">
           <div class="name">{{ infoDetailsObj.customerInfo.nickname }}</div>
           <div class="lable">
             总发布
-            <span>{{ infoDetailsObj.customerInfo.infoNumber }}</span>条信息，可信度评估
+            <span>{{ infoDetailsObj.customerInfo.infoNumber }}</span
+            >条信息，可信度评估
             <span>*</span>
           </div>
           <div class="phone" @click="toPhone">
@@ -57,11 +62,11 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
-      infoDetailsObj: {}
+      infoDetailsObj: {},
     }
   },
   created() {
@@ -75,12 +80,12 @@ export default {
     // 预览图片
     imagePreview(item, index) {
       const imgUrlList = []
-      item.forEach(e => {
-        imgUrlList.push('https://jixi.mynatapp.cc/' + e.picAddress)
+      item.forEach((e) => {
+        imgUrlList.push(this.imgBaseUrl + e.picAddress)
       })
       ImagePreview({
         images: imgUrlList,
-        startPosition: index
+        startPosition: index,
       })
     },
     // 拨打电话
@@ -96,8 +101,8 @@ export default {
     },
     beforeDestroy() {
       sessionStorage.removeItem('partTimeDetailInfoObj')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

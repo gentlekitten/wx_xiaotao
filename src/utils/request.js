@@ -7,7 +7,7 @@ import { Toast } from 'vant'
 // create an axios instance
 const service = axios.create({
   // https://jixi.mynatapp.cc/wechat
-  baseURL: 'https://jixi.mynatapp.cc/wechat',
+  baseURL: 'https://www.xtaoshop.com/wechat',
   timeout: 300000,
   // transformRequest: [data => qs.stringify(data)]
   headers: {

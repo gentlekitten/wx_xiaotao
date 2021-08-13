@@ -327,6 +327,7 @@ export default {
     },
     clickTab(index) {
       this.feedBackList = []
+      this.orderPeopleList = []
       this.shopList = []
       this.reportList = []
       this.tabIndex = index

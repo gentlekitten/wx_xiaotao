@@ -20,7 +20,7 @@ import { getData } from '@/api/api.js'
 export default {
   data() {
     return {
-      url: 'https://jixi.mynatapp.cc/dist/index.html#/index'
+      url: 'https://www.xtaoshop.com/index.html#/index'
     }
   },
   created() {

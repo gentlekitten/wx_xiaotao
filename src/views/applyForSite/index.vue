@@ -29,10 +29,21 @@
         :rules="[{ required: true, message: '请填写站点' }]"
         @click="showSiteList = true"
       />
-      <van-action-sheet class="action_sheet" v-model="showSiteList" title="选择站点">
+      <van-action-sheet
+        class="action_sheet"
+        v-model="showSiteList"
+        title="选择站点"
+      >
         <van-cell-group class="action_sheet_input">
-          <van-field v-model="searchValue" autofocus clearable placeholder="请输入站点名称搜索" />
-          <van-button class="btn" type="primary" @click="searchSite">搜索</van-button>
+          <van-field
+            v-model="searchValue"
+            autofocus
+            clearable
+            placeholder="请输入站点名称搜索"
+          />
+          <van-button class="btn" type="primary" @click="searchSite"
+            >搜索</van-button
+          >
         </van-cell-group>
         <van-cell
           v-for="item in siteList"
@@ -51,7 +62,14 @@
         @click="toSettingScope"
       />
       <div class="btn_warp">
-        <van-button class="btn" round block type="info" native-type="onFormSubmit">提交申请</van-button>
+        <van-button
+          class="btn"
+          round
+          block
+          type="info"
+          native-type="onFormSubmit"
+          >提交申请</van-button
+        >
       </div>
     </van-form>
   </div>
@@ -63,7 +81,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -73,11 +91,11 @@ export default {
         siteName: '',
         latitude: '',
         longitude: '',
-        radius: ''
+        radius: '',
       },
       showSiteList: false,
       searchValue: '',
-      siteList: []
+      siteList: [],
     }
   },
   computed: {
@@ -101,7 +119,7 @@ export default {
         )
       }
       return ''
-    }
+    },
   },
   mounted() {
     this.form = this.getForm
@@ -114,6 +132,7 @@ export default {
     validator(val) {
       return /^1[3456789]\d{9}$/.test(val)
     },
+    // 搜索站点
     async searchSite() {
       if (!this.searchValue) {
         return this.$toast.fail('请输入搜索内容！')
@@ -121,7 +140,7 @@ export default {
       const res = await getData(
         '/school/universities/find',
         {
-          siteName: this.searchValue
+          universities: this.searchValue,
         },
         { showLoading: true }
       )
@@ -134,10 +153,10 @@ export default {
     },
     // 选择站点
     selectSite(id) {
-      const index = this.siteList.findIndex(e => {
+      const index = this.siteList.findIndex((e) => {
         return e.schoolId === id
       })
-      this.form.siteName = this.siteListp[index].universities
+      this.form.siteName = this.siteList[index].universities
       this.showSiteList = false
     },
     toSettingScope() {
@@ -155,8 +174,8 @@ export default {
         return this.$toast.success('发送成功，请静候佳音哦~')
       }
       this.$handleCode.handleCode(res)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

@@ -4,12 +4,24 @@
     <nav-bar title="零食铺楼栋配置" is-arrow isBackUp />
     <div class="tip">
       本设置是用来添加
-      <span>零食铺</span>&nbsp;楼栋
-      <br />（推荐名字：**栋零食铺）
+      <span>零食铺</span>&nbsp;楼栋 <br />（推荐名字：**栋零食铺）
     </div>
-    <van-field v-model="form.apartmentName" center clearable label="楼栋名" placeholder="请输入零食铺楼栋名">
+    <van-field
+      v-model="form.apartmentName"
+      center
+      clearable
+      label="楼栋名"
+      placeholder="请输入零食铺楼栋名"
+    >
       <template #button>
-        <van-button class="add_btn" size="small" type="primary" round @click="addSnackShopName">添加</van-button>
+        <van-button
+          class="add_btn"
+          size="small"
+          type="primary"
+          round
+          @click="addSnackShopName"
+          >添加</van-button
+        >
       </template>
     </van-field>
     <div class="express_list_warp">
@@ -18,7 +30,12 @@
         <template v-if="snackShopList.length > 0">
           <div class="list" v-for="item in snackShopList" :key="item.id">
             {{ item.name }}
-            <van-button class="dele_btn" round @click="deleteSnackShopName(item)">删除</van-button>
+            <van-button
+              class="dele_btn"
+              round
+              @click="deleteSnackShopName(item)"
+              >删除</van-button
+            >
           </div>
         </template>
         <van-empty v-else description="还没有添加零食铺楼栋哦~" />
@@ -33,7 +50,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -41,9 +58,9 @@ export default {
         apartmentName: '',
         siteId: JSON.parse(window.sessionStorage.getItem('mySiteInfo'))
           ? JSON.parse(window.sessionStorage.getItem('mySiteInfo')).id
-          : 0
+          : 0,
       },
-      snackShopList: []
+      snackShopList: [],
     }
   },
   created() {
@@ -59,11 +76,11 @@ export default {
       )
       console.log(res)
       if (res.code === '0') {
-        res.data.forEach(e => {
+        res.data.forEach((e) => {
           this.snackShopList.push({
             name: e.apartmentName,
             id: e.id,
-            shopState: e.shopState
+            shopState: e.shopState,
           })
         })
         return false
@@ -76,14 +93,14 @@ export default {
         return this.$toast.fail('请填写楼栋名！')
       }
       const res = await upData('/site/apart/add', this.form, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
         this.form.apartmentName = ''
         this.snackShopList.push({
           id: res.data.id,
-          name: res.data.apartmentName
+          name: res.data.apartmentName,
         })
         return this.$toast.success('添加成功！')
       }
@@ -91,24 +108,25 @@ export default {
     },
     // 删除零食铺楼栋
     async deleteSnackShopName(item) {
-      if (item.shopState === 0 || item.shopState === '') {
+      if (item.shopState === 1) {
         return this.$toast.fail('当前店铺楼栋正在被占用，不能删除！')
       }
       const res = await upData(
         '/site/apart/delete',
         { id: item.id, siteId: this.form.siteId },
         {
-          showLoading: true
+          showLoading: true,
         }
       )
       console.log(res)
       if (res.code === '0') {
         this.$toast.success('删除成功！')
+        this.snackShopList = []
         return this.getSnackShopList()
       }
       this.$handleCode.handleCode(res)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

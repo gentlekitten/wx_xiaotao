@@ -9,24 +9,43 @@
         <div class="left" v-if="item.customerInfo">
           <img v-lazy="item.customerInfo.headimgurl" @click="clickUserImg" />
         </div>
-        <div class="center" @click="clickTast(item.id)">
+        <div class="center" @click="clickTast(item.cOrderSn)">
           <div class="title">{{ item.title }}</div>
           <div class="require">
             <div class="require_warp">
-              <div class="sex">{{ item.sex === 0 ? '性别不限' : item.sex === 1 ? '只限男性' : '只限女性' }}</div>
+              <div class="sex">
+                {{
+                  item.sex === 0
+                    ? '性别不限'
+                    : item.sex === 1
+                    ? '只限男性'
+                    : '只限女性'
+                }}
+              </div>
               <div class="time">{{ item.beforeTime }}</div>
             </div>
             <div class="price">￥{{ item.price }}</div>
           </div>
         </div>
         <div class="right">
+          <!-- 状态(0已撤销1未支付2未接单3已接单4已完成并确认) -->
           <div class="status">
-            <div v-if="item.state === 3">完成并确认</div>
-            <div v-else-if="item.state === 2">已确认</div>
-            <div v-else-if="item.state === 0" class="red">待支付</div>
-            <div v-else class="red">待接单</div>
+            <div v-if="item.state === 4">完成并确认</div>
+            <div v-else-if="item.state === 3">已接单</div>
+            <div v-else-if="item.state === 1" class="red">待支付</div>
+            <div v-else-if="item.state === 2" class="red">待接单</div>
+            <div v-else class="red">已撤销</div>
           </div>
-          <van-button v-if="item.state === 0" class="btn" type="warning">去支付</van-button>
+          <van-button
+            v-if="item.state === 1"
+            class="btn"
+            type="warning"
+            @click="toPayment(item.cOrderSn)"
+            >去支付</van-button
+          >
+          <van-button v-else-if="item.state === 3" class="btn" type="warning"
+            >完成</van-button
+          >
         </div>
       </div>
     </van-cell>
@@ -39,21 +58,24 @@ export default {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
     tabIndex: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   methods: {
-    clickTast(id) {
-      this.$emit('clickTast', id)
+    clickTast(cOrderSn) {
+      this.$emit('clickTast', cOrderSn)
     },
     clickUserImg() {
       this.$router.push('/chartView')
-    }
-  }
+    },
+    toPayment(cOrderSn) {
+      this.$emit('toPayment', cOrderSn)
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

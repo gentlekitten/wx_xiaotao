@@ -8,14 +8,18 @@
           :key="item.id"
           @click="toShoppingDetails(item.productId)"
         >
-          <img v-lazy="'https://jixi.mynatapp.cc/'+item.logoAddress" />
+          <img v-lazy="imgBaseUrl + item.logoAddress" />
           <div class="title">{{ item.productName }}</div>
           <div class="info">
             <div class="new_price">￥{{ item.sellPrice }}</div>
-            <div v-if="item.originalPrice" class="old_price">￥{{ item.originalPrice }}</div>
-            <div v-if="item.sale || item.sale === 0" class="sale">已售：{{ item.sale }}</div>
+            <div v-if="item.originalPrice" class="old_price">
+              ￥{{ item.originalPrice }}
+            </div>
+            <div v-if="item.sale || item.sale === 0" class="sale">
+              已售：{{ item.sale }}
+            </div>
             <!-- 二手市场 -->
-            <div v-if="tabIndex === 1" class="status">
+            <div v-if="tabIndex === 1 && type === 3" class="status">
               <div v-if="item.state === 2">已售出</div>
               <div v-else-if="item.state === 0" class="text">
                 未售出
@@ -27,23 +31,31 @@
               </div>
             </div>
           </div>
-          <div v-if="item.usageTime && tabIndex === 0" class="use_time">使用天数:{{ item.usageTime }}天</div>
+          <div v-if="item.usageTime && tabIndex === 0" class="use_time">
+            使用天数:{{ item.usageTime }}天
+          </div>
           <div v-if="tabIndex === 1 && type === 3" class="update_btn_warp">
             <van-button
               v-if="item.state !== 2"
               class="btn"
               round
               @click.stop="toUpdateShop(item)"
-            >编辑</van-button>
+              >编辑</van-button
+            >
             <br />
-            <van-button class="btn" round @click.stop="toDeleteShop(item)">删除</van-button>
+            <van-button class="btn" round @click.stop="toDeleteShop(item)"
+              >删除</van-button
+            >
           </div>
         </div>
       </div>
       <div v-if="dropdownList.length > 0" class="top_type">
         <div class="title">{{ dropdownObj.text }}</div>
         <!-- 下拉选择 -->
-        <dropdown-menu :dropdown-list="dropdownList" @dropdownChange="dropdownChange" />
+        <dropdown-menu
+          :dropdown-list="dropdownList"
+          @dropdownChange="dropdownChange"
+        />
       </div>
     </div>
   </div>
@@ -53,32 +65,32 @@ import DropdownMenu from '@/components/common/DropdownMenu.vue'
 
 export default {
   components: {
-    DropdownMenu
+    DropdownMenu,
   },
   props: {
     shopList: {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
     dropdownList: {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
     dropdownObj: {
       type: Object,
       default: () => {
         return {}
-      }
+      },
     },
     // 类别，3是二手市场
     type: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   data() {
     return {
@@ -87,7 +99,7 @@ export default {
         window.sessionStorage.getItem('tabActiveIndexSecondaryMarket')
       )
         ? Number(window.sessionStorage.getItem('tabActiveIndexSecondaryMarket'))
-        : 0
+        : 0,
     }
   },
   methods: {
@@ -104,8 +116,8 @@ export default {
     },
     toDeleteShop(item) {
       this.$emit('toDeleteShop', item)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

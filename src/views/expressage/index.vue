@@ -21,7 +21,7 @@
       :tab-list="tabList"
       :sticky="true"
       tabsIndexName="expressageTabActive"
-      @clickTab="clickTab"
+      @changeTab="changeTab"
     >
       <template v-slot:tab0>
         <address-select-cell
@@ -557,8 +557,8 @@ export default {
       formData.append('img', file.file)
       const res = await upLogo('/site/express/img', formData)
       console.log(res)
-      this.pickUpInfo.expressOrderPics.push({ picAddress: res.data.filename })
       if (res.code === '0') {
+        this.pickUpInfo.expressOrderPics.push({ picAddress: res.data.filename })
         file.status = 'done'
         return false
       }
@@ -574,10 +574,10 @@ export default {
       formData.append('img', file.file)
       const res = await upLogo('/site/express/img', formData)
       console.log(res)
-      this.sendOffInfo.expressOrderPics.push({
-        picAddress: res.data.filename,
-      })
       if (res.code === '0') {
+        this.sendOffInfo.expressOrderPics.push({
+          picAddress: res.data.filename,
+        })
         file.status = 'done'
         return false
       }
@@ -659,7 +659,7 @@ export default {
       this.$handleCode.handleCode(res)
     },
     // 点击tab
-    clickTab(index) {
+    changeTab(index) {
       this.tabIndex = index
     },
     // 小费输入框失去焦点

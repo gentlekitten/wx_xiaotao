@@ -2,14 +2,17 @@
   <div>
     <div class="evaluate">
       <!-- 顶部评价分数 -->
-      <evaluate class="evaluate_item" :evaluate-info-list="evaluateInfoList" />
+      <evaluate class="evaluate_item" :evaluate-info-list="evaluateInfoObj" />
       <!-- 用户评价 -->
-      <template v-if="false">
+      <template v-if="commentList.length <= 0">
         <van-empty description="该用户暂无评价" />
       </template>
       <!-- 用户评论 -->
       <template>
-        <user-comment :comment-list="commentList" @clickCommnetImg="imagePreview" />
+        <user-comment
+          :comment-list="commentList"
+          @clickCommnetImg="imagePreview"
+        />
       </template>
     </div>
   </div>
@@ -24,101 +27,75 @@ import UserComment from '@/components/snackShop/tabs/tab1/UserComment.vue'
 export default {
   components: {
     Evaluate,
-    UserComment
+    UserComment,
   },
   data() {
     return {
+      shopId: window.sessionStorage.getItem('shopId')
+        ? Number(window.sessionStorage.getItem('shopId'))
+        : 0,
       // 评价信息列表
-      evaluateInfoList: [
-        {
-          num: 0,
-          text: '服务态度'
-        },
-        {
-          num: 0,
-          text: '产品品质'
-        },
-        {
-          num: 0,
-          text: '送达速度'
-        }
-      ],
+      evaluateInfoObj: [],
       // 用户评价列表
-      commentList: [
-        {
-          user_img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-          user_name: '哈哈哈',
-          commentNum: 3,
-          comment_time: '两天前',
-          shop_type: '辣条',
-          comment_text:
-            '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-          comment_img: [
-            'https://img.yzcdn.cn/vant/apple-1.jpg',
-            'https://img.yzcdn.cn/vant/apple-2.jpg',
-            'https://img.yzcdn.cn/vant/apple-1.jpg',
-            'https://img.yzcdn.cn/vant/apple-2.jpg'
-          ],
-          comment_video: ['https://img.yzcdn.cn/vant/apple-1.jpg']
-        },
-        {
-          user_img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-          user_name: '哈哈哈',
-          commentNum: 4,
-          comment_time: '两天前',
-          shop_type: '辣条',
-          comment_text:
-            '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-          comment_img: ['https://img.yzcdn.cn/vant/apple-1.jpg'],
-          comment_video: []
-        },
-        {
-          user_img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-          user_name: '哈哈哈',
-          commentNum: 1,
-          comment_time: '两天前',
-          shop_type: '辣条',
-          comment_text:
-            '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-          comment_img: [],
-          comment_video: []
-        }
-      ]
+      commentList: [],
+      pageIndex: 0,
     }
   },
   created() {
-    // this.getCommontList()
-    this.getEvaluateInfoList()
+    this.getCommentList()
   },
   methods: {
-    async getCommontList() {
+    // 获取评论信息
+    async getCommentList() {
       const data = {
-        shopId: 23,
-        pageIndex: 0,
-        pageLimit: 10
+        shopId: this.shopId,
+        pageIndex: this.pageIndex,
+        pageLimit: 10,
       }
       const res = await getData('/shop/comment/find', data, {
-        showLoading: true
+        showLoading: false,
       })
+      this.loading = false
       console.log(res)
-    },
-    async getEvaluateInfoList() {
-      const data = {
-        shopId: 23
+      if (res.code === '0') {
+        res.data.productComment.forEach((e) => {
+          if (e.attitude || e.attitude === 0) {
+            e.commentScore = (e.attitude + e.quality + e.sTime) / 6
+          }
+        })
+        this.commentList.push(...res.data.productComment)
+        if (
+          Object.keys(this.evaluateInfoObj).length <= 0 &&
+          Object.keys(this.commentList.shopScore).length > 0
+        ) {
+          this.evaluateInfoObj = this.commentList.shopScore
+        }
+        this.pageIndex += 1
+        if (this.pageIndex * 10 >= res.data.number) {
+          this.finished = true
+        }
+        return false
       }
-      const res = await getData('/shop/score/find', data, {
-        showLoading: false
-      })
-      console.log(res)
+      this.$handleCode.handleCode(res)
+    },
+    // 上拉加载评论信息
+    async onLoadData() {
+      if (this.commentList.length > 0) {
+        this.getCommentList()
+      }
     },
     //   预览图片
     imagePreview(item, index) {
-      ImagePreview({
-        images: item,
-        startPosition: index
+      let images = []
+      item.forEach((e) => {
+        images.push(e.picAddress)
       })
-    }
-  }
+      ImagePreview({
+        images,
+        startPosition: index,
+      })
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

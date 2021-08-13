@@ -8,13 +8,14 @@
       color
       title-active-color="#f2af49"
       @click="clickTab"
+      @change="changeTab"
     >
       <van-tab v-for="(item, index) in tabList" :key="index">
         <template #title>{{ item.title }}</template>
         <!-- <slot></slot> -->
         <!-- <slot :name="'tab'+tabActive"></slot> -->
         <template #default>
-          <slot :name="'tab'+tabActive"></slot>
+          <slot :name="'tab' + tabActive"></slot>
         </template>
       </van-tab>
     </van-tabs>
@@ -27,31 +28,35 @@ export default {
       type: Array,
       default: () => {
         return []
-      }
+      },
     },
     sticky: {
       type: Boolean,
-      default: false
+      default: false,
     },
     // tabs索引缓存名
     tabsIndexName: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   data() {
     return {
       tabActive: Number(window.sessionStorage.getItem(this.tabsIndexName))
         ? Number(window.sessionStorage.getItem(this.tabsIndexName))
-        : 0
+        : 0,
     }
   },
   methods: {
     clickTab() {
       this.$emit('clickTab', this.tabActive)
       window.sessionStorage.setItem(this.tabsIndexName, this.tabActive)
-    }
-  }
+    },
+    changeTab() {
+      this.$emit('changeTab', this.tabActive)
+      window.sessionStorage.setItem(this.tabsIndexName, this.tabActive)
+    },
+  },
 }
 </script>
 <style scoped>

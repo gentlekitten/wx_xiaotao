@@ -14,7 +14,7 @@
       <div class="goods_list" v-for="item in goodsList" :key="item.id">
         <div class="goods" @click="toShoppingDetails(item)">
           <div class="left">
-            <img :src="'https://jixi.mynatapp.cc/' + item.logoAddress" />
+            <img :src="imgBaseUrl + item.logoAddress" />
           </div>
           <div class="right">
             <div class="name">{{ item.productName }}</div>
@@ -26,7 +26,9 @@
           </div>
         </div>
         <div class="btn_warp">
-          <van-button class="btn" round @click="deleteGoods(item)">移除</van-button>
+          <van-button class="btn" round @click="deleteGoods(item)"
+            >移除</van-button
+          >
         </div>
       </div>
     </van-list>
@@ -40,14 +42,14 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
       loading: false,
       finished: false,
       pageIndex: 0,
-      goodsList: []
+      goodsList: [],
     }
   },
   created() {
@@ -57,10 +59,10 @@ export default {
     async getGoodsList() {
       const data = {
         pageIndex: this.pageIndex,
-        pageLimit: 10
+        pageLimit: 10,
       }
       const res = await getData('/product/record/find', data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -95,8 +97,8 @@ export default {
     },
     toShoppingDetails(item) {
       this.$router.push('/shoppingDetails?id=' + item.id)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

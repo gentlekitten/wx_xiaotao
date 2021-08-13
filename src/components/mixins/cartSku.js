@@ -132,8 +132,8 @@ const cartSku = {
                         name: c.propertyValue,
                         price: e.price ? e.price * 100 : 0
                     }
-                    c.picAddress && (goodProperyChil.imgUrl = 'https://jixi.mynatapp.cc/' + c.picAddress)
-                    c.picAddress && (goodProperyChil.previewImgUrl = 'https://jixi.mynatapp.cc/' + c.picAddress)
+                    c.picAddress && (goodProperyChil.imgUrl = this.imgBaseUrl + c.picAddress)
+                    c.picAddress && (goodProperyChil.previewImgUrl = this.imgBaseUrl + c.picAddress)
                     goodPropery.v.push(goodProperyChil)
                 })
                 this.sku.tree.push(goodPropery)

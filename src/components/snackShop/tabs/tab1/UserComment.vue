@@ -1,46 +1,56 @@
 <template>
   <div>
-    <div class="comment" v-for="(item, index) in commentList" :key="index + item.user_name">
-      <div class="top">
-        <img class="user_img" :src="item.user_img" />
-        <div class="right">
-          <div class="user_name">{{ item.user_name }}</div>
-          <div class="shop_info">
-            <div class="comment_time">{{ item.comment_time }}</div>
-            <div class="fenge">|</div>
-            <div class="shop_type">{{ item.shop_type }}</div>
+    <van-list
+      v-model="loading"
+      :finished="finished"
+      finished-text="哼，我也是有底线的~"
+      :immediate-check="false"
+      :offset="0"
+      @load="onLoadData"
+    >
+      <div
+        class="comment"
+        v-for="(item, index) in commentList"
+        :key="index + item.id"
+      >
+        <div class="top">
+          <img class="user_img" :src="imgBaseUrl + item.customerAvatar" />
+          <div class="right">
+            <div class="user_name">{{ item.customerNickname }}</div>
+            <div class="shop_info">
+              <div class="comment_time">{{ item.createTime }}</div>
+              <div class="fenge">|</div>
+              <div class="shop_type">{{ item.productName }}</div>
+            </div>
+          </div>
+          <van-rate
+            class="rate"
+            v-model="item.commentScore"
+            size="1rem"
+            color="#f2af49"
+            void-icon="star"
+            void-color="#eee"
+            readonly
+          />
+        </div>
+        <div class="comment_info">
+          <div class="text">{{ item.content }}</div>
+          <div class="comment_img">
+            <template v-if="item.productCommentPics.length > 0">
+              <img
+                :class="[
+                  item.productCommentPics.length === 1 ? 'onlyImg' : 'img',
+                ]"
+                v-for="(items, indexs) in item.productCommentPics"
+                :key="items.id"
+                v-lazy="imgBaseUrl + items.picAddress"
+                @click="clickCommnetImg(item.productCommentPics, indexs)"
+              />
+            </template>
           </div>
         </div>
-        <van-rate
-          class="rate"
-          v-model="item.commentNum"
-          size="1rem"
-          color="#f2af49"
-          void-icon="star"
-          void-color="#eee"
-          readonly
-        />
       </div>
-      <div class="comment_info">
-        <div class="text">{{ item.comment_text }}</div>
-        <div class="comment_img">
-          <template v-if="item.comment_img.length > 0 || item.comment_video.length > 0">
-            <img
-              :class="[(item.comment_img.length + item.comment_video.length) === 1 ? 'onlyImg' : 'img']"
-              v-for="(items, indexs) in item.comment_img"
-              :key="indexs"
-              v-lazy="items"
-              @click="clickCommnetImg(item.comment_img, indexs)"
-            />
-            <img
-              :class="[(item.comment_img.length + item.comment_video.length) === 1 ? 'onlyImg' : 'img']"
-              :src="item.comment_video"
-              v-if="item.comment_video.length > 0"
-            />
-          </template>
-        </div>
-      </div>
-    </div>
+    </van-list>
   </div>
 </template>
 <script>
@@ -50,14 +60,17 @@ export default {
       type: Array,
       default: () => {
         return []
-      }
-    }
+      },
+    },
   },
   methods: {
     clickCommnetImg(itemImgs, indexs) {
       this.$emit('clickCommnetImg', itemImgs, indexs)
-    }
-  }
+    },
+    onLoadData() {
+      this.$emit('onLoadData')
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

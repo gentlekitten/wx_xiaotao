@@ -2,7 +2,7 @@
   <div>
     <div class="item" v-for="item in orderList" :key="item.productId">
       <img
-        :src="'https://jixi.mynatapp.cc/' + item.productLogoAddress"
+        :src="imgBaseUrl + item.productLogoAddress"
         alt="该商品已删除"
       />
       <div class="content">

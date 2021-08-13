@@ -21,7 +21,7 @@
             checked-color="#f2af49"
             @click="clickShopCheckbox(item)"
           />
-          <img :src="'https://jixi.mynatapp.cc/' + item.img" />
+          <img :src="imgBaseUrl + item.img" />
           <div class="text" @click="toShoppingShop(item.id)">
             {{ item.name }}
             <van-icon color="#999" name="arrow" size="1rem" />
@@ -38,10 +38,7 @@
             checked-color="#f2af49"
             @click="clickGoodsCheckbox(item, c)"
           />
-          <img
-            :src="'https://jixi.mynatapp.cc/' + c.img"
-            @click="toShoppingDetails(item, c)"
-          />
+          <img :src="imgBaseUrl + c.img" @click="toShoppingDetails(item, c)" />
           <div class="right_content">
             <div class="name" @click="toShoppingDetails(item, c)">
               {{ c.name }}
@@ -148,6 +145,7 @@ export default {
   computed: {
     // 获取选中商品总价格
     getChatTotalNum() {
+      this.discountPrice = 0
       // 深拷贝
       let shopList = this._.cloneDeep(this.cartList)
       // 总价格
@@ -163,9 +161,11 @@ export default {
           return c.isCheck === true
         })
       })
+      console.log(shopList)
       shopList.forEach((e) => {
         // 清除上个店铺的价格
         shopPrice = 0
+        discountPrice = 0
         e.shopList.forEach((c) => {
           // 防止小数相加出问题
           shopPrice = commonJs.commonJs.accAdd(shopPrice, c.num * c.price)
@@ -177,7 +177,7 @@ export default {
           // 满足优惠最低价格减去优惠价格
           if (shopPrice >= requirePrice) {
             shopPrice = commonJs.commonJs.accSub(shopPrice, discountPrice)
-            this.discountPrice = ommonJs.commonJs.accAdd(
+            this.discountPrice = commonJs.commonJs.accAdd(
               discountPrice,
               this.discountPrice
             )

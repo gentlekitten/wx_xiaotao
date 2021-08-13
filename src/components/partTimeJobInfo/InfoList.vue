@@ -1,6 +1,10 @@
 <template>
   <div>
-    <div class="content animated fadeInLeft" v-for="item in infoList" :key="item.id">
+    <div
+      class="content animated fadeInLeft"
+      v-for="item in infoList"
+      :key="item.id"
+    >
       <div class="user_info">
         <img :src="item.customerInfo.headimgurl" />
         <i
@@ -14,7 +18,9 @@
           <div class="title">{{ item.title }}</div>
           <div v-if="item.price" class="price">{{ item.price }}</div>
           <div v-if="tabIndex === 2" class="btn_warp">
-            <van-button class="btn" round @click.stop="showOverlay(item)">管理</van-button>
+            <van-button class="btn" round @click.stop="showOverlay(item)"
+              >管理</van-button
+            >
           </div>
         </div>
         <div class="value">{{ item.content }}</div>
@@ -22,7 +28,7 @@
           <img
             v-for="(c, index) in item.siteJobPics"
             :key="index + c"
-            :src="'https://jixi.mynatapp.cc/'+c.picAddress"
+            :src="imgBaseUrl + c.picAddress"
           />
         </div>
         <div class="time">{{ item.updateTime }}</div>
@@ -38,14 +44,14 @@ export default {
       type: Array,
       default: () => {
         return []
-      }
-    }
+      },
+    },
   },
   data() {
     return {
       tabIndex: Number(sessionStorage.getItem('tabActiveIndexPartTime'))
         ? Number(sessionStorage.getItem('tabActiveIndexPartTime'))
-        : 0
+        : 0,
     }
   },
   methods: {
@@ -54,8 +60,8 @@ export default {
     },
     toInfoDetailsView(item) {
       this.$emit('toInfoDetailsView', item)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

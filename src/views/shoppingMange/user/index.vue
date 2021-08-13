@@ -7,7 +7,7 @@
           <div class="user_top">
             <img
               v-if="userInfoObj.shopPic"
-              :src="'https://jixi.mynatapp.cc/' + userInfoObj.shopPic"
+              :src="imgBaseUrl + userInfoObj.shopPic"
             />
             <div class="content">
               <div class="name">{{ userInfoObj.shopName }}</div>

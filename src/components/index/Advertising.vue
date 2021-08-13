@@ -5,14 +5,20 @@
     </div>
     <div class="advertising_content">
       <div class="left" @click="toExpress">
-        <van-image src="https://img.yzcdn.cn/vant/apple-1.jpg" class="img" />
+        <van-image
+          :src="require('../../assets/img/index/expressage.png')"
+          class="img"
+        />
         <div class="info">
           <span class="title">代取快递</span>
           <span class="text">代取快递到宿舍</span>
         </div>
       </div>
       <div class="right" @click="toSecondaryMarket">
-        <van-image src="https://img.yzcdn.cn/vant/apple-1.jpg" class="img" />
+        <van-image
+          :src="require('../../assets/img/index/secondMarket.png')"
+          class="img"
+        />
         <div class="info">
           <span class="title">跳蚤市场</span>
           <span class="text">便宜质量又有保障</span>
@@ -32,8 +38,8 @@ export default {
     toSecondaryMarket() {
       this.$router.push('/secondaryMarket')
       // this.$emit('toSendInfo')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

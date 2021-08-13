@@ -1,7 +1,11 @@
 <template>
   <div class="home container">
     <!-- 顶部 -->
-    <top-area :siteInfo="siteInfo" @toSearch="toSearch" @toGetLocation="getWxProps" />
+    <top-area
+      :siteInfo="siteInfo"
+      @toSearch="toSearch"
+      @toGetLocation="getWxProps"
+    />
     <!-- 轮播图 -->
     <swipe :images="swipeImagesList" height="500px" />
     <!-- 宫格 -->
@@ -20,7 +24,10 @@
         <div class="top_type">
           <div class="title">{{ dropdownObj.text }}</div>
           <!-- 下拉选择 -->
-          <dropdown-menu :dropdown-list="dropdownList" @dropdownChange="dropdownChange" />
+          <dropdown-menu
+            :dropdown-list="dropdownList"
+            @dropdownChange="dropdownChange"
+          />
         </div>
         <template v-if="shopList.length > 0">
           <van-list
@@ -50,8 +57,6 @@ import { upData, getData } from '@/api/api.js'
 
 import wx from 'weixin-js-sdk'
 
-import wechatUtil from '@/utils/wechatUtil'
-
 import Grid from '@/components/common/Grid.vue'
 import Swipe from '@/components/common/Swipe.vue'
 import BackTop from '@/components/common/BackTop.vue'
@@ -72,7 +77,7 @@ export default {
     Tabs,
     FoodList,
     BackTop,
-    DropdownMenu
+    DropdownMenu,
   },
   data() {
     return {
@@ -93,7 +98,7 @@ export default {
         { text: '综合排序', value: 0 },
         { text: '营业状态', value: 1 },
         { text: '单量排序', value: 2 },
-        { text: '优惠活动', value: 3 }
+        { text: '优惠活动', value: 3 },
       ],
       isShowFilterType: false,
       tabIndex: Number(sessionStorage.getItem('tabActiveIndexTakeOut'))
@@ -107,37 +112,37 @@ export default {
         {
           img: require('../../assets/img/index/snackShop.png'),
           text: '便利店',
-          url: 'snackShopList'
+          url: 'snackShopList',
         },
         {
           img: require('../../assets/img/index/expressage.png'),
           text: '(取)寄快递',
-          url: 'expressage'
+          url: 'expressage',
         },
         {
           img: require('../../assets/img/index/orderPeople.png'),
           text: '领跑者',
-          url: 'orderPeople'
+          url: 'orderPeople',
         },
         {
           img: require('../../assets/img/index/beautyMakeup.png'),
           text: '惠美妆',
-          url: 'beautyMakeup'
+          url: 'beautyMakeup',
         },
         {
           img: require('../../assets/img/index/electronic.png'),
           text: '淘数码',
-          url: 'electronicProducts'
+          url: 'electronicProducts',
         },
         {
           img: require('../../assets/img/index/secondMarket.png'),
           text: '跳蚤市场',
-          url: 'secondaryMarket'
+          url: 'secondaryMarket',
         },
         {
           img: require('../../assets/img/index/takeOut.png'),
           text: '校园外卖',
-          url: 'takeOutShopList'
+          url: 'takeOutShopList',
         },
         // {
         //   img: require('../../assets/img/index/shop.png'),
@@ -147,25 +152,25 @@ export default {
         {
           img: require('../../assets/img/index/partTime.png'),
           text: '周边兼职',
-          url: 'partTimeJobInfo'
-        }
+          url: 'partTimeJobInfo',
+        },
       ],
       tabsList: [
         {
-          title: '周边外卖'
+          title: '周边外卖',
         },
         {
-          title: '零食铺'
+          title: '零食铺',
         },
         {
-          title: '校园食堂'
+          title: '校园食堂',
         },
         {
-          title: '全部店铺'
-        }
+          title: '全部店铺',
+        },
       ],
       shopList: [],
-      dropdownIndex: 0
+      dropdownIndex: 0,
     }
   },
   created() {
@@ -212,7 +217,7 @@ export default {
         // 设置一个state，判断是否上传
         // Cookies.set('state', 'wechat')
         // window.sessionStorage.setItem('state', 'wechat')
-        window.location.href = 'https://jixi.mynatapp.cc/dist/index.html#/index'
+        window.location.href = 'https://www.xtaoshop.com/index.html#/index'
         return false
       }
       this.$handleCode.handleCode(res)
@@ -282,7 +287,7 @@ export default {
       const res = await getData(
         '/js/ticket/get',
         {
-          url: 'https://jixi.mynatapp.cc/dist/index.html'
+          url: 'https://www.xtaoshop.com/index.html',
         },
         { showLoading: true }
       )
@@ -303,11 +308,11 @@ export default {
         timestamp: data.timestamp, // 必填，生成签名的时间戳
         nonceStr: data.nonceStr, // 必填，生成签名的随机串
         signature: data.signature, // 必填，签名
-        jsApiList: ['getLocation', 'hideMenuItems'] // 必填，需要使用的JS接口列表
+        jsApiList: ['getLocation', 'hideMenuItems'], // 必填，需要使用的JS接口列表
       })
       wx.checkJsApi({
         jsApiList: ['getLocation'],
-        success: function(res) {
+        success: function (res) {
           if (res.checkResult.getLocation === false) {
             this.$toast.fail(
               '你的微信版本太低，不支持微信JS接口，请升级到最新的微信版本！'
@@ -315,7 +320,7 @@ export default {
             return
           }
         },
-        fail: function(res) {}
+        fail: function (res) {},
       })
       wx.ready(() => {
         wx.getLocation({
@@ -324,7 +329,7 @@ export default {
             // 微信坐标转高德坐标
             let gps = [res.longitude, res.latitude]
             let lnglats = {}
-            AMap.convertFrom(gps, 'gps', function(status, result) {
+            AMap.convertFrom(gps, 'gps', function (status, result) {
               if (result.info === 'ok') {
                 lnglats = result.locations[0]
                 window.sessionStorage.setItem(
@@ -343,7 +348,7 @@ export default {
           cancel() {
             _that.$toast.fail('取消定位！')
             console.log('cancel')
-          }
+          },
         })
         wx.hideMenuItems({
           menuList: [
@@ -358,8 +363,8 @@ export default {
             'menuItem:share:brand',
             'menuItem:share:QZone',
             'menuItem:share:facebook',
-            'menuItem:share:weiboApp'
-          ] // 要隐藏的菜单项，只能隐藏“传播类”和“保护类”按钮，所有menu项见附录3
+            'menuItem:share:weiboApp',
+          ], // 要隐藏的菜单项，只能隐藏“传播类”和“保护类”按钮，所有menu项见附录3
         })
         // 自定义“分享给朋友”及“分享到QQ”按钮的分享内容
         // wx.updateAppMessageShareData({
@@ -372,7 +377,7 @@ export default {
         //   }
         // })
       })
-      wx.error(res => {
+      wx.error((res) => {
         _that.$toast.fail('wx.config error')
       })
     },
@@ -460,10 +465,10 @@ export default {
         pageIndex: this.pageIndex,
         shopCategoryId,
         pageLimit: 10,
-        rule: this.rule
+        rule: this.rule,
       }
       const res = await getData('/shop/info/basic/find', data, {
-        showLoading: false
+        showLoading: false,
       })
       console.log(res)
       this.loading = false
@@ -499,12 +504,12 @@ export default {
     // 上拉刷新
     async onLoadRefresh() {
       this.getShopList()
-    }
+    },
   },
-  destroyed: function() {
+  destroyed: function () {
     // 记得清除，不然单页面，其它页面也可以用
     window.removeEventListener('popstate', this.popstate, false)
-  }
+  },
 }
 </script>
 <style lang="less" scoped>

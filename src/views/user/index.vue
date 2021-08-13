@@ -69,13 +69,23 @@
     </div>
     <div class="shop_anagement other">
       <van-cell title="领跑者" is-link class="text" @click="checkPeople" />
-      <van-cell title="二手市场" is-link class="text" to="/secondaryMarketManage/user" />
+      <van-cell
+        title="二手市场"
+        is-link
+        class="text"
+        to="/secondaryMarketManage/user"
+      />
       <van-cell title="店铺" is-link class="text" to="/myShoppingList" />
       <van-cell title="站点" is-link class="text" @click="checkSite" />
     </div>
     <div class="other">
       <van-cell title="我的淘币" is-link class="text" to="/user/taoCoins" />
-      <van-cell title="收货地址管理" is-link class="text" to="/user/userInfo/addressList" />
+      <van-cell
+        title="收货地址管理"
+        is-link
+        class="text"
+        to="/user/userInfo/addressList"
+      />
       <van-cell title="联系客服" is-link class="text" to="/chatView" />
       <van-cell title="意见反馈" is-link class="text" to="/feedback" />
       <van-cell title="商务合作" is-link class="text" />
@@ -97,13 +107,13 @@ import OverlayItem from '@/components/snackShop/OverlayItem.vue'
 export default {
   name: 'User',
   components: {
-    OverlayItem
+    OverlayItem,
   },
   data() {
     return {
       overlayIsShow: false,
       isSite: false,
-      userInfo: {}
+      userInfo: {},
     }
   },
   created() {
@@ -163,8 +173,8 @@ export default {
     toOrder(index) {
       window.sessionStorage.setItem('tabActiveIndexOrder', index)
       this.$router.push('/order')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

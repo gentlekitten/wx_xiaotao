@@ -4,7 +4,11 @@
     <nav-bar title="商品详情编辑" is-arrow isBackUp />
     <van-field v-show="false" type="textarea">
       <template #input>
-        <van-uploader v-model="swiperImg" :after-read="upEditorImg" :max-size="500 * 1024" />
+        <van-uploader
+          v-model="swiperImg"
+          :after-read="upEditorImg"
+          :max-size="500 * 1024"
+        />
       </template>
     </van-field>
     <quill-editor
@@ -37,7 +41,7 @@ const toolbarOptions = [
   [{ font: [] }],
   [{ align: [] }],
   ['link', 'image', 'video'],
-  ['clean'] // remove formatting button
+  ['clean'], // remove formatting button
 ]
 // import { quillRedefine } from 'vue-quill-editor-upload'
 
@@ -47,7 +51,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -63,17 +67,17 @@ export default {
           toolbar: {
             container: toolbarOptions, // 工具栏
             handlers: {
-              image: function(value) {
+              image: function (value) {
                 if (value) {
                   document.querySelector('.van-uploader__input').click()
                 } else {
                   this.quill.format('image', false)
                 }
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      },
     }
   },
   created() {
@@ -96,11 +100,7 @@ export default {
         this.productSources.push({ sourceAddress: res.data.url })
         let length = quill.getSelection().index
         // 插入图片  res.info为服务器返回的图片地址
-        quill.insertEmbed(
-          length,
-          'image',
-          'https://jixi.mynatapp.cc/' + res.data.url
-        )
+        quill.insertEmbed(length, 'image', this.imgBaseUrl + res.data.url)
         // 调整光标到最后
         quill.setSelection(length + 1)
         file.status = 'done'
@@ -123,7 +123,7 @@ export default {
         url,
         {
           html: this.goodsInfo,
-          productSources: this.productSources
+          productSources: this.productSources,
         },
         { showLoading: true }
       )
@@ -149,8 +149,8 @@ export default {
         return false
       }
       this.$handleCode.handleCode(res)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

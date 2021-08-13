@@ -2,10 +2,10 @@
   <div>
     <div class="shopping">
       <div class="bg_img">
-        <img :src="'https://jixi.mynatapp.cc/'+shopInfo.shopPic" />
+        <img :src="imgBaseUrl + shopInfo.shopPic" />
       </div>
       <div class="shop_img">
-        <img :src="'https://jixi.mynatapp.cc/'+shopInfo.shopPic" />
+        <img :src="imgBaseUrl + shopInfo.shopPic" />
       </div>
       <div class="shop_info">
         <div class="title" @click="toShopDetails(shopInfo.shopId)">
@@ -27,8 +27,12 @@
         />
       </div>
       <div class="collect">
-        <van-button v-if="!isCollect" class="btn" round @click="clickCollect()">+收藏</van-button>
-        <van-button v-else class="btn collect_btn" round @click="clickCollect()">取消收藏</van-button>
+        <van-button v-if="!isCollect" class="btn" round @click="clickCollect()"
+          >+收藏</van-button
+        >
+        <van-button v-else class="btn collect_btn" round @click="clickCollect()"
+          >取消收藏</van-button
+        >
       </div>
     </div>
   </div>
@@ -39,18 +43,18 @@ export default {
   props: {
     isCollect: {
       type: Boolean,
-      default: false
+      default: false,
     },
     shopInfo: {
       type: Object,
       default: () => {
         return {}
-      }
-    }
+      },
+    },
   },
   data() {
     return {
-      rate: 0
+      rate: 0,
     }
   },
   created() {
@@ -66,8 +70,8 @@ export default {
     // 点击通知栏
     clickNoticeBar(e) {
       this.$emit('clickNoticeBar')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

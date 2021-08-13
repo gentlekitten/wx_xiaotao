@@ -66,6 +66,7 @@ export default {
       activeNames: '1',
       popupIsShow: false,
       orderPeopleList: [],
+      isOrderPeopPeolple: false,
     }
   },
   created() {
@@ -86,7 +87,26 @@ export default {
       }
       this.$handleCode.handleCode(res)
     },
+    // 获取判断是否是领跑者
+    async handleIsOrderPeople() {
+      const res = await getData('/page/userInfo', {}, { showLoading: false })
+      console.log(res)
+      if (res.code === '0') {
+        if (
+          res.data.deliveryPersonId ||
+          res.data.userInfo.deliveryPersonId === 0
+        ) {
+          this.isOrderPeopPeolple = true
+        }
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
     toRegist() {
+      if (isOrderPeopPeolple) {
+        this.$toast.fail('你已经是领跑者了！')
+        return false
+      }
       this.$router.push('/orderPeople/registerOrderPeople')
     },
     clickUserImg() {

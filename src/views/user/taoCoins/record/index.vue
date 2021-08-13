@@ -1,46 +1,81 @@
 <template>
   <div>
     <nav-bar :title="'我的记录'" back-to="/user/taoCoins" :is-arrow="true" />
-    <div class="cell" v-for="item in historyList" :key="item.id">
-      <div class="left">
-        <div class="type">{{ item.type }}</div>
-        <div class="time">{{ item.time }}</div>
+    <van-list
+      v-if="historyList.length > 0"
+      v-model="loading"
+      :finished="finished"
+      finished-text="哼，我也是有底线的~"
+      :immediate-check="false"
+      :offset="0"
+      @load="onLoadData"
+    >
+      <div class="cell" v-for="item in historyList" :key="item.id">
+        <div class="left">
+          <div class="type">{{ item.msg }}</div>
+          <div class="time">{{ item.createTime }}</div>
+        </div>
+        <div class="right">
+          <div class="price">
+            {{ item.msgType === 0 ? '-' : '+' }}{{ item.msgMoney }}
+          </div>
+          <div class="remain_price">余额 {{ item.cMoney }}</div>
+        </div>
       </div>
-      <div class="right">
-        <div class="price">{{item.type === '提现' ? '-' : '+'}}{{ item.price }}</div>
-        <div class="remain_price">余额 {{ item.remainPrice }}</div>
-      </div>
-    </div>
+    </van-list>
+    <van-empty v-else description="您还没有该记录哦~"></van-empty>
   </div>
 </template>
 <script>
+import { getData, upData } from '@/api/api.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
-      historyList: [
-        {
-          id: 0,
-          type: '提现',
-          time: '4月16日 12:00',
-          price: '100.00',
-          remainPrice: '100.00'
-        },
-        {
-          id: 1,
-          type: '充值',
-          time: '4月16日 12:00',
-          price: '200.00',
-          remainPrice: '300.00'
-        }
-      ]
+      historyList: [],
+      finished: false,
+      loading: false,
+      pageIndex: 0,
     }
   },
-  methods: {}
+  created() {
+    this.getHistoryMoneyList()
+  },
+  methods: {
+    // 获取收支记录
+    async getHistoryMoneyList() {
+      const res = await getData(
+        '/customer/money/use/detail',
+        {
+          pageIndex: this.pageIndex,
+          pageLimit: 10,
+        },
+        { showLoading: true }
+      )
+      this.loading = false
+      console.log(res)
+      if (res.code === '0') {
+        this.historyList.push(res.data.customerMoneyRecord)
+        this.pageIndex += 1
+        if (this.pageIndex * 10 >= res.data.number) {
+          this.finished = true
+        }
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+    // 下拉加载更多
+    onLoadData() {
+      if (this.historyList.length > 0) {
+        this.getHistoryMoneyList()
+      }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

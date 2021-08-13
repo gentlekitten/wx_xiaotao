@@ -1,6 +1,8 @@
 // 零食、外卖店铺混入
 import { upData, getData } from '@/api/api.js'
 
+import { ImagePreview } from 'vant'
+
 const takeOutShop = {
     data() {
         return {
@@ -34,50 +36,49 @@ const takeOutShop = {
             // 商品信息列表
             shopList: [],
             // 评价信息列表
-            evaluateInfoObj: [],
+            evaluateInfoObj: {},
             // 用户评价列表
-            commentList: [
-                {
-                    user_img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-                    user_name: '哈哈哈',
-                    comment_time: '两天前',
-                    shop_type: '辣条',
-                    comment_text:
-                        '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-                    comment_img: [
-                        'https://img.yzcdn.cn/vant/apple-1.jpg',
-                        'https://img.yzcdn.cn/vant/apple-2.jpg',
-                        'https://img.yzcdn.cn/vant/apple-1.jpg',
-                        'https://img.yzcdn.cn/vant/apple-2.jpg'
-                    ],
-                    comment_video: ['https://img.yzcdn.cn/vant/apple-1.jpg']
-                },
-                {
-                    user_img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-                    user_name: '哈哈哈',
-                    comment_time: '两天前',
-                    shop_type: '辣条',
-                    comment_text:
-                        '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-                    comment_img: ['https://img.yzcdn.cn/vant/apple-1.jpg'],
-                    comment_video: []
-                },
-                {
-                    user_img: 'https://img.yzcdn.cn/vant/cat.jpeg',
-                    user_name: '哈哈哈',
-                    comment_time: '两天前',
-                    shop_type: '辣条',
-                    comment_text:
-                        '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-                    comment_img: [],
-                    comment_video: []
-                }
-            ],
+            commentList: [],
             // 店铺信息
-            shopInfoObj: {}
+            shopInfoObj: {},
+            pageIndex: 0
         }
     },
     methods: {
+        // 获取评论信息
+        async getCommentList() {
+            const data = {
+                shopId: this.id,
+                pageIndex: this.pageIndex,
+                pageLimit: 10
+            }
+            const res = await getData('/shop/comment/find', data, { showLoading: false })
+            this.loading = false
+            console.log(res)
+            if (res.code === '0') {
+                res.data.productComment.forEach(e => {
+                    if (e.attitude || e.attitude === 0) {
+                        e.commentScore = (e.attitude + e.quality + e.sTime) / 6
+                    }
+                })
+                this.commentList.push(...res.data.productComment)
+                if (Object.keys(this.evaluateInfoObj).length <= 0 && Object.keys(this.commentList.shopScore).length > 0) {
+                    this.evaluateInfoObj = this.commentList.shopScore
+                }
+                this.pageIndex += 1
+                if (this.pageIndex * 10 >= res.data.number) {
+                    this.finished = true
+                }
+                return false
+            }
+            this.$handleCode.handleCode(res)
+        },
+        // 上拉加载评论信息
+        async onLoadData() {
+            if (this.tabIndex === 1 && this.commentList.length > 0) {
+                this.getCommentList()
+            }
+        },
         // 获取店铺信息
         async getShopInfo() {
             const res = await getData(
@@ -97,7 +98,6 @@ const takeOutShop = {
                     this.noticeIsShow = true
                 }
                 this.isCollect = this.shopInfoObj.hasRecord === 0 ? false : true
-                this.evaluateInfoObj = this.shopInfoObj.shopScore
                 return false
             }
             this.$handleCode.handleCode(res)
@@ -136,9 +136,6 @@ const takeOutShop = {
                 return false
             }
             this.$handleCode.handleCode(res)
-        },
-        async getCommentList() {
-            const res = await getData('')
         },
         // 处理侧边栏排序和商品排序
         handleSort(a, b) {
@@ -230,13 +227,17 @@ const takeOutShop = {
             // form 0外卖 1 商城
             this.$router.push('/shoppingOrderView?form=0')
         },
-        clickTab(index) {
+        changeTab(index) {
             this.tabIndex = index
         },
         // 处理点击评论区图片
         clickCommnetImg(itemImgs, indexs) {
+            let images = []
+            itemImgs.forEach((e) => {
+                images.push(e.picAddress)
+            })
             ImagePreview({
-                images: itemImgs,
+                images,
                 startPosition: indexs
             })
         },

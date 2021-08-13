@@ -4,20 +4,32 @@
     <!-- 轮播图 -->
     <van-swipe :autoplay="3000">
       <van-swipe-item>
-        <img class="image" v-lazy="'https://jixi.mynatapp.cc/'+cartItem.logoAddress" />
+        <img class="image" v-lazy="imgBaseUrl + cartItem.logoAddress" />
       </van-swipe-item>
     </van-swipe>
-    <div
-      class="shop_name"
-    >{{ cartItem.productName +(cartItem.productInfoSpecifications.length > 0 ? cartItem.productInfoSpecifications[index].specificationName : '') }}</div>
+    <div class="shop_name">
+      {{
+        cartItem.productName +
+        (cartItem.productInfoSpecifications.length > 0
+          ? cartItem.productInfoSpecifications[index].specificationName
+          : '')
+      }}
+    </div>
     <div class="shop_info">
       <div class="shop_info_item">
-        <div
-          class="price"
-        >￥{{ cartItem.sellPrice + (cartItem.productInfoSpecifications.length > 0 ? cartItem.productInfoSpecifications[index].price : 0) }}</div>
-        <div class="num">销量：{{ cartItem.sale}}</div>
+        <div class="price">
+          ￥{{
+            cartItem.sellPrice +
+            (cartItem.productInfoSpecifications.length > 0
+              ? cartItem.productInfoSpecifications[index].price
+              : 0)
+          }}
+        </div>
+        <div class="num">销量：{{ cartItem.sale }}</div>
       </div>
-      <van-button type="primary" class="add_shop" @click="handleAdd">来一份</van-button>
+      <van-button type="primary" class="add_shop" @click="handleAdd"
+        >来一份</van-button
+      >
     </div>
     <template v-if="Object.keys(cartList).length > 0">
       <!-- 购物车 -->
@@ -42,47 +54,47 @@ import FoodCart from '@/components/common/FoodCart.vue'
 export default {
   components: {
     NavBar,
-    FoodCart
+    FoodCart,
   },
   props: {
     // 規格id
     d: {
       type: Number,
-      default: 0
+      default: 0,
     },
     isCartList: {
       type: Boolean,
-      default: false
+      default: false,
     },
     cartList: {
       type: Object,
       default: () => {
         return {}
-      }
+      },
     },
     cartItem: {
       type: Object,
       default: () => {
         return {}
-      }
+      },
     },
     getFoodTotalPrice: {
       type: Number,
-      default: 0
+      default: 0,
     },
     handleFoodNum: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   data() {
     return {
       // 选择商品的规格索引
-      index: 0
+      index: 0,
     }
   },
   created() {
-    this.index = this.cartItem.productInfoSpecifications.findIndex(e => {
+    this.index = this.cartItem.productInfoSpecifications.findIndex((e) => {
       return this.d === e.id
     })
   },
@@ -108,8 +120,8 @@ export default {
     },
     handleAdd() {
       this.$emit('handleAdd')
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

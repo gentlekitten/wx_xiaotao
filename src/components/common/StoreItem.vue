@@ -3,7 +3,7 @@
     <div class="shopping_warp animated fadeInLeft">
       <div class="shopping" @click="toShopping(item)">
         <div class="left">
-          <img :src="'https://jixi.mynatapp.cc/'+item.shopPic" />
+          <img :src="imgBaseUrl + item.shopPic" />
         </div>
         <div class="center">
           <div class="name">{{ item.shopName }}</div>
@@ -21,9 +21,11 @@
         </div>
       </div>
       <div v-if="isShowDeleteBtn">
-        <van-button class="btn" round @click="deleteShopping(item)">??</van-button>
+        <van-button class="btn" round @click="deleteShopping(item)"
+          >??</van-button
+        >
       </div>
-      <div style="clear: both;"></div>
+      <div style="clear: both"></div>
     </div>
   </div>
 </template>
@@ -35,16 +37,16 @@ export default {
       type: Object,
       default: () => {
         return {}
-      }
+      },
     },
     isShowDeleteBtn: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
-      rate: 0
+      rate: 0,
     }
   },
   created() {
@@ -54,8 +56,8 @@ export default {
     toShopping(item) {
       this.$emit('toShopping', item)
     },
-    getRate(item) {}
-  }
+    getRate(item) {},
+  },
 }
 </script>
 <style lang="less" scoped>

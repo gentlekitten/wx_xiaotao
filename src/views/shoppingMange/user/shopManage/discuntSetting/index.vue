@@ -33,7 +33,9 @@
         :rules="[{ required: true, message: '请填写优惠天数' }]"
       />
       <div class="btn_warp">
-        <van-button class="btn" round native-type="formSubmit">提交发布</van-button>
+        <van-button class="btn" round native-type="formSubmit"
+          >提交发布</van-button
+        >
       </div>
     </van-form>
   </div>
@@ -47,7 +49,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -56,7 +58,9 @@ export default {
         discountPrice: '',
         endTime: '',
         shopId: Number(window.sessionStorage.getItem('shopId'))
-      }
+          ? Number(window.sessionStorage.getItem('shopId'))
+          : '',
+      },
     }
   },
   created() {
@@ -69,7 +73,7 @@ export default {
         '/shop/discount/find',
         { shopId: this.form.shopId },
         {
-          showLoading: true
+          showLoading: true,
         }
       )
       console.log(res)
@@ -91,8 +95,11 @@ export default {
       console.log(endTime)
       const data = this._.cloneDeep(this.form)
       data.endTime = endTime
+      data.shopId = Number(window.sessionStorage.getItem('shopId'))
+        ? Number(window.sessionStorage.getItem('shopId'))
+        : ''
       const res = await upData('/shop/discount/add', data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -107,8 +114,8 @@ export default {
       //   JSON.stringify(this.$store.state.addShopping)
       // )
       // this.$router.go(-1)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

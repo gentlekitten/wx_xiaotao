@@ -18,11 +18,6 @@ const getters = {
   productDetailAddress: state => state.secondaryMarket.productDetailAddress,
   secondAddGoodsForm: state => state.secondaryMarket.addGoodsForm,
   swiperImg: state => state.secondaryMarket.swiperImg,
-  logoImg: state => state.secondaryMarket.logoImg,
-  // index
-  swiperList: state => state.indexCacheData.swiperList,
-  shopList: state => state.indexCacheData.shopList,
-  // user
-  userInfo: state => state.userCacheData.userInfo
+  logoImg: state => state.secondaryMarket.logoImg
 }
 export default getters

@@ -56,7 +56,11 @@
             :offset="0"
             @load="myTaskListLoad"
           >
-            <tast-list :taskList="myTaskList" @clickTast="sendTaskInfo" />
+            <tast-list
+              :taskList="myTaskList"
+              @clickTast="sendTaskInfo"
+              @toPayment="toPayment"
+            />
           </van-list>
         </van-pull-refresh>
         <van-empty v-else description="还没任务信息哦~" />
@@ -100,7 +104,7 @@
   </div>
 </template>
 <script>
-import { getData } from '@/api/api.js'
+import { getData, upData } from '@/api/api.js'
 
 import NavBar from '@/components/common/NavBar.vue'
 import Tabs from '@/components/common/TabIsDifferent.vue'
@@ -109,6 +113,8 @@ import SearchPopup from '@/components/snackShop/SearchPopup.vue'
 
 import TastList from '@/components/orderPeople/TastList.vue'
 
+import onBridgeReady from '@/components/mixins/onBridgeReady.js'
+
 export default {
   components: {
     NavBar,
@@ -116,6 +122,7 @@ export default {
     SearchPopup,
     TastList,
   },
+  mixins: [onBridgeReady],
   data() {
     return {
       // 站点信息
@@ -242,6 +249,20 @@ export default {
       }
       this.$handleCode.handleCode(res)
     },
+    // 支付
+    async toPayment(cOrderSn) {
+      const res = await upData(
+        '/order/info/unify/pay',
+        { cOrderSn },
+        { showLoading: true }
+      )
+      console.log(res)
+      if (res.code === '0') {
+        this.onBridgeReady(res.data)
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
     // 商品搜索事件
     clickShopSearch(shopSearchValue) {
       if (shopSearchValue !== '') {
@@ -295,17 +316,17 @@ export default {
       this.$router.push('/orderPeople/registerOrderPeople')
     },
     // 点击任务大厅任务
-    clickTast() {
+    clickTast(cOrderSn) {
       if (this.isOrderPeopPeolple) {
-        this.$router.push(`/orderPeople/sendTaskInfoView?id=${id}`)
+        this.$router.push(`/orderPeople/sendTaskInfoView?cOrderSn=${cOrderSn}`)
         return false
       }
       // 不是领跑者弹出零跑者申请弹框
       this.popupIsShow = true
     },
     // 跳转我的发布详细界面
-    sendTaskInfo(id) {
-      this.$router.push(`/orderPeople/sendTaskInfoView?id=${id}`)
+    sendTaskInfo(cOrderSn) {
+      this.$router.push(`/orderPeople/sendTaskInfoView?cOrderSn=${cOrderSn}`)
     },
     toOrderPeopleView() {
       this.$router.push('/orderPeople/orderPeopleList')

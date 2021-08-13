@@ -8,6 +8,7 @@
     <shop-info
       :is-collect="isCollect"
       :item="shopInfoObj"
+      :shopOrders="shopOrders"
       @collectShop="collectShop"
     />
     <div class="shop_select_cell">
@@ -51,13 +52,8 @@
         color="#f2af49"
         :to="'/shoppingShop?id=' + shopInfoObj.shopId"
       />
-      <van-goods-action-icon
-        icon="chat-o"
-        text="客服"
-        badge="5"
-        to="/chatView"
-      />
-      <van-goods-action-icon icon="cart-o" text="购物车" badge="5" to="/cart" />
+      <van-goods-action-icon icon="chat-o" text="客服" to="/chatView" />
+      <van-goods-action-icon icon="cart-o" text="购物车" to="/cart" />
       <van-goods-action-button
         type="warning"
         text="加入购物车"
@@ -115,7 +111,7 @@ export default {
       // 店铺优惠
       shopDiscount: {},
       // 店铺订单信息
-      shopOrders: {}
+      shopOrders: {},
     }
   },
   created() {
@@ -142,7 +138,7 @@ export default {
       }
       this.$handleCode.handleCode(res)
     },
-     // 获取店铺订单信息
+    // 获取店铺订单信息
     async getShopOrders(shopId) {
       const res = await getData(
         '/shop/order/get',
@@ -187,7 +183,7 @@ export default {
         shopInfoObj.inventory === 0
           ? 9999999999999
           : shopInfoObj.productInventory.productNumber
-      this.goods.picture = 'https://jixi.mynatapp.cc/' + shopInfoObj.logoAddress
+      this.goods.picture = this.imgBaseUrl + shopInfoObj.logoAddress
       if (shopInfoObj.productInfoPicList.length > 0) {
         shopInfoObj.productInfoPicList.forEach((e) => {
           this.swipeImagesList.push({ picAddress: e.picAddress })

@@ -30,7 +30,6 @@
       <!-- 身份证 -->
       <van-field
         v-model="registerForm.idNumber"
-        type="number"
         name="身份证"
         label="身份证："
         clearable
@@ -198,12 +197,12 @@ export default {
       registerForm: {
         customerName: '',
         sex: 0,
-        idNumber: '532124200104080111',
+        idNumber: '',
         studentNumber: '',
-        phone: '14708701960',
-        apartment: '3栋',
-        qualification: '大专',
-        grade: '一年级',
+        phone: '',
+        apartment: '',
+        qualification: '',
+        grade: '',
         deliveryPersonPics: [],
       },
       dormitory: ['3栋', '4栋', '5栋', '6栋', '7栋'],

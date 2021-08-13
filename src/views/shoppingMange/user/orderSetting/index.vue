@@ -12,28 +12,53 @@
         </van-checkbox-group>
       </div>-->
       <div class="send_price">
-        <van-field class="input" type="number" v-model.number="sendPrice" label="外卖起送价格" />
+        <van-field
+          class="input"
+          type="number"
+          v-model.number="sendPrice"
+          label="外卖起送价格"
+        />
         <!-- <van-button class="btn" round>确认</van-button> -->
       </div>
       <div class="send_setting">
         <div class="title">配送设置</div>
         <div class="method">
           配送方式：
-          <van-radio-group class="checkbox_group" v-model="radioValue" checked-color="#CEAC20">
+          <van-radio-group
+            class="checkbox_group"
+            v-model="radioValue"
+            checked-color="#CEAC20"
+          >
             <van-radio name="a" class="checkbox">商家配送</van-radio>
             <van-radio name="b">快递邮寄</van-radio>
           </van-radio-group>
         </div>
-        <div v-show="radioValue === 'a'" class="dispatching_price animated fadeInDown">
+        <div
+          v-show="radioValue === 'a'"
+          class="dispatching_price animated fadeInDown"
+        >
           商家配送费：
-          <van-field class="input" type="number" v-model.number="merchantDispatchingPrice" />元
+          <van-field
+            class="input"
+            type="number"
+            v-model.number="merchantDispatchingPrice"
+          />元
         </div>
-        <div v-show="radioValue === 'b'" class="dispatching_price animated fadeInDown">
+        <div
+          v-show="radioValue === 'b'"
+          class="dispatching_price animated fadeInDown"
+        >
           统一邮费：
-          <van-field class="input" type="number" v-model.number="merchantDispatchingPrice" />元
+          <van-field
+            class="input"
+            type="number"
+            v-model.number="merchantDispatchingPrice"
+          />元
         </div>
         <div class="btn_warp">
-          <van-button class="btn" round @click="upOrderSetting">保存</van-button>
+          <van-button class="btn" round @click="upOrderSetting"
+            >保存</van-button
+          >
         </div>
       </div>
       <!-- <div v-show="radioValue.indexOf('b') > -1" class="post_setting animated fadeInDown">
@@ -56,7 +81,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -67,7 +92,7 @@ export default {
       // 起送价
       sendPrice: 0,
       //   商家配送价格
-      merchantDispatchingPrice: 0
+      merchantDispatchingPrice: 0,
     }
   },
   created() {
@@ -76,16 +101,22 @@ export default {
   methods: {
     // 上传订单配置
     async upOrderSetting() {
+      if (this.sendPrice < 0) {
+        return this.$toast.fail('外卖起送价不能小于零！')
+      }
+      if (this.merchantDispatchingPrice < 0) {
+        return this.$toast.fail('配送费或邮费不能小于零！')
+      }
       const data = {
         shopId: this.shopId,
         lowPrice: this.sendPrice,
         shopOrder: {
           deliverySn: this.radioValue === 'a' ? 0 : 1,
-          deliveryFee: this.merchantDispatchingPrice
-        }
+          deliveryFee: this.merchantDispatchingPrice,
+        },
       }
       const res = await upData('/shop/order/update', data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -100,7 +131,7 @@ export default {
         '/shop/order/get',
         { shopId: this.shopId },
         {
-          showLoading: true
+          showLoading: true,
         }
       )
       console.log(res)
@@ -113,8 +144,8 @@ export default {
         return false
       }
       this.$handleCode.handleCode(res)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

@@ -4,12 +4,24 @@
     <nav-bar title="添加快递名称" is-arrow isBackUp />
     <div class="tip">
       本设置是用来添加
-      <span>快递服务</span>&nbsp;快递选项里面的快递
-      <br />（本站点有哪些快递）
+      <span>快递服务</span>&nbsp;快递选项里面的快递 <br />（本站点有哪些快递）
     </div>
-    <van-field v-model="form.expressName" center clearable label="快递名称" placeholder="请输入站点的快递">
+    <van-field
+      v-model="form.expressName"
+      center
+      clearable
+      label="快递名称"
+      placeholder="请输入站点的快递"
+    >
       <template #button>
-        <van-button class="add_btn" size="small" type="primary" round @click="addExpress">添加</van-button>
+        <van-button
+          class="add_btn"
+          size="small"
+          type="primary"
+          round
+          @click="addExpress"
+          >添加</van-button
+        >
       </template>
     </van-field>
     <div class="express_list_warp">
@@ -18,7 +30,9 @@
         <template v-if="expressList.length > 0">
           <div class="list" v-for="item in expressList" :key="item.id">
             {{ item.name }}
-            <van-button class="dele_btn" round @click="deleteExpress(item.id)">删除</van-button>
+            <van-button class="dele_btn" round @click="deleteExpress(item.id)"
+              >删除</van-button
+            >
           </div>
         </template>
         <van-empty v-else description="还没有添加快递哦~" />
@@ -33,7 +47,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -41,9 +55,9 @@ export default {
         expressName: '',
         siteId: JSON.parse(window.sessionStorage.getItem('mySiteInfo'))
           ? JSON.parse(window.sessionStorage.getItem('mySiteInfo')).id
-          : 0
+          : 0,
       },
-      expressList: []
+      expressList: [],
     }
   },
   created() {
@@ -59,8 +73,8 @@ export default {
       )
       console.log(res)
       if (res.code === '0') {
-        res.data.forEach(e => {
-          this.expressList.push({ name: e.apartmentName, id: e.id })
+        res.data.forEach((e) => {
+          this.expressList.push({ name: e.expressName, id: e.id })
         })
         return false
       }
@@ -71,14 +85,14 @@ export default {
         return this.$toast.fail('请填写快递名字！')
       }
       const res = await upData('/site/express/add', this.form, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
         this.form.expressName = ''
         this.expressList.push({
           id: res.data.id,
-          name: res.data.expressName
+          name: res.data.expressName,
         })
         return this.$toast.success('添加成功！')
       }
@@ -89,17 +103,18 @@ export default {
         '/site/express/delete',
         { id: id, siteId: this.form.siteId },
         {
-          showLoading: true
+          showLoading: true,
         }
       )
       console.log(res)
       if (res.code === '0') {
         this.$toast.success('删除成功！')
+        this.expressList = []
         return this.getExpressList()
       }
       this.$handleCode.handleCode(res)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

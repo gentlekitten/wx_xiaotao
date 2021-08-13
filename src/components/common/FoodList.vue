@@ -11,7 +11,7 @@
           <div class="shop_title">{{ item.shopName }}</div>
         </template>
         <template v-slot:thumb>
-          <van-image :src="'https://jixi.mynatapp.cc/' + item.shopPic" />
+          <van-image :src="imgBaseUrl + item.shopPic" />
         </template>
         <template v-slot:tags>
           <van-tag plain type="danger" v-if="item.hasDiscount === 1"

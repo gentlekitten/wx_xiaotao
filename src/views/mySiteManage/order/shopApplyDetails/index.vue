@@ -6,9 +6,9 @@
       <template #default>
         <div
           class="shop_img"
-          @click="imagePreview(['https://jixi.mynatapp.cc/'+shopDetails.shopPic])"
+          @click="imagePreview([imgBaseUrl+shopDetails.shopPic])"
         >
-          <img :src="'https://jixi.mynatapp.cc/'+shopDetails.shopPic" />
+          <img :src="imgBaseUrl+shopDetails.shopPic" />
         </div>
       </template>
     </van-cell>
@@ -38,8 +38,8 @@
         <div class="item">
           <div class="text">营业执照</div>
           <img
-            :src="'https://jixi.mynatapp.cc/'+shopDetails.businessLicense"
-            @click="imagePreview(['https://jixi.mynatapp.cc/'+shopDetails.businessLicense])"
+            :src="imgBaseUrl+shopDetails.businessLicense"
+            @click="imagePreview([imgBaseUrl+shopDetails.businessLicense])"
           />
         </div>
       </div>

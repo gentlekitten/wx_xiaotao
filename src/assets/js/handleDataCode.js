@@ -19,7 +19,7 @@ function handleCode(res) {
         return false
     } else if (res.code === LOGIN_ERROR) {
         window.sessionStorage.getItem('wxCode') && window.sessionStorage.setItem('wxCode', '')
-        window.location.href = 'https://jixi.mynatapp.cc/dist/index.html#/login'
+        window.location.href = 'https://www.xtaoshop.com/index.html#/login'
     } else if (res.code === UNKNOWN_SITE) {
         JSON.parse(window.sessionStorage.getItem('siteInfo')) && window.sessionStorage.setItem('siteInfo', JSON.stringify({}))
         Toast.fail('你的站点不存在')

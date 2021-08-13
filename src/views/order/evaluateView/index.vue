@@ -18,7 +18,7 @@
         <div class="evaluate">
           <van-field
             class="textarea"
-            v-model="form.evaluate"
+            v-model="form.content"
             rows="2"
             autosize
             clearable
@@ -30,12 +30,13 @@
           <van-field class="uploaderImg" label="附图(最多5张)：">
             <template #input>
               <van-uploader
-                v-model="form.uploaderImg"
+                v-model="productCommentPics"
                 multiple
                 :max-count="5"
-                :max-size="2048 * 1024"
+                :max-size="5120 * 1024"
                 @oversize="handleImgLarge"
                 :after-read="uploading"
+                @delete="deleteImg"
               />
             </template>
           </van-field>
@@ -69,7 +70,7 @@
           送达速度
           <van-rate
             class="rate"
-            v-model="form.speed"
+            v-model="form.sTime"
             size="1.2rem"
             color="#ffd21e"
             void-icon="star"
@@ -81,44 +82,75 @@
   </div>
 </template>
 <script>
+import { upData, upLogo } from '@/api/api.js'
+
 import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
       form: {
-        evaluate: '',
+        cOrderSn: '',
+        content: '',
         attitude: 0,
         quality: 0,
-        speed: 0
-      }
+        sTime: 0,
+        productCommentPics: [],
+      },
+      productCommentPics: [],
     }
   },
+  created() {
+    this.form.cOrderSn = this.$route.query.cOrderSn
+      ? this.$route.query.cOrderSn
+      : ''
+  },
   methods: {
-    // 处理上传图片过大
-    handleImgLarge() {
-      this.$toast.fail('上传的图片不能超过2M')
+    // 删除图片
+    deleteImg(file, detail) {
+      this.reportUploaderImg.splice(detail.index, 1)
+      this.form.productCommentPics.splice(detail.index, 1)
     },
     // 处理上传图片
-    uploading(file) {
+    async uploading(file) {
       file.status = 'uploading'
       file.message = '上传中...'
-
-      setTimeout(() => {
+      const formData = new FormData()
+      formData.append('img', file.file)
+      const res = await upLogo('/customer/product/comment/img', formData)
+      console.log(res)
+      if (res.code === '0') {
+        this.form.productCommentPics.push({ picAddress: res.data.filename })
         file.status = 'done'
-      }, 1000)
-    },
-    sendEvaluate() {
-      const form = this.form
-      if (form.attitude < 1 || form.quality < 1 || form.speed < 1) {
-        this.$toast.fail('评分不能为空')
-        return
+        return false
       }
-    }
-  }
+      file.status = 'failed'
+      file.message = '上传失败'
+      this.$handleCode.handleCode(res)
+    },
+    // 处理上传图片过大
+    handleImgLarge() {
+      this.$toast.fail('上传的图片不能超过5M')
+    },
+    async sendEvaluate() {
+      const form = this.form
+      if (form.attitude < 1 || form.quality < 1 || form.sTime < 1) {
+        return this.$toast.fail('评分不能为空')
+      }
+      const res = await upData('/customer/product/comment/add', this.form, {
+        showLoading: true,
+      })
+      console.log(res)
+      if (res.code === '0') {
+        this.$router.push('/order')
+        return false
+      }
+      this.$handleCode.handleCode(res)
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

@@ -17,7 +17,11 @@
         clearable
       />
       <!-- 文件上传 -->
-      <van-field class="up_img" name="uploader" label="上传证据图片：（最多三张）">
+      <van-field
+        class="up_img"
+        name="uploader"
+        label="上传证据图片：（最多三张）"
+      >
         <template #input>
           <van-uploader
             v-model="reportUploaderImg"
@@ -39,16 +43,34 @@
         clearable
       />
       <div class="btn_warp">
-        <van-button class="btn" round block type="primary" native-type="reportSubmit">提交</van-button>
+        <van-button
+          class="btn"
+          round
+          block
+          type="primary"
+          native-type="reportSubmit"
+          >提交</van-button
+        >
       </div>
     </van-form>
     <!-- 弹出层 -->
-    <van-popup class="popup" v-model="popupIsShow" :close-on-click-overlay="false" round>
+    <van-popup
+      class="popup"
+      v-model="popupIsShow"
+      :close-on-click-overlay="false"
+      round
+    >
       <div class="popup_item">
-        <van-icon class="icon" name="success" size="3rem" />您的举报我们已收到，本校站长及总部客服将尽快调查处理。可能给您造成不便深表歉意。
+        <van-icon
+          class="icon"
+          name="success"
+          size="3rem"
+        />您的举报我们已收到，本校站长及总部客服将尽快调查处理。可能给您造成不便深表歉意。
       </div>
       <div class="btn_warp">
-        <van-button class="btn" round block type="primary" @click="reportOver">好的</van-button>
+        <van-button class="btn" round block type="primary" @click="reportOver"
+          >好的</van-button
+        >
       </div>
     </van-popup>
   </div>
@@ -60,7 +82,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -72,10 +94,15 @@ export default {
         siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
           ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
           : 0,
-        shopId: 1
+        shopId: '',
       },
-      popupIsShow: false
+      popupIsShow: false,
     }
+  },
+  created() {
+    this.reportForm.shopId = this.$route.query.shopId
+      ? Number(this.$route.query.shopId)
+      : ''
   },
   methods: {
     // 删除图片
@@ -91,8 +118,8 @@ export default {
       formData.append('reportImg', file.file)
       const res = await upLogo('/site/report/img', formData)
       console.log(res)
-      this.reportForm.reportPics.push({ picAddress: res.data.filename })
       if (res.code === '0') {
+        this.reportForm.reportPics.push({ picAddress: res.data.filename })
         file.status = 'done'
         return false
       }
@@ -107,7 +134,7 @@ export default {
     // 提交
     async reportSubmit() {
       const res = await upData('/site/report/add', this.reportForm, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -118,8 +145,8 @@ export default {
     // 点击好的
     reportOver() {
       this.$router.go(-1)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

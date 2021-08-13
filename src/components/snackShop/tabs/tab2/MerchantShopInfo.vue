@@ -12,15 +12,25 @@
           size="1.5rem"
           @click="toUserPhone(shopInfoObj.shopPhone)"
         />
-        <van-icon class="icon" name="comment-o" size="1.5rem" @click="toChatView" />
+        <van-icon
+          class="icon"
+          name="comment-o"
+          size="1.5rem"
+          @click="toChatView"
+        />
       </div>
     </div>
     <div class="dispatching">
-      <div class="left">起送价：￥{{ shopInfoObj.lowPrice ? shopInfoObj.lowPrice : 0 }}</div>
-      <div
-        v-if="shopInfoObj.shopOrder"
-        class="right"
-      >配送费：￥{{ shopInfoObj.shopOrder.deliveryFee ? shopInfoObj.shopOrder.deliveryFee : 0 }}</div>
+      <div class="left">
+        起送价：￥{{ shopInfoObj.lowPrice ? shopInfoObj.lowPrice : 0 }}
+      </div>
+      <div v-if="shopInfoObj.shopOrder" class="right">
+        配送费：￥{{
+          shopInfoObj.shopOrder.deliveryFee
+            ? shopInfoObj.shopOrder.deliveryFee
+            : 0
+        }}
+      </div>
     </div>
     <div class="shop_info">
       <div class="top">
@@ -29,19 +39,17 @@
           <span>{{ shopInfoObj.sale }}单</span>
         </div>
         <div class="cell">店铺电话：{{ shopInfoObj.shopPhone }}</div>
+        <div class="cell">店铺地址：{{ shopInfoObj.shopAddress }}</div>
         <div class="cell">
-          店铺地址：{{ shopInfoObj.shopAddress }}
+          营业时间：{{ shopInfoObj.startTime ? shopInfoObj.startTime : '' }}-{{
+            shopInfoObj.endTime ? shopInfoObj.endTime : ''
+          }}
         </div>
-        <div
-          class="cell"
-        >营业时间：{{ shopInfoObj.startTime ? shopInfoObj.startTime : ''}}-{{ shopInfoObj.endTime ? shopInfoObj.endTime : '' }}</div>
         <div class="cell">主营业务：{{ shopInfoObj.businessInfo }}</div>
         <div class="cell">店铺简介：{{ shopInfoObj.introduce }}</div>
       </div>
       <div class="center">
-        <div class="cell">
-          <i class="iconfont icon-song" />专人配送
-        </div>
+        <div class="cell"><i class="iconfont icon-song" />专人配送</div>
       </div>
       <!-- <div class="business_license">
         <div class="cell">营业执照</div>
@@ -67,8 +75,8 @@
             <van-image
               class="image"
               fit="contain"
-              :src="'https://jixi.mynatapp.cc/'+shopInfoObj.businessLicense"
-              @click="clickImg(['https://jixi.mynatapp.cc/'+shopInfoObj.businessLicense])"
+              :src="imgBaseUrl + shopInfoObj.businessLicense"
+              @click="clickImg([imgBaseUrl + shopInfoObj.businessLicense])"
             />
           </div>
         </div>
@@ -82,7 +90,12 @@
             size="1.5rem"
             @click="toPhoneBySite(shopInfoObj.sitePhone)"
           />
-          <van-icon class="icon" name="warning-o" size="1.5rem" @click="toReportView" />
+          <van-icon
+            class="icon"
+            name="warning-o"
+            size="1.5rem"
+            @click="toReportView(shopInfoObj.shopId)"
+          />
         </div>
       </div>
     </div>
@@ -95,13 +108,11 @@ export default {
       type: Object,
       default: () => {
         return {}
-      }
-    }
+      },
+    },
   },
   data() {
-    return {
-      userImg: 'https://img.yzcdn.cn/vant/cat.jpeg'
-    }
+    return {}
   },
   methods: {
     clickImg(imgUrl) {
@@ -120,10 +131,10 @@ export default {
       window.location.href = 'tel:' + phoneNum
     },
     // 跳转到举报界面
-    toReportView() {
-      this.$router.push('/report')
-    }
-  }
+    toReportView(shopId) {
+      this.$router.push('/report?shopId=' + shopId)
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 顶部返回 -->
-    <nav-bar :title="'举报'+reportDetails.shopInfo" is-arrow isBackUp />
+    <nav-bar :title="'举报' + reportDetails.shopInfo" is-arrow isBackUp />
     <van-cell class="lable_cell" title="描述：">
       <template #default>
         <div class="lable">{{ reportDetails.msg }}</div>
@@ -9,22 +9,26 @@
     </van-cell>
     <van-cell title="手机号：">
       <template #default>
-        <div class="phone" @click="toPhone(reportDetails.phone)">{{ reportDetails.phone }}</div>
+        <div class="phone" @click="toPhone(reportDetails.phone)">
+          {{ reportDetails.phone }}
+        </div>
       </template>
     </van-cell>
     <div class="img_warp">
       <div class="title">证据图片：</div>
       <div class="img">
         <img
-          v-for="(item,index) in reportDetails.reportPics"
+          v-for="(item, index) in reportDetails.reportPics"
           :key="item.id"
-          :src="'https://jixi.mynatapp.cc/'+item.picAddress"
+          :src="imgBaseUrl + item.picAddress"
           @click="imagePreview(reportDetails.reportPics, index)"
         />
       </div>
     </div>
     <div v-if="state === '0'" class="btn_warp">
-      <van-button class="btn" type="primary" round @click="handleConsent">我已知悉</van-button>
+      <van-button class="btn" type="primary" round @click="handleConsent"
+        >我已知悉</van-button
+      >
     </div>
   </div>
 </template>
@@ -36,13 +40,13 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
       id: 0,
       state: 1,
-      reportDetails: {}
+      reportDetails: {},
     }
   },
   created() {
@@ -65,12 +69,12 @@ export default {
     },
     imagePreview(item, index) {
       const imgUrlList = []
-      item.forEach(e => {
-        imgUrlList.push('https://jixi.mynatapp.cc/' + e.picAddress)
+      item.forEach((e) => {
+        imgUrlList.push(this.imgBaseUrl + e.picAddress)
       })
       ImagePreview({
         images: imgUrlList,
-        startPosition: index
+        startPosition: index,
       })
     },
     // 处理拨打电话事件
@@ -88,8 +92,8 @@ export default {
         this.$router.go(-1)
       }
       this.$handleCode.handleCode(res)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

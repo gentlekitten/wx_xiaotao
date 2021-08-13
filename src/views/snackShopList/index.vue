@@ -7,7 +7,7 @@
       width="100%"
       height="10rem"
       fit="contain"
-      src="https://img.yzcdn.cn/vant/cat.jpeg"
+      :src="require('../../assets/img/index/snackShop.png')"
     />
     <!-- grid 宿舍分类 -->
     <div class="common">

@@ -21,7 +21,7 @@
         placeholder="请输入店铺的名称"
         clearable
         required
-        :rules="[{required: true}]"
+        :rules="[{ required: true }]"
       />
       <van-field
         v-model="form.shopPhone"
@@ -29,12 +29,15 @@
         placeholder="请输入电话"
         clearable
         required
-        :rules="[{validator, message: '手机号格式错误'}]"
+        :rules="[{ validator, message: '手机号格式错误' }]"
       />
       <div v-if="shopManageId === 1" class="snack_shop_select">
         <div class="title">楼栋选择</div>
         <van-dropdown-menu active-color="#f2af49">
-          <van-dropdown-item v-model="snackShopValue" :options="snackShopList" />
+          <van-dropdown-item
+            v-model="snackShopValue"
+            :options="snackShopList"
+          />
         </van-dropdown-menu>
       </div>
       <van-field v-if="shopManageId === 2" label="类型" required>
@@ -48,7 +51,7 @@
       <div class="cell_item">
         <van-cell
           title="店铺地址"
-          :value="form.shopAddress+form.addressDetail"
+          :value="form.shopAddress + form.addressDetail"
           is-link
           @click="topPopupIsShow = true"
         />
@@ -101,7 +104,7 @@
         placeholder="店铺介绍"
         clearable
         required
-        :rules="[{required: true}]"
+        :rules="[{ required: true }]"
       />
       <!-- 店铺资质 -->
       <div v-if="!isShop" class="shop_qualification">
@@ -124,18 +127,36 @@
         </div>
       </div>
       <div class="btn_warp">
-        <van-button v-if="isShop" class="btn" round native-type="formSubmit">提交保存</van-button>
-        <van-button v-else class="btn" round native-type="formSubmit">提交申请</van-button>
+        <van-button v-if="isShop" class="btn" round native-type="formSubmit"
+          >提交保存</van-button
+        >
+        <van-button v-else class="btn" round native-type="formSubmit"
+          >提交申请</van-button
+        >
       </div>
     </van-form>
     <!-- 地址选择弹出层 -->
     <van-popup class="popup" v-model="topPopupIsShow" round position="top">
       <div class="title">店铺地址</div>
       <div class="btn_warp">
-        <van-button class="btn" round @click="isAddressSelect = true">选择地址</van-button>
+        <van-button class="btn" round @click="isAddressSelect = true"
+          >选择地址</van-button
+        >
       </div>
-      <van-field class="input" v-model="form.shopAddress" required placeholder="地址" readonly />
-      <van-field class="input" v-model="form.addressDetail" required placeholder="详细地址" clearable />
+      <van-field
+        class="input"
+        v-model="form.shopAddress"
+        required
+        placeholder="地址"
+        readonly
+      />
+      <van-field
+        class="input"
+        v-model="form.addressDetail"
+        required
+        placeholder="详细地址"
+        clearable
+      />
       <!-- <van-field
         class="input"
         v-model="address.coordinate"
@@ -185,7 +206,7 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -207,7 +228,7 @@ export default {
       areaList: {
         province_list: getProvinceList(),
         city_list: getCityList(),
-        county_list: getCountyList()
+        county_list: getCountyList(),
       },
       snackShopValue: 0,
       snackShopList: [],
@@ -228,15 +249,15 @@ export default {
         // 店铺类型
         shopCategoryId: '',
         // 所属楼栋
-        siteApartment: {}
+        siteApartment: {},
       },
       // 营业时间对象
       businessTime: {
         // 开始时间
         startTime: '',
         // 结束时间
-        endTime: ''
-      }
+        endTime: '',
+      },
     }
   },
   computed: {
@@ -252,7 +273,7 @@ export default {
         return this.businessTime.startTime + '-' + this.businessTime.endTime
       }
       return ''
-    }
+    },
     // 格式化优惠
     // getDisountsValue() {
     //   if (this.discountValue.discountPrice) {
@@ -349,7 +370,7 @@ export default {
         this.takeOutType = res.data.shopCategoryId === 4 ? 1 : 2
         this.snackShopList.push({
           text: res.data.apartmentName,
-          value: res.data.siteApartmentId
+          value: res.data.siteApartmentId,
         })
         this.snackShopValue = res.data.siteApartmentId
         return false
@@ -365,11 +386,11 @@ export default {
         data.shopId = this.shopId
       }
       const res = await getData('/shop/snack/apart/free/find', data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
-        res.data.forEach(e => {
+        res.data.forEach((e) => {
           this.snackShopList.push({ text: e.apartmentName, value: e.id })
         })
         // 判断是否有无店铺
@@ -431,7 +452,7 @@ export default {
     areaConfirm(address) {
       this.isAddressSelect = false
       let addr = ''
-      address.forEach(e => {
+      address.forEach((e) => {
         addr = addr + e.name
       })
       this.form.shopAddress = addr
@@ -467,15 +488,15 @@ export default {
       const data = {
         time: {
           startTime: '',
-          endTime: ''
+          endTime: '',
         },
         discounts: {
           requirePrice: '',
           discountPrice: '',
-          time: ''
+          time: '',
         },
         imgList: {},
-        form: {}
+        form: {},
       }
       // 处理店铺类型
       const shopManageId = this.shopManageId
@@ -508,7 +529,7 @@ export default {
         this.form.id = this.shopId
         // 存在店铺，修改店铺信息
         res = await upData('/shop/info/update', this.form, {
-          showLoading: true
+          showLoading: true,
         })
       }
       console.log(res)
@@ -525,15 +546,15 @@ export default {
       this.$store.state.addShopping.form = this.form
       const imgList = {
         shopLogoImg: this.shopLogoImg,
-        shopQualificationImg: this.shopQualificationImg
+        shopQualificationImg: this.shopQualificationImg,
       }
       this.$store.commit('addShopping/IMG_LIST', imgList)
-    }
+    },
   },
   // 销毁刷新事件
-  destroyed() {
-    window.removeEventListener('beforeunload', e => this.beforeunloadFn(e))
-  }
+  beforeDestroy() {
+    window.removeEventListener('beforeunload', (e) => this.beforeunloadFn(e))
+  },
 }
 </script>
 <style lang="less" scoped>

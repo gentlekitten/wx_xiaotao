@@ -11,7 +11,9 @@
         </van-cell>
         <van-cell title="性别：">
           <template #default>
-            <div class="info">{{ orderPeopleDetails.sex === 0? '男' : '女' }}</div>
+            <div class="info">
+              {{ orderPeopleDetails.sex === 0 ? '男' : '女' }}
+            </div>
           </template>
         </van-cell>
         <van-cell title="身份证：">
@@ -41,10 +43,9 @@
         </van-cell>
         <van-cell title="手机号：">
           <template #default>
-            <div
-              class="phone"
-              @click="toPhone(orderPeopleDetails.phone)"
-            >{{ orderPeopleDetails.phone }}</div>
+            <div class="phone" @click="toPhone(orderPeopleDetails.phone)">
+              {{ orderPeopleDetails.phone }}
+            </div>
           </template>
         </van-cell>
         <van-cell class="img_warp" title="证照：">
@@ -52,14 +53,20 @@
             <img
               v-for="(item, index) in orderPeopleDetails.deliveryPersonPics"
               :key="item.id"
-              :src="'https://jixi.mynatapp.cc/'+item.picAddress"
-              @click="imagePreview(orderPeopleDetails.deliveryPersonPics, index)"
+              :src="imgBaseUrl + item.picAddress"
+              @click="
+                imagePreview(orderPeopleDetails.deliveryPersonPics, index)
+              "
             />
           </template>
         </van-cell>
         <div v-if="state === '2'" class="btn_warp">
-          <van-button class="btn" type="primary" round @click="handleClick(1)">同意</van-button>
-          <van-button class="btn refuse" round @click="handleClick(0)">拒绝</van-button>
+          <van-button class="btn" type="primary" round @click="handleClick(1)"
+            >同意</van-button
+          >
+          <van-button class="btn refuse" round @click="handleClick(0)"
+            >拒绝</van-button
+          >
         </div>
       </div>
     </div>
@@ -73,13 +80,13 @@ import NavBar from '@/components/common/NavBar.vue'
 
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
       id: 0,
       state: 0,
-      orderPeopleDetails: {}
+      orderPeopleDetails: {},
     }
   },
   created() {
@@ -104,12 +111,12 @@ export default {
     },
     imagePreview(item, index) {
       const imgUrlList = []
-      item.forEach(e => {
-        imgUrlList.push('https://jixi.mynatapp.cc/' + e.picAddress)
+      item.forEach((e) => {
+        imgUrlList.push(this.imgBaseUrl + e.picAddress)
       })
       ImagePreview({
         images: imgUrlList,
-        startPosition: index
+        startPosition: index,
       })
     },
     // 处理拨打电话事件
@@ -120,10 +127,10 @@ export default {
     async handleClick(state) {
       const data = {
         id: this.id,
-        state
+        state,
       }
       const res = await getData('/site/delivery/person/state/update', data, {
-        showLoading: true
+        showLoading: true,
       })
       if (res.code === '0') {
         this.$toast.success('操作成功！')
@@ -131,8 +138,8 @@ export default {
         return false
       }
       this.$handleCode.handleCode(res)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

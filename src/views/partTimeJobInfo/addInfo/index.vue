@@ -17,7 +17,7 @@
         required
         clearable
         placeholder="简明扼要"
-        :rules="[{ required: true}]"
+        :rules="[{ required: true }]"
       />
       <van-field
         v-model.number="form.price"
@@ -34,7 +34,7 @@
         right-icon="arrow-down"
         placeholder="填写电话号码"
         required
-        :rules="[{ validator, message: '手机号码格式错误'  }]"
+        :rules="[{ validator, message: '手机号码格式错误' }]"
       >
         <template #right-icon>
           <div class="more" @click="isShowQQ = !isShowQQ">
@@ -60,7 +60,7 @@
         clearable
         required
         placeholder="有效时间单位天）"
-        :rules="[{ required: true}]"
+        :rules="[{ required: true }]"
       />
       <van-field
         class="textarea"
@@ -74,9 +74,13 @@
         maxlength="300"
         placeholder="请输入内容"
         show-word-limit
-        :rules="[{ required: true}]"
+        :rules="[{ required: true }]"
       />
-      <van-field v-if="type === 'add'" class="uploaderImg" label="附图(最多5张)：">
+      <van-field
+        v-if="type === 'add'"
+        class="uploaderImg"
+        label="附图(最多5张)："
+      >
         <template #input>
           <van-uploader
             v-model="uploaderImg"
@@ -89,8 +93,16 @@
         </template>
       </van-field>
       <div class="btn_warp">
-        <van-button v-if="type === 'add'" class="btn" round native-type="formSubmit">提交发布</van-button>
-        <van-button v-else class="btn" round native-type="formSubmit">更新信息</van-button>
+        <van-button
+          v-if="type === 'add'"
+          class="btn"
+          round
+          native-type="formSubmit"
+          >提交发布</van-button
+        >
+        <van-button v-else class="btn" round native-type="formSubmit"
+          >更新信息</van-button
+        >
       </div>
     </van-form>
   </div>
@@ -101,7 +113,7 @@ import { upData, upLogo } from '@/api/api.js'
 import NavBar from '@/components/common/NavBar.vue'
 export default {
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -118,10 +130,10 @@ export default {
         qq: '',
         effectiveTime: '',
         content: '',
-        siteJobPics: []
+        siteJobPics: [],
       },
       //   验证QQ号
-      pattern: /[1-9][0-9]{4,}/
+      pattern: /[1-9][0-9]{4,}/,
     }
   },
   created() {
@@ -159,8 +171,8 @@ export default {
       formData.append('jobImg', file.file)
       const res = await upLogo('/site/job/img', formData)
       console.log(res)
-      this.form.siteJobPics.push({ picAddress: res.data.filename })
       if (res.code === '0') {
+        this.form.siteJobPics.push({ picAddress: res.data.filename })
         file.status = 'done'
         return false
       }
@@ -176,7 +188,7 @@ export default {
     async formSubmit() {
       if (this.type === 'add') {
         const res = await upData('/site/job/info/add', this.form, {
-          showLoading: true
+          showLoading: true,
         })
         console.log(res)
         if (res.code === '0') {
@@ -189,7 +201,7 @@ export default {
         this.$handleCode.handleCode(res)
       }
       const res = await upData('/site/job/info/update', this.form, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       if (res.code === '0') {
@@ -200,11 +212,11 @@ export default {
         return false
       }
       this.$handleCode.handleCode(res)
-    }
+    },
   },
   beforeDestroy() {
     sessionStorage.removeItem('partTimeObj')
-  }
+  },
 }
 </script>
 <style lang="less" scoped>

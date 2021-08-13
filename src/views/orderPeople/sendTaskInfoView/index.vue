@@ -14,11 +14,12 @@
             taskDetailsObj.customerInfo.nickname
           }}</span>
         </div>
+        <!-- state状态(0已撤销1未支付2未接单3已接单4已完成并确认) -->
         <div class="status">
-          <div v-if="taskDetailsObj.state === 3">完成并确认</div>
-          <div v-else-if="taskDetailsObj.state === 2">已确认</div>
-          <div v-else-if="taskDetailsObj.state === 0" class="red">待支付</div>
-          <div v-else class="red">待接单</div>
+          <div v-if="taskDetailsObj.state === 4">完成并确认</div>
+          <div v-else-if="taskDetailsObj.state === 3">已接单</div>
+          <div v-else-if="taskDetailsObj.state === 1" class="red">待支付</div>
+          <div v-else-if="taskDetailsObj.state === 2" class="red">待接单</div>
         </div>
       </van-cell>
       <template
@@ -32,7 +33,9 @@
             <div class="text">起</div>
             <div class="info">
               <div class="text_info">
-                <span>小明</span>
+                <span>{{
+                  taskDetailsObj.deliveryOrderAddresses[0].customerName
+                }}</span>
                 &nbsp;/&nbsp;{{
                   taskDetailsObj.deliveryOrderAddresses[0].phone
                 }}
@@ -49,31 +52,39 @@
           起点电话：{{ taskDetailsObj.deliveryOrderAddresses[0].phone }}
           <van-icon name="phone-o" size="1rem" />
         </van-cell>
-        <van-cell class="cell2" is-link>
-          <div class="warp">
-            <div class="text text_da">达</div>
-            <div class="info">
-              <div class="text_info">
-                <span>小明</span>
-                &nbsp;/&nbsp;{{
-                  taskDetailsObj.deliveryOrderAddresses[1].phone
-                }}
-              </div>
-              <div class="address">
-                {{ taskDetailsObj.deliveryOrderAddresses[1].addressDetail }}
+        <template v-if="taskDetailsObj.deliveryOrderAddresses[1]">
+          <van-cell class="cell2" is-link>
+            <div class="warp">
+              <div class="text text_da">达</div>
+              <div class="info">
+                <div class="text_info">
+                  <span>{{
+                    taskDetailsObj.deliveryOrderAddresses[1].customerName
+                  }}</span>
+                  &nbsp;/&nbsp;{{
+                    taskDetailsObj.deliveryOrderAddresses[1].phone
+                  }}
+                </div>
+                <div class="address">
+                  {{ taskDetailsObj.deliveryOrderAddresses[1].addressDetail }}
+                </div>
               </div>
             </div>
-          </div>
-        </van-cell>
-        <van-cell
-          @click="toPhone(taskDetailsObj.deliveryOrderAddresses[1].phone)"
-        >
-          送达电话：{{ taskDetailsObj.deliveryOrderAddresses[1].phone }}
-          <van-icon name="phone-o" size="1rem" />
-        </van-cell>
+          </van-cell>
+          <van-cell
+            @click="toPhone(taskDetailsObj.deliveryOrderAddresses[1].phone)"
+          >
+            送达电话：{{ taskDetailsObj.deliveryOrderAddresses[1].phone }}
+            <van-icon name="phone-o" size="1rem" />
+          </van-cell>
+        </template>
       </template>
       <van-cell>预约时间：{{ taskDetailsObj.beforeTime }}</van-cell>
-      <van-cell>备注信息：{{ taskDetailsObj.otherMsg }}</van-cell>
+      <van-cell
+        >备注信息：{{
+          taskDetailsObj.otherMsg ? taskDetailsObj.otherMsg : '无'
+        }}</van-cell
+      >
       <div
         v-if="
           taskDetailsObj.deliveryOrderPics &&
@@ -86,7 +97,7 @@
           <img
             v-for="(item, index) in taskDetailsObj.deliveryOrderPics"
             :key="item.id"
-            :src="'https://jixi.mynatapp.cc/' + item.picAddress"
+            :src="imgBaseUrl + item.picAddress"
             @click="imagePreview(taskDetailsObj.deliveryOrderPics, index)"
           />
         </div>
@@ -108,16 +119,25 @@
         </div>
       </van-cell>
       <div class="btn_warp">
+        <!-- state状态(0已撤销1未支付2未接单3已接单4已完成并确认) -->
         <van-button
-          v-if="tabIndex === 1 && taskDetailsObj.state === 1"
+          v-if="tabIndex === 0 && taskDetailsObj.state === 2"
           class="btn"
           round
           type="primary"
           @click="confirmOrder"
           >确认接单</van-button
         >
+        <van-button
+          v-if="tabIndex === 1 && taskDetailsObj.state === 3"
+          class="btn"
+          round
+          type="primary"
+          @click="finishOrder"
+          >订单已完成</van-button
+        >
       </div>
-      <div v-if="taskDetailsObj.state === 0" class="tip">
+      <div v-if="taskDetailsObj.state === 1" class="tip">
         待支付，请返回我的界面完成支付
       </div>
     </div>
@@ -139,7 +159,7 @@ export default {
       siteId: JSON.parse(window.sessionStorage.getItem('siteInfo'))
         ? JSON.parse(window.sessionStorage.getItem('siteInfo')).id
         : 0,
-      id: null,
+      cOrderSn: '',
       tabIndex: Number(sessionStorage.getItem('orderPeopleTabsIndex'))
         ? Number(sessionStorage.getItem('orderPeopleTabsIndex'))
         : 0,
@@ -147,14 +167,15 @@ export default {
     }
   },
   created() {
-    this.id = this.$route.query.id
+    this.cOrderSn = this.$route.query.cOrderSn
     this.getTaskDetailsObj()
   },
   methods: {
+    // 获取订单详情
     async getTaskDetailsObj() {
       const res = await getData(
         '/site/delivery/order/id/find',
-        { id: this.id },
+        { cOrderSn: this.cOrderSn },
         { showLoading: true }
       )
       console.log(res)
@@ -166,19 +187,23 @@ export default {
     },
     // 发起确认订单
     async confirmOrder() {
-      const data = {
-        deliveryOrderId: Number(this.id),
-      }
-      const res = await upData('/site/delivery/order/receive', data, {
-        showLoading: true,
-      })
+      const res = await upData(
+        '/site/delivery/order/receive',
+        { cOrderSn: this.cOrderSn },
+        {
+          showLoading: true,
+        }
+      )
       console.log(res)
       if (res.code === '0') {
         this.$toast.success('接单成功！')
+        this.$router.go(-1)
         return false
       }
       this.$handleCode.handleCode(res)
     },
+    // 用户点击完成订单
+    finishOrder() {},
     // 处理拨打电话事件
     toPhone(phone) {
       window.location.href = 'tel:' + phone
@@ -186,7 +211,7 @@ export default {
     imagePreview(item, index) {
       const imgUrlList = []
       item.forEach((e) => {
-        imgUrlList.push('https://jixi.mynatapp.cc/' + e.picAddress)
+        imgUrlList.push(this.imgBaseUrl + e.picAddress)
       })
       ImagePreview({
         images: imgUrlList,
@@ -262,8 +287,8 @@ export default {
       display: flex;
       .text {
         flex: 1;
-        width: 2.5rem;
-        height: 2.5rem;
+        width: 2rem;
+        height: 2rem;
         display: flex;
         justify-content: center;
         align-items: center;

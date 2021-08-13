@@ -5,7 +5,7 @@
       :key="index+item.picAddress"
       @click="clickSwiperImg"
     >
-      <img v-lazy="'https://jixi.mynatapp.cc/' + item.picAddress" class="img" />
+      <img v-lazy="imgBaseUrl + item.picAddress" class="img" />
     </van-swipe-item>
   </van-swipe>
 </template>

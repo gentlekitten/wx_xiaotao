@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="goods_list" v-for="item in goodsList" :key="item.id">
-      <img :src="'https://jixi.mynatapp.cc/' + item.logoAddress" />
+      <img :src="imgBaseUrl + item.logoAddress" />
       <div class="goods_content">
         <div class="title">{{ item.productName }}</div>
         <van-icon v-show="isEdit" class="delete_icon" name="minus" @click="deleteGoods(item)" />

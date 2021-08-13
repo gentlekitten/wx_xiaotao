@@ -9,7 +9,7 @@
     <div class="shopping_warp">
       <div class="shopping">
         <div class="shop_img">
-          <img :src="'https://jixi.mynatapp.cc/'+shopInfoObj.shopPic" />
+          <img :src="imgBaseUrl + shopInfoObj.shopPic" />
         </div>
         <div class="shop_info">
           <div class="title">{{ shopInfoObj.shopName }}</div>
@@ -29,7 +29,9 @@
       <div class="cell_group">
         <div class="cell cell1">
           <div class="title">店铺电话</div>
-          <div class="value" @click="toUserPhone">{{ shopInfoObj.shopPhone }}</div>
+          <div class="value" @click="toUserPhone">
+            {{ shopInfoObj.shopPhone }}
+          </div>
         </div>
         <div class="cell cell1">
           <div class="title">店铺地址</div>
@@ -41,7 +43,9 @@
         </div>
         <div class="cell cell2">
           <div class="title">营业时间</div>
-          <div class="value">{{ shopInfoObj.startTime+'-'+shopInfoObj.endTime }}</div>
+          <div class="value">
+            {{ shopInfoObj.startTime + '-' + shopInfoObj.endTime }}
+          </div>
         </div>
         <div class="cell cell2">
           <div class="title">举报商家</div>
@@ -52,7 +56,11 @@
               size="1.5rem"
               @click="toPhone(shopInfoObj.sitePhone)"
             />
-            <van-icon name="warning-o" size="1.5rem" @click="toReportView(shopInfoObj.shopId)" />
+            <van-icon
+              name="warning-o"
+              size="1.5rem"
+              @click="toReportView(shopInfoObj.shopId)"
+            />
           </div>
         </div>
         <div class="cell3">
@@ -61,15 +69,19 @@
             <div class="text">营业执照</div>
             <van-image
               class="img"
-              :src="'https://jixi.mynatapp.cc/'+shopInfoObj.businessLicense"
-              @click="imagePreview('https://jixi.mynatapp.cc/'+shopInfoObj.businessLicense)"
+              :src="imgBaseUrl + shopInfoObj.businessLicense"
+              @click="imagePreview(imgBaseUrl + shopInfoObj.businessLicense)"
             />
           </div>
         </div>
       </div>
     </div>
     <!-- 分享遮蔽层 -->
-    <van-overlay style="z-index: 999;" :show="overlayIsShow" @click="overlayIsShow = false">
+    <van-overlay
+      style="z-index: 999"
+      :show="overlayIsShow"
+      @click="overlayIsShow = false"
+    >
       <overlay-item />
     </van-overlay>
   </div>
@@ -86,14 +98,14 @@ import OverlayItem from '@/components/snackShop/OverlayItem.vue'
 export default {
   components: {
     NavBar,
-    OverlayItem
+    OverlayItem,
   },
   data() {
     return {
       shopId: 0,
       overlayIsShow: false,
       rateValue: 0,
-      shopInfoObj: {}
+      shopInfoObj: {},
     }
   },
   created() {
@@ -129,18 +141,18 @@ export default {
       window.location.href = 'tel:' + phoneNum
     },
     // 跳转到举报界面
-    toReportView(id) {
-      this.$router.push(`/report?id=${id}`)
+    toReportView(shopId) {
+      this.$router.push(`/report?id=${shopId}`)
     },
     //   预览图片
     imagePreview(imgUrl) {
       const imgList = [imgUrl]
       ImagePreview({
         images: imgList,
-        startPosition: 0
+        startPosition: 0,
       })
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

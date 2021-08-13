@@ -88,8 +88,8 @@ export default {
     },
     // 保存首页轮播
     async saveForm() {
-      if (this.swiperImg.length < 1) {
-        this.$toast.fail('请上传轮播图再保存哦~')
+      if (this.form.siteInfoPics.length < 1) {
+        return this.$toast.fail('请上传轮播图再保存哦~')
       }
       for (let index = 0; index < this.swiperUrl.length; index++) {
         this.form.siteInfoPics[index].picLink = this.swiperUrl[index]

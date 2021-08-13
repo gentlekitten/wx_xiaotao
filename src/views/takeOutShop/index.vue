@@ -3,7 +3,11 @@
     <!-- 顶部导航 -->
     <nav-bar @toSearch="toSearch" @toPhone="toPhone" @toShare="toShare" />
     <!-- 顶部商店信息 -->
-    <top-shop-info :isCollect="isCollect" :shopInfoObj="shopInfoObj" @toCollect="toCollect" />
+    <top-shop-info
+      :isCollect="isCollect"
+      :shopInfoObj="shopInfoObj"
+      @toCollect="toCollect"
+    />
     <!-- tab栏信息 -->
     <tabs-index
       :shop-id="id"
@@ -18,23 +22,38 @@
       @sidebarChange="sidebarChange"
       @handleAdd="handleAdd"
       @cartSubmit="cartSubmit"
-      @clickTab="clickTab"
+      @changeTab="changeTab"
       @clickCommnetImg="clickCommnetImg"
+      @onLoadData="onLoadData"
       @clearCart="clearCart"
       @clickImg="clickImg"
       @deleteFood="deleteFood"
       @shopNumChange="shopNumChange"
     />
     <!-- 搜索弹出层 -->
-    <van-popup class="popup" v-model="searchIsShow" closeable round position="top">
+    <van-popup
+      class="popup"
+      v-model="searchIsShow"
+      closeable
+      round
+      position="top"
+    >
       <search-popup @clickShopSearch="clickShopSearch" />
     </van-popup>
     <!-- 促销公告遮蔽层或店铺不营业遮蔽层提示 -->
-    <van-overlay class="overlay" :show="noticeIsShow" @click="noticeIsShow = false">
+    <van-overlay
+      class="overlay"
+      :show="noticeIsShow"
+      @click="noticeIsShow = false"
+    >
       <notice-item :shop-info-obj="shopInfoObj" />
     </van-overlay>
     <!-- 分享遮蔽层 -->
-    <van-overlay class="overlay" :show="overlayIsShow" @click="overlayIsShow = false">
+    <van-overlay
+      class="overlay"
+      :show="overlayIsShow"
+      @click="overlayIsShow = false"
+    >
       <overlay-item />
     </van-overlay>
   </div>
@@ -60,7 +79,7 @@ export default {
     TabsIndex,
     OverlayItem,
     SearchPopup,
-    NoticeItem
+    NoticeItem,
   },
   // 因为外卖店铺和零食铺店铺有很多共用模板 所以用mixins
   mixins: [takeOutShop],
@@ -71,8 +90,9 @@ export default {
     this.id = this.$route.query.id
     this.getShopInfo()
     this.getGoodsList()
+    this.getCommentList()
   },
-  methods: {}
+  methods: {},
 }
 </script>
 <style lang="less" scoped>

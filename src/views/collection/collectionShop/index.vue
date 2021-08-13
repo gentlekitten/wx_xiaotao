@@ -24,11 +24,13 @@
               :key="index + item.shopId"
             >
               <template v-slot:title>
-                <div class="shop_title" @click="toFoodShopping(item)">{{ item.shopName }}</div>
+                <div class="shop_title" @click="toFoodShopping(item)">
+                  {{ item.shopName }}
+                </div>
               </template>
               <template v-slot:thumb>
                 <van-image
-                  :src="'https://jixi.mynatapp.cc/'+item.shopPic"
+                  :src="imgBaseUrl + item.shopPic"
                   @click="toFoodShopping(item)"
                 />
               </template>
@@ -38,7 +40,10 @@
                   type="danger"
                   v-if="item.shopDiscount && item.shopDiscount.discountPrice"
                   @click="toFoodShopping(item)"
-                >满{{ item.requirePrice }}减￥{{ item.discountPrice }}</van-tag>
+                  >满{{ item.requirePrice }}减￥{{
+                    item.discountPrice
+                  }}</van-tag
+                >
               </template>
               <template v-slot:desc>
                 <div class="desc" @click="toFoodShopping(item)">
@@ -66,13 +71,20 @@
                 </div>
                 <div class="shop_status">
                   <div class="text" v-if="item.shopState === 1">营业中</div>
-                  <div class="text stop" v-else-if="item.shopState === 2">停业中</div>
+                  <div class="text stop" v-else-if="item.shopState === 2">
+                    停业中
+                  </div>
                   <div class="text stop" v-else>打烊中</div>
                 </div>
               </template>
               <template v-slot:footer>
                 <div class="delete_btn">
-                  <van-button class="btn" round @click="deleteFoodShopping(item)">移除</van-button>
+                  <van-button
+                    class="btn"
+                    round
+                    @click="deleteFoodShopping(item)"
+                    >移除</van-button
+                  >
                 </div>
               </template>
             </shop-card>
@@ -108,7 +120,7 @@ export default {
     NavBar,
     Tabs,
     ShopCard,
-    StoreItem
+    StoreItem,
   },
   data() {
     return {
@@ -120,15 +132,15 @@ export default {
       ),
       tabsList: [
         {
-          title: '外卖 / 零食店铺'
+          title: '外卖 / 零食店铺',
         },
         {
-          title: '商品店铺'
-        }
+          title: '商品店铺',
+        },
       ],
       shopList: [],
       //   商品店铺列表
-      shoppingList: []
+      shoppingList: [],
     }
   },
   created() {
@@ -139,12 +151,12 @@ export default {
     async getShopDataList() {
       const data = {
         pageIndex: this.pageIndex,
-        pageLimit: 10
+        pageLimit: 10,
       }
       const url =
         this.tabIndex === 0 ? '/shop/record/snack/find' : '/shop/record/find'
       const res = await getData(url, data, {
-        showLoading: true
+        showLoading: true,
       })
       console.log(res)
       this.loading = false
@@ -215,8 +227,8 @@ export default {
     },
     toShopping(item) {
       this.$router.push(`/shoppingShop?id=` + item.shopId)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>
