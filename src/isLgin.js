@@ -16,7 +16,7 @@ NProgress.configure({
 // 外卖删除sessionStorage名单
 const takeOutList = ['ShopInfoView', 'SnackShop', 'TakeOutShop']
 // 用户没在站点路由无法点击名单
-const noSiteRouterList = ['/snackShopList', '/expressage', '/takeOutShopList', '/secondaryMarket', '/partTimeJobInfo', '/orderPeople']
+const noSiteRouterList = ['/snackShopList', '/expressage', '/takeOutShopList', '/partTimeJobInfo', '/orderPeople']
 
 router.beforeEach(async (to, from, next) => {
   // let backlen = history.length - 1

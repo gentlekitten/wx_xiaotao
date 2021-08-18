@@ -50,19 +50,19 @@ export default {
           img: 'https://img.yzcdn.cn/vant/cat.jpeg',
           title: '代取代送',
           lable: '取快递、寄快递、送礼物...',
-          url: 'taskSend?id=0&title=',
+          url: 'taskSend?id=0&title=代取代送',
         },
         {
           img: 'https://img.yzcdn.cn/vant/cat.jpeg',
           title: '跑腿代办',
           lable: '买饮料、买零食、代排队...',
-          url: 'taskSend?id=1&title=',
+          url: 'taskSend?id=1&title=跑腿代办',
         },
         {
           img: 'https://img.yzcdn.cn/vant/cat.jpeg',
           title: '全能服务',
           lable: '陪伴谈心、道早晚安...',
-          url: 'taskSend?id=2&title=',
+          url: 'taskSend?id=2&title=全能服务',
         },
       ],
     }

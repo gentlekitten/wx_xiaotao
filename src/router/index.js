@@ -61,6 +61,14 @@ const routes = [
     ]
   },
   {
+    path: '/agreement',
+    name: 'Agreement',
+    component: () => import('@/views/agreement/index.vue'),
+    meta: {
+      keepAlive: false // 不需要被缓存
+    }
+  },
+  {
     path: '/user/userInfo',
     name: 'UserInfo',
     component: () => import('@/views/userInfo/index.vue'),

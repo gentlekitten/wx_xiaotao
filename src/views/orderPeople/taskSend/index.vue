@@ -126,7 +126,7 @@
     <!-- 条款 -->
     <div class="rules">
       下单即表示你已阅读并同意
-      <span>《服务协议》</span>
+      <span @click="toAgressmentDetail">《领跑者协议》</span>
     </div>
     <!-- 发布任务底部 -->
     <van-submit-bar
@@ -551,6 +551,10 @@ export default {
         return false
       }
       this.$handleCode.handleCode(res)
+    },
+    // 查看协议
+    toAgressmentDetail() {
+      this.$router.push('/agreement?type=0')
     },
   },
 }

@@ -83,7 +83,6 @@
       <van-popup
         class="popup"
         v-model="popupIsShow"
-        :close-on-click-overlay="false"
         round
       >
         <div class="popup_item">

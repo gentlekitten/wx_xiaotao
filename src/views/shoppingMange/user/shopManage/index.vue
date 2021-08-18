@@ -422,8 +422,8 @@ export default {
       formData.append('shopImg', file.file)
       const res = await upLogo('/shop/img', formData)
       console.log(res)
-      this.form.shopPic = res.data.filename
       if (res.code === '0') {
+        this.form.shopPic = res.data.filename
         file.status = 'done'
         return false
       }
@@ -439,8 +439,8 @@ export default {
       formData.append('shopImg', file.file)
       const res = await upLogo('/shop/img', formData)
       console.log(res)
-      this.form.businessLicense = res.data.filename
       if (res.code === '0') {
+        this.form.businessLicense = res.data.filename
         file.status = 'done'
         return false
       }

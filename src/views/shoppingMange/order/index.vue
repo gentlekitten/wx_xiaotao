@@ -9,15 +9,35 @@
         shape="round"
         placeholder="请输入搜索关键词"
       />
-      <van-button class="search_btn" round @click="searchConfirm">搜索</van-button>
+      <van-button class="search_btn" round @click="searchConfirm"
+        >搜索</van-button
+      >
     </div>
-    <tabs :tab-list="tabsList" :sticky="true" tabsIndexName="tabActiveOrderPeopleOrder">
-      <order-list
-        v-if="shopManageId === 3"
-        :order-list="orderList"
-        @toOrderDetails="toOrderDetails"
-      />
-      <snack-order-list v-else :order-list="snackOrderList" @toOrderDetails="toOrderDetails" />
+    <tabs
+      :tab-list="tabsList"
+      :sticky="true"
+      tabsIndexName="tabActiveOrderPeopleOrder"
+    >
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        finished-text="哼，我也是有底线的~"
+        :immediate-check="false"
+        :offset="0"
+        @load="onLoadData"
+      >
+        <order-list
+          v-if="shopManageId === 3"
+          :order-list="orderList"
+          @toOrderDetails="toOrderDetails"
+        />
+        <snack-order-list
+          v-else
+          :order-list="snackOrderList"
+          @toOrderDetails="toOrderDetails"
+        />
+      </van-list>
+      <!-- <van-empty v-else description="您还没有此类订单哦~"></van-empty -->
     </tabs>
   </div>
 </template>
@@ -34,7 +54,7 @@ export default {
     Tabs,
     TastList,
     OrderList,
-    SnackOrderList
+    SnackOrderList,
   },
   data() {
     return {
@@ -42,23 +62,23 @@ export default {
       shopManageId: Number(window.sessionStorage.getItem('shopManageId')),
       tabsList: [
         {
-          title: '全部单'
+          title: '全部单',
         },
         {
-          title: '待受理'
+          title: '待受理',
         },
         {
-          title: '已受理'
+          title: '已受理',
         },
         {
-          title: '配送中'
+          title: '配送中',
         },
         {
-          title: '已完成'
+          title: '已完成',
         },
         {
-          title: '被撤销'
-        }
+          title: '被撤销',
+        },
       ],
       myTaskList: [
         {
@@ -69,7 +89,7 @@ export default {
           timeRequire: '今天',
           detailedTime: '尽快',
           price: '5',
-          status: 200
+          status: 200,
         },
         {
           id: 1,
@@ -79,7 +99,7 @@ export default {
           timeRequire: '今天',
           detailedTime: '尽快',
           price: '5',
-          status: 201
+          status: 201,
         },
         {
           id: 2,
@@ -89,7 +109,7 @@ export default {
           timeRequire: '今天',
           detailedTime: '尽快',
           price: '5',
-          status: 201
+          status: 201,
         },
         {
           id: 3,
@@ -99,36 +119,34 @@ export default {
           timeRequire: '今天',
           detailedTime: '尽快',
           price: '5',
-          status: 200
-        }
+          status: 200,
+        },
       ],
       orderList: [
         {
           id: 0,
           status: 200,
           img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name:
-            '卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣',
+          name: '卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣',
           price: '9.9',
           num: '1',
           type: '黑色；L码',
           totalPrice: '9.9',
-          realPrice: '9.9'
-        }
+          realPrice: '9.9',
+        },
       ],
       snackOrderList: [
         {
           id: 0,
           status: 200,
           img: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-          name:
-            '卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣',
+          name: '卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣卫衣',
           price: '9.9',
           num: '1',
           totalPrice: '9.9',
-          realPrice: '9.9'
-        }
-      ]
+          realPrice: '9.9',
+        },
+      ],
     }
   },
   methods: {
@@ -138,8 +156,15 @@ export default {
     },
     toOrderDetails() {
       this.$router.push('/orderDetailsOfManage')
-    }
-  }
+    },
+    // 上拉加载数据
+    onLoadData() {
+      // 解决点击tab会重复发送请求
+      if (this.orderList.length > 0) {
+        this.getUserOrder(this.tabIndex)
+      }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>
