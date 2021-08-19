@@ -303,26 +303,26 @@ export default {
       console.log('config', data)
       const _that = this
       wx.config({
-        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
         appId: data.appId, // 必填，公众号的唯一标识
         timestamp: data.timestamp, // 必填，生成签名的时间戳
         nonceStr: data.nonceStr, // 必填，生成签名的随机串
         signature: data.signature, // 必填，签名
-        jsApiList: ['getLocation', 'hideMenuItems'], // 必填，需要使用的JS接口列表
-      })
-      wx.checkJsApi({
-        jsApiList: ['getLocation'],
-        success: function (res) {
-          if (res.checkResult.getLocation === false) {
-            this.$toast.fail(
-              '你的微信版本太低，不支持微信JS接口，请升级到最新的微信版本！'
-            )
-            return
-          }
-        },
-        fail: function (res) {},
+        jsApiList: ['checkJsApi', 'getLocation'], // 必填，需要使用的JS接口列表
       })
       wx.ready(() => {
+        wx.checkJsApi({
+          jsApiList: ['getLocation'],
+          success: function (res) {
+            if (res.checkResult.getLocation === false) {
+              this.$toast.fail(
+                '你的微信版本太低，不支持微信JS接口，请升级到最新的微信版本！'
+              )
+              return
+            }
+          },
+          fail: function (res) {},
+        })
         wx.getLocation({
           type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
           success(res) {
@@ -350,35 +350,9 @@ export default {
             console.log('cancel')
           },
         })
-        wx.hideMenuItems({
-          menuList: [
-            'menuItem:editTag',
-            'menuItem:delete',
-            'menuItem:copyUrl',
-            'menuItem:originPage',
-            'menuItem:readMode',
-            'menuItem:openWithQQBrowser',
-            'menuItem:openWithSafari',
-            'menuItem:share:email',
-            'menuItem:share:brand',
-            'menuItem:share:QZone',
-            'menuItem:share:facebook',
-            'menuItem:share:weiboApp',
-          ], // 要隐藏的菜单项，只能隐藏“传播类”和“保护类”按钮，所有menu项见附录3
-        })
-        // 自定义“分享给朋友”及“分享到QQ”按钮的分享内容
-        // wx.updateAppMessageShareData({
-        //   title: '校淘校园·为校而生', // 分享标题
-        //   desc: '校淘校园·为校而生', // 分享描述
-        //   link: '', // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-        //   imgUrl: '', // 分享图标
-        //   success: function() {
-        //     // 设置成功
-        //   }
-        // })
       })
       wx.error((res) => {
-        _that.$toast.fail('wx.config error')
+        _that.$toast.fail('wx.config error:'+res)
       })
     },
     // 获取站点信息(根据定位)

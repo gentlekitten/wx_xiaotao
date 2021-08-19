@@ -67,7 +67,6 @@ import ExpressOrder from '@/components/orderList/ExpressOrder.vue'
 import OtherOrder from '@/components/orderList/OtherOrder.vue'
 
 import onBridgeReady from '@/components/mixins/onBridgeReady.js'
-import OtherOrder from '../../components/orderList/OtherOrder.vue'
 
 export default {
   components: {
