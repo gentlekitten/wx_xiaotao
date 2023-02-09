@@ -1,14 +1,21 @@
 # wx-xiaotao
 
-### 介绍
-小淘校园，使用vue2全家桶、高德地图、Echarts等做的校园电商公众号平台前端部分。
+### introduce
+Xiaotao campus uses the front end of the campus e-commerce official account platform made by vue2 Family Bucket, Gaode Map, Echarts, etc.
 
-包含的功能有：
-    零食铺、代寄代取快递、领跑者、美妆、数码、二手市场、校园外卖、周边兼职和商家的后台和站长后台等。
-    商家后台包含开店、管理店铺和查看店铺销售等。
-    站长后台可以划分区域指定站点等
 
-实现了微信登录、微信支付。
+
+Included functions are:
+
+Snack shop, express delivery, frontrunner, beauty, digital, secondary market, campus takeaway, surrounding part-time and business backstage and stationmaster backstage.
+
+The merchant background includes opening, managing and checking the sales of stores.
+
+The stationmaster background can divide regions and specify stations
+
+
+
+Realized WeChat login and WeChat payment.
 
 ## Project setup
 ```
