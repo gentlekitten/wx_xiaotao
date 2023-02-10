@@ -7,6 +7,14 @@
 
 实现了微信登录、微信支付。
 
+### 部分效果图
+
+![输入图片说明](https://gitee.com/xiaoming23/wx-xiaotao/raw/main/public/%E9%A6%96%E9%A1%B5.jpg)
+
+![输入图片说明](https://gitee.com/xiaoming23/wx-xiaotao/raw/main/public/%E5%BF%AB%E9%80%92.jpg)
+
+![输入图片说明](https://gitee.com/xiaoming23/wx-xiaotao/raw/main/public/%E9%9B%B6%E9%A3%9F.jpg)
+
 ## Project setup
 ```
 npm install
